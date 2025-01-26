@@ -23,18 +23,18 @@ export default {
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "#F8FAFC",
-        foreground: "#1E293B",
+        foreground: "#334155",
         primary: {
-          DEFAULT: "#60A5FA",
+          DEFAULT: "#0EA5E9",
           foreground: "#FFFFFF",
         },
         secondary: {
           DEFAULT: "#F1F5F9",
-          foreground: "#1E293B",
+          foreground: "#334155",
         },
         accent: {
           DEFAULT: "#FDE68A",
-          foreground: "#1E293B",
+          foreground: "#334155",
         },
         muted: {
           DEFAULT: "#F1F5F9",
@@ -42,15 +42,15 @@ export default {
         },
         popover: {
           DEFAULT: "#FFFFFF",
-          foreground: "#1E293B",
+          foreground: "#334155",
         },
         card: {
           DEFAULT: "#FFFFFF",
-          foreground: "#1E293B",
+          foreground: "#334155",
         },
         dialog: {
           DEFAULT: "#FFFFFF",
-          foreground: "#1E293B",
+          foreground: "#334155",
         }
       },
       fontFamily: {
@@ -80,6 +80,9 @@ export default {
       animation: {
         "fade-up": "fade-up 0.5s ease-out",
         "fade-in": "fade-in 0.3s ease-out",
+      },
+      boxShadow: {
+        'glass': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
       },
     },
   },
