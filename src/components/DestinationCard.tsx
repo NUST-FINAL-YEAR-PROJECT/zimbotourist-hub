@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
 
 interface DestinationCardProps {
   image: string;
@@ -8,17 +7,17 @@ interface DestinationCardProps {
   description: string;
   price: string;
   id?: string;
+  onClick?: () => void;
 }
 
-export const DestinationCard = ({ image, title, description, price, id }: DestinationCardProps) => {
-  const navigate = useNavigate();
-
+export const DestinationCard = ({ image, title, description, price, onClick }: DestinationCardProps) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="bg-white rounded-lg overflow-hidden shadow-lg"
+      className="bg-white rounded-lg overflow-hidden shadow-lg cursor-pointer"
+      onClick={onClick}
     >
       <div className="relative aspect-[4/3]">
         <img src={image} alt={title} className="w-full h-full object-cover" />
@@ -31,9 +30,9 @@ export const DestinationCard = ({ image, title, description, price, id }: Destin
         <p className="text-muted-foreground line-clamp-3">{description}</p>
         <Button 
           className="mt-4 w-full"
-          onClick={() => navigate(`/booking/${id}`)}
+          variant="outline"
         >
-          Book Now
+          View Details
         </Button>
       </div>
     </motion.div>
