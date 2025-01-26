@@ -134,7 +134,7 @@ const DashboardHome = ({ profile }: { profile: Profile }) => {
   );
 };
 
-const BookingsList = ({ bookings }: { bookings: any[] }) => {
+const BookingsList = ({ bookings }: { bookings: Booking[] }) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -199,16 +199,9 @@ const BookingsList = ({ bookings }: { bookings: any[] }) => {
               <TableCell>
                 <div className="flex items-center gap-2">
                   {booking.status === 'pending' && (
-                    <a 
-                      href="https://www.paynow.co.zw/Payment/BillPaymentLink/?q=aWQ9MTk4NTcmYW1vdW50PTAuMDAmYW1vdW50X3F1YW50aXR5PTAuMDA"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-block"
-                    >
-                      <Button variant="default" size="sm">
-                        Pay Now
-                      </Button>
-                    </a>
+                    <Button variant="default" size="sm">
+                      Pay Now
+                    </Button>
                   )}
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
@@ -254,6 +247,8 @@ export const Dashboard = () => {
   const { data: bookings, isLoading: isLoadingBookings } = useQuery({
     queryKey: ["bookings"],
     queryFn: async () => {
+      if (!profile?.id) throw new Error("No profile ID");
+      
       const { data, error } = await supabase
         .from("bookings")
         .select(`
@@ -261,7 +256,7 @@ export const Dashboard = () => {
           destinations (name, image_url),
           events (title, image_url)
         `)
-        .eq('user_id', profile?.id);
+        .eq('user_id', profile.id);
 
       if (error) throw error;
       return data as (Booking & {
