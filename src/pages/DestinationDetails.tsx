@@ -123,13 +123,14 @@ export const DestinationDetails = () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: index * 0.2 }}
-                    className="relative h-[300px]"
+                    className="relative aspect-[16/9] w-full"
                   >
                     <img
                       src={image}
                       alt={`${destination.name} - Image ${index + 1}`}
-                      className="w-full h-full object-cover"
+                      className="absolute inset-0 w-full h-full object-contain bg-black/5"
                     />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                   </motion.div>
                 </CarouselItem>
               ))}
