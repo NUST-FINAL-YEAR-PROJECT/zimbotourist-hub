@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { motion } from "framer-motion";
@@ -24,8 +24,17 @@ export const DestinationDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { profile } = useProfile();
+  const [userId, setUserId] = useState<string | undefined>();
+  const { data: profile } = useProfile(userId);
   const [isBooking, setIsBooking] = useState(false);
+
+  useEffect(() => {
+    const getUserId = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUserId(user?.id);
+    };
+    getUserId();
+  }, []);
 
   const { data: destination, isLoading } = useQuery({
     queryKey: ["destination", id],
@@ -105,7 +114,8 @@ export const DestinationDetails = () => {
     );
   }
 
-  const images = [destination.image_url, ...(destination.additional_images || [])].filter(Boolean);
+  // Since we don't have additional_images in our type, we'll just use the main image
+  const images = destination.image_url ? [destination.image_url] : [];
 
   return (
     <div className="container mx-auto p-4 space-y-6">
