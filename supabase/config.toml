@@ -1,8 +1,1 @@
 project_id = "gduzxexxpbibimtiycur"
-
-[functions]
-[functions.create-payment]
-verify_jwt = true
-
-[functions.check-payment]
-verify_jwt = true
