@@ -7,7 +7,6 @@ import { DestinationExplorer } from "@/components/DestinationExplorer";
 import { DestinationCard } from "@/components/DestinationCard";
 import { EventsList } from "@/components/EventsList";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import type { Profile, Booking } from "@/types/models";
 import { Bell, BellDot, CalendarDays, User, Trash2 } from "lucide-react";
@@ -43,6 +42,18 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+
+// Define the extended booking type that includes joined data
+interface BookingWithDetails extends Booking {
+  destinations?: {
+    name: string;
+    image_url: string | null;
+  } | null;
+  events?: {
+    title: string;
+    image_url: string | null;
+  } | null;
+}
 
 const DashboardHome = ({ profile }: { profile: Profile }) => {
   const { data: destinations, isLoading: isLoadingDestinations } = useDestinations();
@@ -134,7 +145,7 @@ const DashboardHome = ({ profile }: { profile: Profile }) => {
   );
 };
 
-const BookingsList = ({ bookings }: { bookings: Booking[] }) => {
+const BookingsList = ({ bookings }: { bookings: BookingWithDetails[] }) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -259,10 +270,7 @@ export const Dashboard = () => {
         .eq('user_id', profile.id);
 
       if (error) throw error;
-      return data as (Booking & {
-        destinations: { name: string; image_url: string | null } | null;
-        events: { title: string; image_url: string | null } | null;
-      })[];
+      return data as BookingWithDetails[];
     },
     enabled: !!profile?.id,
   });
