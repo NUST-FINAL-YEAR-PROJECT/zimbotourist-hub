@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 interface DestinationCardProps {
   image: string;
@@ -8,7 +9,6 @@ interface DestinationCardProps {
   price: string;
   id?: string;
   onClick?: () => void;
-  onViewDetails?: () => void;
 }
 
 export const DestinationCard = ({ 
@@ -16,12 +16,16 @@ export const DestinationCard = ({
   title, 
   description, 
   price, 
-  onClick,
-  onViewDetails 
+  id,
+  onClick 
 }: DestinationCardProps) => {
-  const handleButtonClick = (e: React.MouseEvent) => {
+  const navigate = useNavigate();
+
+  const handleViewDetails = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (onViewDetails) onViewDetails();
+    if (id) {
+      window.open(`/destination/${id}`, '_blank');
+    }
   };
 
   return (
@@ -44,7 +48,7 @@ export const DestinationCard = ({
         <Button 
           className="mt-4 w-full"
           variant="outline"
-          onClick={handleButtonClick}
+          onClick={handleViewDetails}
         >
           View Details
         </Button>
