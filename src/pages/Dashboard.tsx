@@ -15,33 +15,110 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { useQuery } from "@tanstack/react-query";
 
-// Separate components for each route
-const DashboardHome = ({ profile }: { profile: Profile }) => (
-  <Card className="p-6 bg-white shadow-lg rounded-xl border-none">
-    <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
-      <div className="relative">
-        <Avatar className="h-24 w-24 ring-4 ring-primary/10">
-          <AvatarImage src={profile.avatar_url || undefined} />
-          <AvatarFallback className="bg-primary/5 text-primary text-xl">
-            {profile.email[0].toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
-        <div className="absolute -bottom-2 -right-2 bg-primary text-white p-2 rounded-full">
-          <User className="h-4 w-4" />
+const DashboardHome = ({ profile }: { profile: Profile }) => {
+  const { data: destinations, isLoading: isLoadingDestinations } = useDestinations();
+  const { data: events, isLoading: isLoadingEvents } = useEvents();
+  const navigate = useNavigate();
+
+  // Get the most recent 3 destinations and events
+  const popularDestinations = destinations?.slice(0, 3) || [];
+  const upcomingEvents = events?.slice(0, 3) || [];
+
+  return (
+    <div className="space-y-8">
+      <Card className="p-6 bg-white shadow-lg rounded-xl border-none">
+        <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
+          <div className="relative">
+            <Avatar className="h-24 w-24 ring-4 ring-primary/10">
+              <AvatarImage src={profile.avatar_url || undefined} />
+              <AvatarFallback className="bg-primary/5 text-primary text-xl">
+                {profile.email[0].toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div className="absolute -bottom-2 -right-2 bg-primary text-white p-2 rounded-full">
+              <User className="h-4 w-4" />
+            </div>
+          </div>
+          <div className="text-center md:text-left">
+            <h2 className="text-2xl font-bold text-gray-900">{profile.username || 'Welcome!'}</h2>
+            <p className="text-muted-foreground">{profile.email}</p>
+            <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                {profile.role}
+              </span>
+            </div>
+          </div>
         </div>
-      </div>
-      <div className="text-center md:text-left">
-        <h2 className="text-2xl font-bold text-gray-900">{profile.username || 'Welcome!'}</h2>
-        <p className="text-muted-foreground">{profile.email}</p>
-        <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
-            {profile.role}
-          </span>
-        </div>
+      </Card>
+
+      <div className="space-y-6">
+        <section>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-bold">Popular Destinations</h2>
+            <button 
+              onClick={() => navigate('/dashboard/destinations')}
+              className="text-primary hover:underline"
+            >
+              View all
+            </button>
+          </div>
+          {isLoadingDestinations ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[1, 2, 3].map((i) => (
+                <Skeleton key={i} className="h-[300px] w-full" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {popularDestinations.map((destination) => (
+                <DestinationCard
+                  key={destination.id}
+                  id={destination.id}
+                  image={destination.image_url || "https://images.unsplash.com/photo-1501286353178-1ec881214838"}
+                  title={destination.name}
+                  description={destination.description || ""}
+                  price={`$${destination.price}`}
+                />
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-bold">Upcoming Events</h2>
+            <button 
+              onClick={() => navigate('/dashboard/events')}
+              className="text-primary hover:underline"
+            >
+              View all
+            </button>
+          </div>
+          {isLoadingEvents ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[1, 2, 3].map((i) => (
+                <Skeleton key={i} className="h-[300px] w-full" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {upcomingEvents.map((event) => (
+                <DestinationCard
+                  key={event.id}
+                  id={event.id}
+                  image={event.image_url || "https://images.unsplash.com/photo-1472396961693-142e6e269027"}
+                  title={event.title}
+                  description={event.description || ""}
+                  price={`$${event.price}`}
+                />
+              ))}
+            </div>
+          )}
+        </section>
       </div>
     </div>
-  </Card>
-);
+  );
+};
 
 const BookingsList = ({ bookings }: { bookings: any[] }) => (
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
