@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
 import { useProfile } from "@/hooks/useProfile";
@@ -30,11 +30,20 @@ type ProfileFormValues = {
 };
 
 export const ProfilePage = () => {
-  const { data: profile, isLoading } = useProfile(supabase.auth.getUser().then(res => res.data.user?.id));
+  const [userId, setUserId] = useState<string | undefined>();
+  const { data: profile, isLoading } = useProfile(userId);
   const [isUploading, setIsUploading] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const getUserId = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUserId(user?.id);
+    };
+    getUserId();
+  }, []);
 
   const form = useForm<ProfileFormValues>({
     defaultValues: {
@@ -145,7 +154,7 @@ export const ProfilePage = () => {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || !userId) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <Loader2 className="h-8 w-8 animate-spin" />
