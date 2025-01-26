@@ -54,7 +54,7 @@ export const ProfilePage = () => {
 
   const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file) return;
+    if (!file || !userId) return;
 
     if (!file.type.startsWith('image/')) {
       toast({
@@ -68,7 +68,7 @@ export const ProfilePage = () => {
     try {
       setIsUploading(true);
       const fileExt = file.name.split('.').pop();
-      const filePath = `${profile?.id}.${fileExt}`;
+      const filePath = `${userId}/${crypto.randomUUID()}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from('avatars')
