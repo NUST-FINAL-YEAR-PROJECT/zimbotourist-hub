@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DestinationCard } from "@/components/DestinationCard";
+import { motion } from "framer-motion";
+import { MapPin, Calendar, Clock, Star } from "lucide-react";
 
 export const DestinationDetails = () => {
   const { id } = useParams();
@@ -76,85 +78,137 @@ export const DestinationDetails = () => {
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <div className="max-w-5xl mx-auto space-y-8">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="max-w-5xl mx-auto space-y-8"
+      >
         <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold">{destination.name}</h1>
-          <Button variant="outline" onClick={() => navigate("/dashboard/destinations")}>
+          <div>
+            <motion.h1 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="text-4xl md:text-5xl font-display font-bold text-foreground mb-2"
+            >
+              {destination.name}
+            </motion.h1>
+            <div className="flex items-center text-muted-foreground">
+              <MapPin className="w-4 h-4 mr-2" />
+              <span>{destination.location}</span>
+            </div>
+          </div>
+          <Button 
+            variant="outline" 
+            onClick={() => navigate("/dashboard/destinations")}
+            className="hover:bg-primary hover:text-white transition-colors"
+          >
             Back to Destinations
           </Button>
         </div>
 
-        <div className="relative rounded-lg overflow-hidden bg-white shadow-sm">
-          <div className="max-h-[400px] flex items-center justify-center">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="glass-card overflow-hidden"
+        >
+          <div className="relative h-[400px]">
             <img
               src={destination.image_url || "/placeholder.svg"}
               alt={destination.name}
-              className="object-contain w-full h-full"
-              style={{ maxHeight: "400px" }}
+              className="w-full h-full object-cover"
             />
           </div>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-xl font-semibold mb-2">Description</h3>
-              <p className="text-muted-foreground">{destination.description}</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="space-y-6"
+          >
+            <div className="glass-card p-6">
+              <h3 className="text-2xl font-display font-semibold mb-4">About this destination</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                {destination.description}
+              </p>
             </div>
 
             {destination.best_time_to_visit && (
-              <div>
-                <h3 className="text-xl font-semibold mb-2">Best Time to Visit</h3>
+              <div className="glass-card p-6">
+                <div className="flex items-center mb-4">
+                  <Calendar className="w-5 h-5 mr-2 text-primary" />
+                  <h3 className="text-xl font-display font-semibold">Best Time to Visit</h3>
+                </div>
                 <p className="text-muted-foreground">{destination.best_time_to_visit}</p>
               </div>
             )}
 
             {destination.duration_recommended && (
-              <div>
-                <h3 className="text-xl font-semibold mb-2">Recommended Duration</h3>
+              <div className="glass-card p-6">
+                <div className="flex items-center mb-4">
+                  <Clock className="w-5 h-5 mr-2 text-primary" />
+                  <h3 className="text-xl font-display font-semibold">Recommended Duration</h3>
+                </div>
                 <p className="text-muted-foreground">{destination.duration_recommended}</p>
               </div>
             )}
-          </div>
+          </motion.div>
 
-          <div className="space-y-4">
+          <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="space-y-6"
+          >
             {destination.activities && destination.activities.length > 0 && (
-              <div>
-                <h3 className="text-xl font-semibold mb-2">Activities</h3>
-                <ul className="list-disc list-inside text-muted-foreground">
+              <div className="glass-card p-6">
+                <h3 className="text-2xl font-display font-semibold mb-4">Activities</h3>
+                <ul className="space-y-2">
                   {destination.activities.map((activity, index) => (
-                    <li key={index}>{activity}</li>
+                    <li key={index} className="flex items-center text-muted-foreground">
+                      <Star className="w-4 h-4 mr-2 text-primary" />
+                      {activity}
+                    </li>
                   ))}
                 </ul>
               </div>
             )}
 
             {destination.amenities && destination.amenities.length > 0 && (
-              <div>
-                <h3 className="text-xl font-semibold mb-2">Amenities</h3>
-                <ul className="list-disc list-inside text-muted-foreground">
+              <div className="glass-card p-6">
+                <h3 className="text-2xl font-display font-semibold mb-4">Amenities</h3>
+                <ul className="space-y-2">
                   {destination.amenities.map((amenity, index) => (
-                    <li key={index}>{amenity}</li>
+                    <li key={index} className="flex items-center text-muted-foreground">
+                      <Star className="w-4 h-4 mr-2 text-primary" />
+                      {amenity}
+                    </li>
                   ))}
                 </ul>
               </div>
             )}
-          </div>
+          </motion.div>
         </div>
 
-        <div className="flex justify-between items-center pt-6 border-t">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="glass-card p-6 flex justify-between items-center"
+        >
           <div>
-            <p className="text-2xl font-semibold">${destination.price}</p>
+            <p className="text-3xl font-display font-bold text-primary">${destination.price}</p>
             <p className="text-sm text-muted-foreground">per person</p>
           </div>
-          <Button onClick={() => navigate(`/booking/${destination.id}`)}>
+          <Button 
+            onClick={() => navigate(`/booking/${destination.id}`)}
+            className="bg-primary hover:bg-primary/90 text-white px-8 py-6 text-lg font-semibold"
+          >
             Book Now
           </Button>
-        </div>
+        </motion.div>
 
         {similarPlaces && similarPlaces.length > 0 && (
           <div className="pt-12">
-            <h2 className="text-2xl font-bold mb-6">Similar Places</h2>
+            <h2 className="text-3xl font-display font-bold mb-8">Similar Places</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {similarPlaces.map((place) => (
                 <DestinationCard
@@ -169,7 +223,7 @@ export const DestinationDetails = () => {
             </div>
           </div>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 };
