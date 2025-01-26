@@ -43,15 +43,14 @@ export const DestinationExplorer = ({ destinations, isLoading }: DestinationExpl
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredDestinations?.map((destination) => (
-          <div key={destination.id} onClick={() => setSelectedDestination(destination)}>
-            <DestinationCard
-              id={destination.id}
-              image={destination.image_url || "/placeholder.svg"}
-              title={destination.name}
-              description={destination.description || ""}
-              price={`$${destination.price}`}
-            />
-          </div>
+          <DestinationCard
+            key={destination.id}
+            image={destination.image_url || "/placeholder.svg"}
+            title={destination.name}
+            description={destination.description || ""}
+            price={`$${destination.price}`}
+            onViewDetails={() => setSelectedDestination(destination)}
+          />
         ))}
       </div>
 

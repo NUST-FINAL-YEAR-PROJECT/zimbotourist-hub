@@ -8,12 +8,20 @@ interface DestinationCardProps {
   price: string;
   id?: string;
   onClick?: () => void;
+  onViewDetails?: () => void;
 }
 
-export const DestinationCard = ({ image, title, description, price, onClick }: DestinationCardProps) => {
+export const DestinationCard = ({ 
+  image, 
+  title, 
+  description, 
+  price, 
+  onClick,
+  onViewDetails 
+}: DestinationCardProps) => {
   const handleButtonClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent the card's onClick from firing
-    if (onClick) onClick();
+    e.stopPropagation();
+    if (onViewDetails) onViewDetails();
   };
 
   return (
