@@ -50,6 +50,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { EventDetails } from "./EventDetails";
 
 const DashboardHome = ({ profile }: { profile: Profile }) => {
   const { data: destinations, isLoading: isLoadingDestinations } = useDestinations();
@@ -251,20 +252,25 @@ const BookingsList = ({ bookings }: { bookings: any[] }) => {
   );
 };
 
-const EventsList = ({ events }: { events: any[] }) => (
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    {events?.map((event) => (
-      <DestinationCard
-        key={event.id}
-        id={event.id}
-        image={event.image_url || "/placeholder.svg"}
-        title={event.title}
-        description={event.description || ""}
-        price={`$${event.price}`}
-      />
-    ))}
-  </div>
-);
+const EventsList = ({ events }: { events: any[] }) => {
+  const navigate = useNavigate();
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {events?.map((event) => (
+        <div key={event.id} onClick={() => navigate(`/dashboard/events/${event.id}`)}>
+          <DestinationCard
+            id={event.id}
+            image={event.image_url || "/placeholder.svg"}
+            title={event.title}
+            description={event.description || ""}
+            price={`$${event.price}`}
+          />
+        </div>
+      ))}
+    </div>
+  );
+};
 
 export const Dashboard = () => {
   const navigate = useNavigate();
@@ -433,6 +439,7 @@ export const Dashboard = () => {
                 />
               } />
               <Route path="/events" element={<EventsList events={events || []} />} />
+              <Route path="/events/:id" element={<EventDetails />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/settings" element={<SettingsPage />} />
             </Routes>
