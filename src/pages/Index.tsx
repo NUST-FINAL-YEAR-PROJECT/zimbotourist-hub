@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { DestinationCard } from "@/components/DestinationCard";
 import { useDestinations } from "@/hooks/useDestinations";
 import { useEvents } from "@/hooks/useEvents";
@@ -8,7 +8,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
   const { data: destinations, isLoading: isLoadingDestinations } = useDestinations();
@@ -23,11 +22,7 @@ const Index = () => {
   );
 
   const handleAuthClick = (mode: 'signin' | 'signup') => {
-    if (mode === 'signup') {
-      navigate('/auth?mode=signup');
-    } else {
-      navigate('/auth');
-    }
+    navigate(mode === 'signup' ? '/auth?mode=signup' : '/auth');
   };
 
   return (
