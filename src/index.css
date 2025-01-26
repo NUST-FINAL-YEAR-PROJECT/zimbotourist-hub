@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@300;400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -10,7 +10,7 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display;
+    @apply font-display font-semibold tracking-tight;
   }
 }
 
@@ -32,7 +32,7 @@
   }
 
   .section-title {
-    @apply text-4xl md:text-5xl lg:text-6xl font-display font-semibold mb-6 text-foreground;
+    @apply text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-6 text-foreground;
   }
 
   .card {

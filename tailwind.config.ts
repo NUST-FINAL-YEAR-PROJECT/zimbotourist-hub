@@ -22,19 +22,19 @@ export default {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
-        background: "#F8FAFC",
-        foreground: "#334155",
+        background: "#FFFFFF",
+        foreground: "#1E293B",
         primary: {
-          DEFAULT: "#0EA5E9",
+          DEFAULT: "#2563EB",
           foreground: "#FFFFFF",
         },
         secondary: {
-          DEFAULT: "#F1F5F9",
-          foreground: "#334155",
+          DEFAULT: "#F8FAFC",
+          foreground: "#1E293B",
         },
         accent: {
-          DEFAULT: "#FDE68A",
-          foreground: "#334155",
+          DEFAULT: "#3B82F6",
+          foreground: "#FFFFFF",
         },
         muted: {
           DEFAULT: "#F1F5F9",
@@ -42,20 +42,28 @@ export default {
         },
         popover: {
           DEFAULT: "#FFFFFF",
-          foreground: "#334155",
+          foreground: "#1E293B",
         },
         card: {
           DEFAULT: "#FFFFFF",
-          foreground: "#334155",
+          foreground: "#1E293B",
         },
         dialog: {
           DEFAULT: "#FFFFFF",
-          foreground: "#334155",
+          foreground: "#1E293B",
+        },
+        sidebar: {
+          DEFAULT: "#F8FAFC",
+          foreground: "#1E293B",
+          border: "#E2E8F0",
+          accent: "#EFF6FF",
+          "accent-foreground": "#2563EB",
+          ring: "#BFDBFE",
         }
       },
       fontFamily: {
-        display: ["Playfair Display", "serif"],
-        sans: ["Inter", "sans-serif"],
+        display: ["Montserrat", "sans-serif"],
+        sans: ["Open Sans", "sans-serif"],
       },
       keyframes: {
         "fade-up": {
