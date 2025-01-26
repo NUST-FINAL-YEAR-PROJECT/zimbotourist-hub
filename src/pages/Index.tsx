@@ -23,6 +23,9 @@ const Index = () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         setUser(session?.user || null);
+        if (session?.user) {
+          navigate('/dashboard');
+        }
       } catch (error) {
         console.error("Error checking user session:", error);
       } finally {
@@ -34,10 +37,13 @@ const Index = () => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user || null);
+      if (session?.user) {
+        navigate('/dashboard');
+      }
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [navigate]);
 
   const filteredDestinations = destinations?.filter(destination => 
     destination.name.toLowerCase().includes(searchQuery.toLowerCase()) ||

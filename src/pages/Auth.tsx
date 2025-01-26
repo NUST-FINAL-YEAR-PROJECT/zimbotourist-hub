@@ -35,7 +35,7 @@ const Auth = () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
-          navigate("/");
+          navigate("/dashboard");
         }
       } catch (error) {
         console.error("Session check error:", error);
@@ -50,7 +50,7 @@ const Auth = () => {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
-        navigate("/");
+        navigate("/dashboard");
       }
     });
 
@@ -96,7 +96,7 @@ const Auth = () => {
             title: "Welcome back!",
             description: "You have been successfully logged in.",
           });
-          navigate("/");
+          navigate("/dashboard");  // Changed from "/" to "/dashboard"
         }
       } else if (mode === "signup") {
         const { data, error } = await supabase.auth.signUp({
