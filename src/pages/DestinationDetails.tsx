@@ -84,12 +84,15 @@ export const DestinationDetails = () => {
           </Button>
         </div>
 
-        <div className="max-h-[500px] relative rounded-lg overflow-hidden">
-          <img
-            src={destination.image_url || "/placeholder.svg"}
-            alt={destination.name}
-            className="object-contain w-full h-full"
-          />
+        <div className="relative rounded-lg overflow-hidden bg-white shadow-sm">
+          <div className="max-h-[400px] flex items-center justify-center">
+            <img
+              src={destination.image_url || "/placeholder.svg"}
+              alt={destination.name}
+              className="object-contain w-full h-full"
+              style={{ maxHeight: "400px" }}
+            />
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
