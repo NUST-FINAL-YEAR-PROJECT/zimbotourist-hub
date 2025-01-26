@@ -27,6 +27,7 @@ export const DestinationDetails = () => {
   const [userId, setUserId] = useState<string | undefined>();
   const { data: profile } = useProfile(userId);
   const [isBooking, setIsBooking] = useState(false);
+  const [bookingCreated, setBookingCreated] = useState(false);
 
   useEffect(() => {
     const getUserId = async () => {
@@ -75,6 +76,7 @@ export const DestinationDetails = () => {
         title: "Booking created",
         description: "Proceeding to payment...",
       });
+      setBookingCreated(true);
       setIsBooking(false);
     },
     onError: (error) => {
@@ -84,6 +86,7 @@ export const DestinationDetails = () => {
         description: error.message,
       });
       setIsBooking(false);
+      setBookingCreated(false);
     },
   });
 
@@ -223,16 +226,21 @@ export const DestinationDetails = () => {
                 {isBooking ? (
                   <div className="text-center space-y-4">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-                    <p>About to finish, proceed to payment...</p>
+                    <p>Creating your booking...</p>
+                  </div>
+                ) : bookingCreated ? (
+                  <div className="text-center space-y-4">
+                    <p className="text-green-600 font-semibold">About to finish, proceed to payment...</p>
                     <a 
                       href="https://www.paynow.co.zw/Payment/BillPaymentLink/?q=aWQ9MTk4NTcmYW1vdW50PTAuMDAmYW1vdW50X3F1YW50aXR5PTAuMDAmbD0w" 
                       target="_blank"
                       rel="noopener noreferrer"
+                      className="inline-block"
                     >
                       <img 
                         src="https://www.paynow.co.zw/Content/Buttons/Medium_buttons/button_pay-now_medium.png" 
                         alt="Pay now with Paynow" 
-                        className="mx-auto"
+                        style={{ border: 0 }}
                       />
                     </a>
                   </div>
