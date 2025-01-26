@@ -42,6 +42,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 const DashboardHome = ({ profile }: { profile: Profile }) => {
   const { data: destinations, isLoading: isLoadingDestinations } = useDestinations();
@@ -164,86 +172,81 @@ const BookingsList = ({ bookings }: { bookings: any[] }) => {
   });
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {bookings.map((booking) => (
-        <Card key={booking.id} className="overflow-hidden bg-white shadow-lg hover:shadow-xl transition-shadow duration-300">
-          <div className="aspect-[4/3] relative">
-            <img
-              src={booking.destinations?.image_url || booking.events?.image_url || "/placeholder.svg"}
-              alt={booking.destinations?.name || booking.events?.title || "Booking"}
-              className="object-cover w-full h-full"
-            />
-            <div className="absolute top-4 right-4">
-              <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
-                booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                'bg-red-100 text-red-800'
-              }`}>
-                {booking.status.toUpperCase()}
-              </span>
-            </div>
-          </div>
-          <div className="p-6">
-            <h3 className="font-semibold text-lg text-gray-900 mb-2">
-              {booking.destinations?.name || booking.events?.title}
-            </h3>
-            <div className="space-y-2 text-sm text-gray-600">
-              <p className="flex items-center gap-2">
-                <CalendarDays className="h-4 w-4" />
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Destination/Event</TableHead>
+            <TableHead>Date</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>People</TableHead>
+            <TableHead>Price</TableHead>
+            <TableHead>Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {bookings.map((booking) => (
+            <TableRow key={booking.id}>
+              <TableCell className="font-medium">
+                {booking.destinations?.name || booking.events?.title}
+              </TableCell>
+              <TableCell>
                 {new Date(booking.booking_date).toLocaleDateString()}
-              </p>
-              <p className="flex items-center gap-2">
-                <User className="h-4 w-4" />
-                {booking.number_of_people} {booking.number_of_people === 1 ? 'Person' : 'People'}
-              </p>
-            </div>
-            <div className="mt-4 pt-4 border-t border-gray-100">
-              <p className="text-lg font-semibold text-primary mb-4">
-                ${booking.total_price.toFixed(2)}
-              </p>
-              <div className="flex gap-2">
-                {booking.status === 'pending' && (
-                  <a 
-                    href="https://www.paynow.co.zw/Payment/BillPaymentLink/?q=aWQ9MTk4NTcmYW1vdW50PTAuMDAmYW1vdW50X3F1YW50aXR5PTAuMDAmbD0w" 
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-block"
-                  >
-                    <img 
-                      src="https://www.paynow.co.zw/Content/Buttons/Medium_buttons/button_pay-now_medium.png" 
-                      alt="Pay now with Paynow" 
-                      style={{ border: 0 }}
-                    />
-                  </a>
-                )}
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="destructive" size="sm">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This action cannot be undone. This will permanently delete your booking.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={() => deleteBookingMutation.mutate(booking.id)}
-                      >
-                        Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
-            </div>
-          </div>
-        </Card>
-      ))}
+              </TableCell>
+              <TableCell>
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                  booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
+                  booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                  'bg-red-100 text-red-800'
+                }`}>
+                  {booking.status.toUpperCase()}
+                </span>
+              </TableCell>
+              <TableCell>{booking.number_of_people}</TableCell>
+              <TableCell>${booking.total_price.toFixed(2)}</TableCell>
+              <TableCell>
+                <div className="flex items-center gap-2">
+                  {booking.status === 'pending' && (
+                    <a 
+                      href="https://www.paynow.co.zw/Payment/BillPaymentLink/?q=aWQ9MTk4NTcmYW1vdW50PTAuMDAmYW1vdW50X3F1YW50aXR5PTAuMDA"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block"
+                    >
+                      <Button variant="default" size="sm">
+                        Pay Now
+                      </Button>
+                    </a>
+                  )}
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" size="sm">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. This will permanently delete your booking.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => deleteBookingMutation.mutate(booking.id)}
+                        >
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 };
