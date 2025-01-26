@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { DestinationCard } from "@/components/DestinationCard";
 import { useDestinations } from "@/hooks/useDestinations";
 import { useEvents } from "@/hooks/useEvents";
@@ -34,6 +35,14 @@ const Index = () => {
             transition={{ duration: 0.8 }}
             className="w-full max-w-2xl"
           >
+            <div className="flex justify-end mb-4">
+              <Link
+                to="/auth"
+                className="text-white hover:text-white/90 transition-colors font-semibold"
+              >
+                Sign In
+              </Link>
+            </div>
             <h1 className="text-4xl md:text-6xl font-display font-bold text-white mb-4">
               Discover Zimbabwe
             </h1>
