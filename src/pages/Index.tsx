@@ -1,44 +1,29 @@
 import { motion } from "framer-motion";
 import { DestinationCard } from "@/components/DestinationCard";
-
-const destinations = [
-  {
-    image: "https://images.unsplash.com/photo-1472396961693-142e6e269027",
-    title: "Victoria Falls",
-    description: "Experience one of the world's largest waterfalls, a UNESCO World Heritage site.",
-    price: "$299",
-  },
-  {
-    image: "https://images.unsplash.com/photo-1466721591366-2d5fba72006d",
-    title: "Hwange National Park",
-    description: "Zimbabwe's largest national park, home to over 100 species of mammals.",
-    price: "$199",
-  },
-  {
-    image: "https://images.unsplash.com/photo-1438565434616-3ef039228b15",
-    title: "Great Zimbabwe",
-    description: "Ancient ruins that tell the story of Zimbabwe's rich cultural heritage.",
-    price: "$149",
-  },
-];
+import { useDestinations } from "@/hooks/useDestinations";
+import { useEvents } from "@/hooks/useEvents";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Index = () => {
+  const { data: destinations, isLoading: isLoadingDestinations } = useDestinations();
+  const { data: events, isLoading: isLoadingEvents } = useEvents();
+
   return (
     <div className="min-h-screen">
-      <section className="hero-section">
+      <section className="hero-section relative h-[60vh] overflow-hidden">
         <img
           src="https://images.unsplash.com/photo-1501286353178-1ec881214838"
           alt="Zimbabwe Landscape"
-          className="hero-image"
+          className="absolute inset-0 w-full h-full object-cover"
         />
-        <div className="hero-overlay" />
-        <div className="hero-content">
+        <div className="absolute inset-0 bg-black/40" />
+        <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="section-title text-white mb-4">
+            <h1 className="text-4xl md:text-6xl font-display font-bold text-white mb-4">
               Discover Zimbabwe
             </h1>
             <p className="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto mb-8">
@@ -53,14 +38,32 @@ const Index = () => {
 
       <section className="py-20 px-4 md:px-8 bg-accent">
         <div className="max-w-7xl mx-auto">
-          <h2 className="section-title text-center text-primary mb-16">
+          <h2 className="text-3xl md:text-4xl font-display font-bold text-center text-primary mb-16">
             Popular Destinations
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {destinations.map((destination, index) => (
-              <DestinationCard key={index} {...destination} />
-            ))}
-          </div>
+          {isLoadingDestinations ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="space-y-4">
+                  <Skeleton className="h-48 w-full" />
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-full" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {destinations?.slice(0, 3).map((destination) => (
+                <DestinationCard
+                  key={destination.id}
+                  image={destination.image_url || "https://images.unsplash.com/photo-1472396961693-142e6e269027"}
+                  title={destination.name}
+                  description={destination.description || ""}
+                  price={`$${destination.price}`}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </section>
     </div>
