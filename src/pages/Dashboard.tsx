@@ -16,6 +16,14 @@ import { useQuery } from "@tanstack/react-query";
 import { ProfilePage } from "@/components/ProfilePage";
 import { SettingsPage } from "@/components/SettingsPage";
 import {
+  Card,
+  CardHeader,
+  CardFooter,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
+import {
   Popover,
   PopoverContent,
   PopoverTrigger,
