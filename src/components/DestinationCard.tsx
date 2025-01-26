@@ -10,7 +10,7 @@ interface DestinationCardProps {
   id?: string;
 }
 
-export const DestinationCard = ({ image, title, description, price }: DestinationCardProps) => {
+export const DestinationCard = ({ image, title, description, price, id }: DestinationCardProps) => {
   const navigate = useNavigate();
 
   return (
