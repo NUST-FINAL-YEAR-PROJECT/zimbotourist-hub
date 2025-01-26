@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DestinationCard } from "@/components/DestinationCard";
 
 export const DestinationDetails = () => {
   const { id } = useParams();
@@ -21,6 +22,24 @@ export const DestinationDetails = () => {
       if (error) throw error;
       return data;
     },
+  });
+
+  const { data: similarPlaces } = useQuery({
+    queryKey: ["similar-destinations", destination?.location],
+    queryFn: async () => {
+      if (!destination) return [];
+      
+      const { data, error } = await supabase
+        .from("destinations")
+        .select("*")
+        .neq("id", destination.id)
+        .eq("location", destination.location)
+        .limit(3);
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!destination,
   });
 
   if (isLoading) {
@@ -57,7 +76,7 @@ export const DestinationDetails = () => {
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <div className="max-w-5xl mx-auto space-y-6">
+      <div className="max-w-5xl mx-auto space-y-8">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold">{destination.name}</h1>
           <Button variant="outline" onClick={() => navigate("/dashboard/destinations")}>
@@ -65,11 +84,11 @@ export const DestinationDetails = () => {
           </Button>
         </div>
 
-        <div className="aspect-video relative rounded-lg overflow-hidden">
+        <div className="max-h-[500px] relative rounded-lg overflow-hidden">
           <img
             src={destination.image_url || "/placeholder.svg"}
             alt={destination.name}
-            className="object-cover w-full h-full"
+            className="object-contain w-full h-full"
           />
         </div>
 
@@ -129,6 +148,24 @@ export const DestinationDetails = () => {
             Book Now
           </Button>
         </div>
+
+        {similarPlaces && similarPlaces.length > 0 && (
+          <div className="pt-12">
+            <h2 className="text-2xl font-bold mb-6">Similar Places</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {similarPlaces.map((place) => (
+                <DestinationCard
+                  key={place.id}
+                  id={place.id}
+                  image={place.image_url || "/placeholder.svg"}
+                  title={place.name}
+                  description={place.description || ""}
+                  price={`$${place.price}`}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
