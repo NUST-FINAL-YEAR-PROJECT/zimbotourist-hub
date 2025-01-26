@@ -14,6 +14,7 @@ import { CalendarDays, MapPin, Ticket, User } from "lucide-react";
 import { AppSidebar } from "@/components/AppSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { useQuery } from "@tanstack/react-query";
+import { ProfilePage } from "@/components/ProfilePage";
 
 const DashboardHome = ({ profile }: { profile: Profile }) => {
   const { data: destinations, isLoading: isLoadingDestinations } = useDestinations();
@@ -282,7 +283,7 @@ export const Dashboard = () => {
                 />
               } />
               <Route path="/events" element={<EventsList events={events || []} />} />
-              <Route path="/profile" element={<DashboardHome profile={profile} />} />
+              <Route path="/profile" element={<ProfilePage />} />
               <Route path="/settings" element={<h2>Settings Page (Coming Soon)</h2>} />
             </Routes>
           </div>
