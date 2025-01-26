@@ -7,6 +7,7 @@ import { useEvents } from "@/hooks/useEvents";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const { data: destinations, isLoading: isLoadingDestinations } = useDestinations();
@@ -35,12 +36,18 @@ const Index = () => {
             transition={{ duration: 0.8 }}
             className="w-full max-w-2xl"
           >
-            <div className="flex justify-end mb-4">
+            <div className="absolute top-4 right-8 flex gap-4 items-center">
               <Link
                 to="/auth"
-                className="text-white hover:text-white/90 transition-colors font-semibold"
+                className="text-white hover:text-white/90 transition-colors font-semibold px-4 py-2 rounded-md border border-white/30 hover:border-white/50"
               >
                 Sign In
+              </Link>
+              <Link
+                to="/auth?mode=signup"
+                className="bg-primary text-white px-6 py-2 rounded-md hover:bg-primary/90 transition-colors font-semibold"
+              >
+                Get Started
               </Link>
             </div>
             <h1 className="text-4xl md:text-6xl font-display font-bold text-white mb-4">
