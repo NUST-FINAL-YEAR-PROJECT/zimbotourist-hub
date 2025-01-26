@@ -7,6 +7,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { DestinationCard } from "@/components/DestinationCard";
 import { motion } from "framer-motion";
 import { MapPin, Calendar, Clock, Star, ArrowLeft } from "lucide-react";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 export const DestinationDetails = () => {
   const { id } = useParams();
@@ -25,6 +32,14 @@ export const DestinationDetails = () => {
       return data;
     },
   });
+
+  // Sample images array - in production this would come from your database
+  const images = [
+    destination?.image_url || "/placeholder.svg",
+    "https://images.unsplash.com/photo-1469474968028-56623f02e42e",
+    "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d",
+    "https://images.unsplash.com/photo-1433086966358-54859d0ed716",
+  ];
 
   const { data: similarPlaces } = useQuery({
     queryKey: ["similar-destinations", destination?.location],
@@ -98,15 +113,30 @@ export const DestinationDetails = () => {
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="glass-card overflow-hidden"
+          className="glass-card overflow-hidden rounded-xl"
         >
-          <div className="relative h-[300px]">
-            <img
-              src={destination.image_url || "/placeholder.svg"}
-              alt={destination.name}
-              className="w-full h-full object-cover"
-            />
-          </div>
+          <Carousel className="w-full">
+            <CarouselContent>
+              {images.map((image, index) => (
+                <CarouselItem key={index}>
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: index * 0.2 }}
+                    className="relative h-[300px]"
+                  >
+                    <img
+                      src={image}
+                      alt={`${destination.name} - Image ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </motion.div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="left-4" />
+            <CarouselNext className="right-4" />
+          </Carousel>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
