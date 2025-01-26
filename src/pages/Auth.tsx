@@ -14,6 +14,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { Loader2 } from "lucide-react";
 
 type AuthMode = "signin" | "signup" | "forgot-password" | "reset-password";
 
@@ -24,22 +25,62 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [sessionChecked, setSessionChecked] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   // Check if user is already logged in
   useEffect(() => {
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        navigate("/");
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          navigate("/");
+        }
+      } catch (error) {
+        console.error("Session check error:", error);
+      } finally {
+        setSessionChecked(true);
       }
     };
     checkSession();
   }, [navigate]);
 
+  // Listen for auth state changes
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        navigate("/");
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  const validateForm = () => {
+    if (!email || !password) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please fill in all fields",
+      });
+      return false;
+    }
+    if (password.length < 6) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Password must be at least 6 characters long",
+      });
+      return false;
+    }
+    return true;
+  };
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateForm()) return;
+    
     setLoading(true);
 
     try {
@@ -52,7 +93,7 @@ const Auth = () => {
         if (error) throw error;
         if (data.session) {
           toast({
-            title: "Success!",
+            title: "Welcome back!",
             description: "You have been successfully logged in.",
           });
           navigate("/");
@@ -62,27 +103,27 @@ const Auth = () => {
           email,
           password,
           options: {
-            emailRedirectTo: window.location.origin + "/auth"
+            emailRedirectTo: `${window.location.origin}/auth`
           }
         });
         
         if (error) throw error;
         
         toast({
-          title: "Success!",
+          title: "Account created!",
           description: "Please check your email to verify your account.",
         });
         setMode("signin");
       } else if (mode === "forgot-password") {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: window.location.origin + "/auth?mode=reset-password",
+          redirectTo: `${window.location.origin}/auth?mode=reset-password`,
         });
         
         if (error) throw error;
         
         toast({
-          title: "Success!",
-          description: "Please check your email for password reset instructions.",
+          title: "Check your email",
+          description: "We've sent you instructions to reset your password.",
         });
         setMode("signin");
       }
@@ -90,7 +131,7 @@ const Auth = () => {
       console.error("Auth error:", error);
       toast({
         variant: "destructive",
-        title: "Error",
+        title: "Authentication Error",
         description: error.message || "An error occurred during authentication.",
       });
     } finally {
@@ -98,24 +139,32 @@ const Auth = () => {
     }
   };
 
+  if (!sessionChecked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-accent p-4">
+    <div className="min-h-screen flex items-center justify-center bg-accent/50 p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         className="w-full max-w-md"
       >
-        <Card>
-          <CardHeader>
-            <CardTitle>
+        <Card className="shadow-lg">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold text-center">
               {mode === "signin"
                 ? "Welcome Back"
                 : mode === "signup"
                 ? "Create Account"
                 : "Reset Password"}
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-center">
               {mode === "signin"
                 ? "Sign in to your account to continue"
                 : mode === "signup"
@@ -134,6 +183,7 @@ const Auth = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  disabled={loading}
                 />
               </div>
               {mode !== "forgot-password" && (
@@ -146,6 +196,7 @@ const Auth = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
+                    disabled={loading}
                     minLength={6}
                   />
                 </div>
@@ -157,8 +208,9 @@ const Auth = () => {
                 className="w-full"
                 disabled={loading}
               >
+                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {loading
-                  ? "Loading..."
+                  ? "Please wait..."
                   : mode === "signin"
                   ? "Sign In"
                   : mode === "signup"
@@ -172,6 +224,7 @@ const Auth = () => {
                       type="button"
                       onClick={() => setMode("forgot-password")}
                       className="text-primary hover:underline"
+                      disabled={loading}
                     >
                       Forgot password?
                     </button>
@@ -181,6 +234,7 @@ const Auth = () => {
                         type="button"
                         onClick={() => setMode("signup")}
                         className="text-primary hover:underline"
+                        disabled={loading}
                       >
                         Sign up
                       </button>
@@ -193,6 +247,7 @@ const Auth = () => {
                       type="button"
                       onClick={() => setMode("signin")}
                       className="text-primary hover:underline"
+                      disabled={loading}
                     >
                       Sign in
                     </button>
@@ -202,6 +257,7 @@ const Auth = () => {
                     type="button"
                     onClick={() => setMode("signin")}
                     className="text-primary hover:underline"
+                    disabled={loading}
                   >
                     Back to sign in
                   </button>

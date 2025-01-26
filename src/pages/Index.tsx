@@ -1,19 +1,43 @@
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { DestinationCard } from "@/components/DestinationCard";
 import { useDestinations } from "@/hooks/useDestinations";
 import { useEvents } from "@/hooks/useEvents";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Search, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
   const { data: destinations, isLoading: isLoadingDestinations } = useDestinations();
   const { data: events, isLoading: isLoadingEvents } = useEvents();
   const [searchQuery, setSearchQuery] = useState("");
+  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
+  const [user, setUser] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkUser = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        setUser(session?.user || null);
+      } catch (error) {
+        console.error("Error checking user session:", error);
+      } finally {
+        setIsLoadingAuth(false);
+      }
+    };
+
+    checkUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const filteredDestinations = destinations?.filter(destination => 
     destination.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -23,6 +47,15 @@ const Index = () => {
 
   const handleAuthClick = (mode: 'signin' | 'signup') => {
     navigate(mode === 'signup' ? '/auth?mode=signup' : '/auth');
+  };
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      navigate('/auth');
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
   };
 
   return (
@@ -42,19 +75,33 @@ const Index = () => {
             className="w-full max-w-2xl"
           >
             <div className="absolute top-4 right-8 flex gap-4 items-center">
-              <Button
-                variant="outline"
-                className="text-white hover:text-white/90 border-white/30 hover:border-white/50 hover:bg-white/10"
-                onClick={() => handleAuthClick('signin')}
-              >
-                Sign In
-              </Button>
-              <Button
-                className="bg-primary hover:bg-primary/90"
-                onClick={() => handleAuthClick('signup')}
-              >
-                Get Started
-              </Button>
+              {isLoadingAuth ? (
+                <Loader2 className="h-5 w-5 animate-spin text-white" />
+              ) : user ? (
+                <Button
+                  variant="outline"
+                  className="text-white hover:text-white/90 border-white/30 hover:border-white/50 hover:bg-white/10"
+                  onClick={handleLogout}
+                >
+                  Sign Out
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    variant="outline"
+                    className="text-white hover:text-white/90 border-white/30 hover:border-white/50 hover:bg-white/10"
+                    onClick={() => handleAuthClick('signin')}
+                  >
+                    Sign In
+                  </Button>
+                  <Button
+                    className="bg-primary hover:bg-primary/90"
+                    onClick={() => handleAuthClick('signup')}
+                  >
+                    Get Started
+                  </Button>
+                </>
+              )}
             </div>
             <h1 className="text-4xl md:text-6xl font-display font-bold text-white mb-4">
               Discover Zimbabwe
