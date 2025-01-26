@@ -7,10 +7,9 @@ import { DestinationExplorer } from "@/components/DestinationExplorer";
 import { DestinationCard } from "@/components/DestinationCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import type { Profile, Booking } from "@/types/models";
-import { Bell, BellDot, CalendarDays, MapPin, Ticket, User } from "lucide-react";
+import { Bell, BellDot, CalendarDays, User } from "lucide-react";
 import { AppSidebar } from "@/components/AppSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { useQuery } from "@tanstack/react-query";
@@ -23,11 +22,19 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { format } from "date-fns";
 
 const DashboardHome = ({ profile }: { profile: Profile }) => {
   const { data: destinations, isLoading: isLoadingDestinations } = useDestinations();
   const { data: events, isLoading: isLoadingEvents } = useEvents();
   const navigate = useNavigate();
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good morning";
+    if (hour < 18) return "Good afternoon";
+    return "Good evening";
+  };
 
   // Get the most recent 3 destinations and events
   const popularDestinations = destinations?.slice(0, 3) || [];
@@ -35,30 +42,9 @@ const DashboardHome = ({ profile }: { profile: Profile }) => {
 
   return (
     <div className="space-y-8">
-      <Card className="p-6 bg-white shadow-lg rounded-xl border-none">
-        <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
-          <div className="relative">
-            <Avatar className="h-24 w-24 ring-4 ring-primary/10">
-              <AvatarImage src={profile.avatar_url || undefined} />
-              <AvatarFallback className="bg-primary/5 text-primary text-xl">
-                {profile.email[0].toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div className="absolute -bottom-2 -right-2 bg-primary text-white p-2 rounded-full">
-              <User className="h-4 w-4" />
-            </div>
-          </div>
-          <div className="text-center md:text-left">
-            <h2 className="text-2xl font-bold text-gray-900">{profile.username || 'Welcome!'}</h2>
-            <p className="text-muted-foreground">{profile.email}</p>
-            <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                {profile.role}
-              </span>
-            </div>
-          </div>
-        </div>
-      </Card>
+      <h1 className="text-3xl font-bold text-gray-900">
+        {getGreeting()}, {profile.username || profile.email.split('@')[0]}!
+      </h1>
 
       <div className="space-y-6">
         <section>
