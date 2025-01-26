@@ -15,6 +15,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { useQuery } from "@tanstack/react-query";
 import { ProfilePage } from "@/components/ProfilePage";
+import { SettingsPage } from "@/components/SettingsPage";
 
 const DashboardHome = ({ profile }: { profile: Profile }) => {
   const { data: destinations, isLoading: isLoadingDestinations } = useDestinations();
@@ -284,7 +285,7 @@ export const Dashboard = () => {
               } />
               <Route path="/events" element={<EventsList events={events || []} />} />
               <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/settings" element={<h2>Settings Page (Coming Soon)</h2>} />
+              <Route path="/settings" element={<SettingsPage />} />
             </Routes>
           </div>
         </div>
