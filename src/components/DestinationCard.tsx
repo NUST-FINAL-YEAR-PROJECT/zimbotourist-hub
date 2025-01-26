@@ -11,6 +11,11 @@ interface DestinationCardProps {
 }
 
 export const DestinationCard = ({ image, title, description, price, onClick }: DestinationCardProps) => {
+  const handleButtonClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent the card's onClick from firing
+    if (onClick) onClick();
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -31,6 +36,7 @@ export const DestinationCard = ({ image, title, description, price, onClick }: D
         <Button 
           className="mt-4 w-full"
           variant="outline"
+          onClick={handleButtonClick}
         >
           View Details
         </Button>
