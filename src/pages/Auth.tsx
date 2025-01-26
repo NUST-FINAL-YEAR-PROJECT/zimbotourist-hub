@@ -1,7 +1,7 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,12 +18,25 @@ import { Label } from "@/components/ui/label";
 type AuthMode = "signin" | "signup" | "forgot-password" | "reset-password";
 
 const Auth = () => {
-  const [mode, setMode] = useState<AuthMode>("signin");
+  const [searchParams] = useSearchParams();
+  const initialMode = searchParams.get("mode") === "signup" ? "signup" : "signin";
+  const [mode, setMode] = useState<AuthMode>(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Check if user is already logged in
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        navigate("/");
+      }
+    };
+    checkSession();
+  }, [navigate]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,26 +44,42 @@ const Auth = () => {
 
     try {
       if (mode === "signin") {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
+        
         if (error) throw error;
-        navigate("/");
+        if (data.session) {
+          toast({
+            title: "Success!",
+            description: "You have been successfully logged in.",
+          });
+          navigate("/");
+        }
       } else if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            emailRedirectTo: window.location.origin + "/auth"
+          }
         });
+        
         if (error) throw error;
+        
         toast({
           title: "Success!",
           description: "Please check your email to verify your account.",
         });
         setMode("signin");
       } else if (mode === "forgot-password") {
-        const { error } = await supabase.auth.resetPasswordForEmail(email);
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: window.location.origin + "/auth?mode=reset-password",
+        });
+        
         if (error) throw error;
+        
         toast({
           title: "Success!",
           description: "Please check your email for password reset instructions.",
@@ -58,10 +87,11 @@ const Auth = () => {
         setMode("signin");
       }
     } catch (error: any) {
+      console.error("Auth error:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message,
+        description: error.message || "An error occurred during authentication.",
       });
     } finally {
       setLoading(false);
@@ -116,6 +146,7 @@ const Auth = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
+                    minLength={6}
                   />
                 </div>
               )}
