@@ -84,51 +84,51 @@ export function SettingsPage() {
           </p>
         </div>
 
-        <Card className="p-6">
-          <div className="space-y-6">
-            <div className="flex items-center gap-4">
-              <User className="h-8 w-8 text-primary" />
-              <div>
-                <h3 className="text-lg font-semibold">Profile Information</h3>
-                <p className="text-sm text-muted-foreground">
-                  Update your personal information
-                </p>
+        <Form {...form}>
+          <Card className="p-6">
+            <div className="space-y-6">
+              <div className="flex items-center gap-4">
+                <User className="h-8 w-8 text-primary" />
+                <div>
+                  <h3 className="text-lg font-semibold">Profile Information</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Update your personal information
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <FormLabel>Email</FormLabel>
+                  <Input value={profile?.email} disabled />
+                  <FormDescription>
+                    Your email address is used for account-related notifications
+                  </FormDescription>
+                </div>
+
+                <div>
+                  <FormLabel>Username</FormLabel>
+                  <Input value={profile?.username || ""} disabled />
+                  <FormDescription>
+                    Your username is visible to other users
+                  </FormDescription>
+                </div>
               </div>
             </div>
+          </Card>
 
-            <div className="space-y-4">
-              <div>
-                <FormLabel>Email</FormLabel>
-                <Input value={profile?.email} disabled />
-                <FormDescription>
-                  Your email address is used for account-related notifications
-                </FormDescription>
+          <Card className="p-6">
+            <div className="space-y-6">
+              <div className="flex items-center gap-4">
+                <Bell className="h-8 w-8 text-primary" />
+                <div>
+                  <h3 className="text-lg font-semibold">Notifications</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Configure how you receive notifications
+                  </p>
+                </div>
               </div>
 
-              <div>
-                <FormLabel>Username</FormLabel>
-                <Input value={profile?.username || ""} disabled />
-                <FormDescription>
-                  Your username is visible to other users
-                </FormDescription>
-              </div>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="space-y-6">
-            <div className="flex items-center gap-4">
-              <Bell className="h-8 w-8 text-primary" />
-              <div>
-                <h3 className="text-lg font-semibold">Notifications</h3>
-                <p className="text-sm text-muted-foreground">
-                  Configure how you receive notifications
-                </p>
-              </div>
-            </div>
-
-            <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
                   control={form.control}
@@ -203,39 +203,39 @@ export function SettingsPage() {
                   Save Changes
                 </Button>
               </form>
-            </Form>
-          </div>
-        </Card>
+            </div>
+          </Card>
 
-        <Card className="p-6">
-          <div className="space-y-6">
-            <div className="flex items-center gap-4">
-              <Shield className="h-8 w-8 text-primary" />
-              <div>
-                <h3 className="text-lg font-semibold">Security</h3>
-                <p className="text-sm text-muted-foreground">
-                  Manage your account security settings
-                </p>
+          <Card className="p-6">
+            <div className="space-y-6">
+              <div className="flex items-center gap-4">
+                <Shield className="h-8 w-8 text-primary" />
+                <div>
+                  <h3 className="text-lg font-semibold">Security</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Manage your account security settings
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => {
+                    toast({
+                      title: "Coming Soon",
+                      description: "Password change functionality will be available soon.",
+                    });
+                  }}
+                >
+                  <Key className="mr-2 h-4 w-4" />
+                  Change Password
+                </Button>
               </div>
             </div>
-
-            <div className="space-y-4">
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() => {
-                  toast({
-                    title: "Coming Soon",
-                    description: "Password change functionality will be available soon.",
-                  });
-                }}
-              >
-                <Key className="mr-2 h-4 w-4" />
-                Change Password
-              </Button>
-            </div>
-          </div>
-        </Card>
+          </Card>
+        </Form>
       </div>
     </div>
   );
