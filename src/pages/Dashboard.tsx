@@ -4,6 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useDestinations } from "@/hooks/useDestinations";
 import { useEvents } from "@/hooks/useEvents";
 import { DestinationExplorer } from "@/components/DestinationExplorer";
+import { DestinationCard } from "@/components/DestinationCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
