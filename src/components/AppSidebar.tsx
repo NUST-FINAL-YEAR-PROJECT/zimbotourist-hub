@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { LogOut, MapPin, Settings, Ticket, User } from "lucide-react";
+import { LogOut, MapPin, Settings, Ticket, User, Home, Calendar } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -34,24 +34,34 @@ export function AppSidebar() {
 
   const menuItems = [
     {
+      title: "Home",
+      icon: Home,
+      onClick: () => navigate("/dashboard"),
+    },
+    {
       title: "Profile",
       icon: User,
-      onClick: () => navigate("/dashboard"),
+      onClick: () => navigate("/dashboard/profile"),
     },
     {
       title: "My Bookings",
       icon: Ticket,
-      onClick: () => navigate("/dashboard"),
+      onClick: () => navigate("/dashboard/bookings"),
     },
     {
       title: "Destinations",
       icon: MapPin,
-      onClick: () => navigate("/dashboard"),
+      onClick: () => navigate("/dashboard/destinations"),
+    },
+    {
+      title: "Events",
+      icon: Calendar,
+      onClick: () => navigate("/dashboard/events"),
     },
     {
       title: "Settings",
       icon: Settings,
-      onClick: () => navigate("/dashboard"),
+      onClick: () => navigate("/dashboard/settings"),
     },
   ];
 
