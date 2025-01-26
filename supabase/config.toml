@@ -1,1 +1,12 @@
 project_id = "gduzxexxpbibimtiycur"
+
+[api]
+enabled = true
+url = "https://gduzxexxpbibimtiycur.supabase.co"
+
+[functions]
+[functions.create-payment]
+verify_jwt = true
+
+[functions.check-payment]
+verify_jwt = true
