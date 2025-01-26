@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Routes, Route } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useDestinations } from "@/hooks/useDestinations";
@@ -10,12 +10,19 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import type { Profile, Booking } from "@/types/models";
-import { CalendarDays, MapPin, Ticket, User } from "lucide-react";
+import { Bell, BellDot, CalendarDays, MapPin, Ticket, User } from "lucide-react";
 import { AppSidebar } from "@/components/AppSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { useQuery } from "@tanstack/react-query";
 import { ProfilePage } from "@/components/ProfilePage";
 import { SettingsPage } from "@/components/SettingsPage";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const DashboardHome = ({ profile }: { profile: Profile }) => {
   const { data: destinations, isLoading: isLoadingDestinations } = useDestinations();
@@ -186,6 +193,7 @@ export const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [hasUnreadNotifications, setHasUnreadNotifications] = useState(true);
   const { data: destinations, isLoading: isLoadingDestinations } = useDestinations();
   const { data: events, isLoading: isLoadingEvents } = useEvents();
   
@@ -240,6 +248,27 @@ export const Dashboard = () => {
     checkAuth();
   }, [navigate, toast]);
 
+  const notifications = [
+    {
+      id: 1,
+      title: "New Booking Confirmed",
+      description: "Your recent booking has been confirmed.",
+      time: "2 minutes ago",
+    },
+    {
+      id: 2,
+      title: "Upcoming Event",
+      description: "Don't forget about your upcoming event tomorrow!",
+      time: "1 hour ago",
+    },
+    {
+      id: 3,
+      title: "Profile Updated",
+      description: "Your profile information has been successfully updated.",
+      time: "2 hours ago",
+    },
+  ];
+
   if (isLoadingDestinations || isLoadingEvents || isLoadingBookings || !profile) {
     return (
       <SidebarProvider>
@@ -271,7 +300,50 @@ export const Dashboard = () => {
           <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between mb-6">
               <h1 className="text-2xl font-bold">Dashboard</h1>
-              <SidebarTrigger />
+              <div className="flex items-center gap-4">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="relative"
+                      onClick={() => setHasUnreadNotifications(false)}
+                    >
+                      {hasUnreadNotifications ? (
+                        <BellDot className="h-5 w-5 text-primary" />
+                      ) : (
+                        <Bell className="h-5 w-5" />
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80 p-0">
+                    <div className="p-4 border-b">
+                      <h4 className="font-semibold">Notifications</h4>
+                    </div>
+                    <ScrollArea className="h-80">
+                      <div className="divide-y">
+                        {notifications.map((notification) => (
+                          <div
+                            key={notification.id}
+                            className="p-4 hover:bg-accent transition-colors"
+                          >
+                            <div className="flex justify-between items-start mb-1">
+                              <h5 className="font-medium">{notification.title}</h5>
+                              <span className="text-xs text-muted-foreground">
+                                {notification.time}
+                              </span>
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                              {notification.description}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  </PopoverContent>
+                </Popover>
+                <SidebarTrigger />
+              </div>
             </div>
             
             <Routes>
