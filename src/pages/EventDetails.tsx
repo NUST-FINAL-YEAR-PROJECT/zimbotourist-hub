@@ -22,6 +22,7 @@ export const EventDetails = () => {
       if (error) throw error;
       return data as Event;
     },
+    enabled: !!id,
   });
 
   if (isLoading) {

@@ -8,7 +8,11 @@ export const EventsList = ({ events }: { events: Event[] }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {events?.map((event) => (
-        <div key={event.id} onClick={() => navigate(`/dashboard/events/${event.id}`)}>
+        <div 
+          key={event.id} 
+          onClick={() => navigate(`/dashboard/events/${event.id}`)}
+          className="cursor-pointer"
+        >
           <DestinationCard
             id={event.id}
             image={event.image_url || "/placeholder.svg"}

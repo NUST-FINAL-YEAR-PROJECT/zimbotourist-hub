@@ -4,52 +4,17 @@ import { useToast } from "@/hooks/use-toast";
 import { useDestinations } from "@/hooks/useDestinations";
 import { useEvents } from "@/hooks/useEvents";
 import { DestinationExplorer } from "@/components/DestinationExplorer";
-import { DestinationCard } from "@/components/DestinationCard";
+import { EventsList } from "@/components/EventsList";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import type { Profile, Booking } from "@/types/models";
-import { Bell, BellDot, CalendarDays, User, Trash2 } from "lucide-react";
+import { Bell, BellDot, CalendarDays, User } from "lucide-react";
 import { AppSidebar } from "@/components/AppSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ProfilePage } from "@/components/ProfilePage";
 import { SettingsPage } from "@/components/SettingsPage";
-import {
-  Card,
-  CardHeader,
-  CardFooter,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { format } from "date-fns";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { EventDetails } from "./EventDetails";
 
 const DashboardHome = ({ profile }: { profile: Profile }) => {
@@ -248,26 +213,6 @@ const BookingsList = ({ bookings }: { bookings: any[] }) => {
           ))}
         </TableBody>
       </Table>
-    </div>
-  );
-};
-
-const EventsList = ({ events }: { events: any[] }) => {
-  const navigate = useNavigate();
-
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {events?.map((event) => (
-        <div key={event.id} onClick={() => navigate(`/dashboard/events/${event.id}`)}>
-          <DestinationCard
-            id={event.id}
-            image={event.image_url || "/placeholder.svg"}
-            title={event.title}
-            description={event.description || ""}
-            price={`$${event.price}`}
-          />
-        </div>
-      ))}
     </div>
   );
 };
