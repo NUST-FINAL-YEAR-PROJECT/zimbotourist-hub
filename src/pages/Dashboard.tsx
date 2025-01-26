@@ -9,10 +9,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import type { Profile, Booking } from "@/types/models";
-import { Bell, BellDot, CalendarDays, User } from "lucide-react";
+import { Bell, BellDot, CalendarDays, User, Trash2 } from "lucide-react";
 import { AppSidebar } from "@/components/AppSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ProfilePage } from "@/components/ProfilePage";
 import { SettingsPage } from "@/components/SettingsPage";
 import {
@@ -31,6 +31,17 @@ import {
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { format } from "date-fns";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const DashboardHome = ({ profile }: { profile: Profile }) => {
   const { data: destinations, isLoading: isLoadingDestinations } = useDestinations();
@@ -123,50 +134,119 @@ const DashboardHome = ({ profile }: { profile: Profile }) => {
   );
 };
 
-const BookingsList = ({ bookings }: { bookings: any[] }) => (
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    {bookings.map((booking) => (
-      <Card key={booking.id} className="overflow-hidden bg-white shadow-lg hover:shadow-xl transition-shadow duration-300">
-        <div className="aspect-[4/3] relative">
-          <img
-            src={booking.destinations?.image_url || booking.events?.image_url || "/placeholder.svg"}
-            alt={booking.destinations?.name || booking.events?.title || "Booking"}
-            className="object-cover w-full h-full"
-          />
-          <div className="absolute top-4 right-4">
-            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-              booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
-              booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-              'bg-red-100 text-red-800'
-            }`}>
-              {booking.status.toUpperCase()}
-            </span>
+const BookingsList = ({ bookings }: { bookings: any[] }) => {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const deleteBookingMutation = useMutation({
+    mutationFn: async (bookingId: string) => {
+      const { error } = await supabase
+        .from("bookings")
+        .delete()
+        .eq("id", bookingId);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["bookings"] });
+      toast({
+        title: "Booking deleted",
+        description: "Your booking has been successfully deleted.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
+    },
+  });
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {bookings.map((booking) => (
+        <Card key={booking.id} className="overflow-hidden bg-white shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <div className="aspect-[4/3] relative">
+            <img
+              src={booking.destinations?.image_url || booking.events?.image_url || "/placeholder.svg"}
+              alt={booking.destinations?.name || booking.events?.title || "Booking"}
+              className="object-cover w-full h-full"
+            />
+            <div className="absolute top-4 right-4">
+              <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
+                booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                'bg-red-100 text-red-800'
+              }`}>
+                {booking.status.toUpperCase()}
+              </span>
+            </div>
           </div>
-        </div>
-        <div className="p-6">
-          <h3 className="font-semibold text-lg text-gray-900 mb-2">
-            {booking.destinations?.name || booking.events?.title}
-          </h3>
-          <div className="space-y-2 text-sm text-gray-600">
-            <p className="flex items-center gap-2">
-              <CalendarDays className="h-4 w-4" />
-              {new Date(booking.booking_date).toLocaleDateString()}
-            </p>
-            <p className="flex items-center gap-2">
-              <User className="h-4 w-4" />
-              {booking.number_of_people} {booking.number_of_people === 1 ? 'Person' : 'People'}
-            </p>
+          <div className="p-6">
+            <h3 className="font-semibold text-lg text-gray-900 mb-2">
+              {booking.destinations?.name || booking.events?.title}
+            </h3>
+            <div className="space-y-2 text-sm text-gray-600">
+              <p className="flex items-center gap-2">
+                <CalendarDays className="h-4 w-4" />
+                {new Date(booking.booking_date).toLocaleDateString()}
+              </p>
+              <p className="flex items-center gap-2">
+                <User className="h-4 w-4" />
+                {booking.number_of_people} {booking.number_of_people === 1 ? 'Person' : 'People'}
+              </p>
+            </div>
+            <div className="mt-4 pt-4 border-t border-gray-100">
+              <p className="text-lg font-semibold text-primary mb-4">
+                ${booking.total_price.toFixed(2)}
+              </p>
+              <div className="flex gap-2">
+                {booking.status === 'pending' && (
+                  <a 
+                    href="https://www.paynow.co.zw/Payment/BillPaymentLink/?q=aWQ9MTk4NTcmYW1vdW50PTAuMDAmYW1vdW50X3F1YW50aXR5PTAuMDAmbD0w" 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block"
+                  >
+                    <img 
+                      src="https://www.paynow.co.zw/Content/Buttons/Medium_buttons/button_pay-now_medium.png" 
+                      alt="Pay now with Paynow" 
+                      style={{ border: 0 }}
+                    />
+                  </a>
+                )}
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive" size="sm">
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently delete your booking.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => deleteBookingMutation.mutate(booking.id)}
+                      >
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            </div>
           </div>
-          <div className="mt-4 pt-4 border-t border-gray-100">
-            <p className="text-lg font-semibold text-primary">
-              ${booking.total_price.toFixed(2)}
-            </p>
-          </div>
-        </div>
-      </Card>
-    ))}
-  </div>
-);
+        </Card>
+      ))}
+    </div>
+  );
+};
 
 const EventsList = ({ events }: { events: any[] }) => (
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
