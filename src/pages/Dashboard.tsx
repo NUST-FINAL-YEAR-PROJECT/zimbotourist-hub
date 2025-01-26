@@ -12,6 +12,8 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Profile, Booking } from "@/types/models";
 import { useQuery } from "@tanstack/react-query";
 import { CalendarDays, MapPin, Ticket, User } from "lucide-react";
+import { AppSidebar } from "@/components/AppSidebar";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
 export const Dashboard = () => {
   const navigate = useNavigate();
@@ -73,50 +75,64 @@ export const Dashboard = () => {
 
   if (isLoadingDestinations || isLoadingEvents || isLoadingBookings || !profile) {
     return (
-      <div className="container mx-auto py-8 space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="space-y-4">
-              <Skeleton className="h-[300px] w-full" />
-              <Skeleton className="h-4 w-3/4" />
-              <Skeleton className="h-4 w-full" />
+      <SidebarProvider>
+        <div className="flex min-h-screen w-full">
+          <AppSidebar />
+          <div className="flex-1 p-8">
+            <div className="container mx-auto space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="space-y-4">
+                    <Skeleton className="h-[300px] w-full" />
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-4 w-full" />
+                  </div>
+                ))}
+              </div>
             </div>
-          ))}
+          </div>
         </div>
-      </div>
+      </SidebarProvider>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <Card className="p-6 bg-white shadow-lg rounded-xl border-none">
-            <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
-              <div className="relative">
-                <Avatar className="h-24 w-24 ring-4 ring-primary/10">
-                  <AvatarImage src={profile.avatar_url || undefined} />
-                  <AvatarFallback className="bg-primary/5 text-primary text-xl">
-                    {profile.email[0].toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="absolute -bottom-2 -right-2 bg-primary text-white p-2 rounded-full">
-                  <User className="h-4 w-4" />
-                </div>
-              </div>
-              <div className="text-center md:text-left">
-                <h2 className="text-2xl font-bold text-gray-900">{profile.username || 'Welcome!'}</h2>
-                <p className="text-muted-foreground">{profile.email}</p>
-                <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                    {profile.role}
-                  </span>
-                </div>
-              </div>
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full">
+        <AppSidebar />
+        <div className="flex-1 bg-gray-50">
+          <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between mb-6">
+              <h1 className="text-2xl font-bold">Dashboard</h1>
+              <SidebarTrigger />
             </div>
-          </Card>
-        </div>
-        
+            <div className="mb-8">
+              <Card className="p-6 bg-white shadow-lg rounded-xl border-none">
+                <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
+                  <div className="relative">
+                    <Avatar className="h-24 w-24 ring-4 ring-primary/10">
+                      <AvatarImage src={profile.avatar_url || undefined} />
+                      <AvatarFallback className="bg-primary/5 text-primary text-xl">
+                        {profile.email[0].toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="absolute -bottom-2 -right-2 bg-primary text-white p-2 rounded-full">
+                      <User className="h-4 w-4" />
+                    </div>
+                  </div>
+                  <div className="text-center md:text-left">
+                    <h2 className="text-2xl font-bold text-gray-900">{profile.username || 'Welcome!'}</h2>
+                    <p className="text-muted-foreground">{profile.email}</p>
+                    <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                        {profile.role}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            </div>
+            
         <Tabs defaultValue="bookings" className="space-y-6">
           <TabsList className="inline-flex h-12 items-center justify-center rounded-lg bg-white p-1 text-muted-foreground shadow-sm">
             <TabsTrigger 
@@ -235,7 +251,9 @@ export const Dashboard = () => {
             </div>
           </TabsContent>
         </Tabs>
+          </div>
+        </div>
       </div>
-    </div>
+    </SidebarProvider>
   );
 };
