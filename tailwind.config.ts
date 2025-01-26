@@ -22,35 +22,35 @@ export default {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
+        background: "#F8FAFC",
+        foreground: "#1E293B",
         primary: {
-          DEFAULT: "#8B4513",
+          DEFAULT: "#60A5FA",
           foreground: "#FFFFFF",
         },
         secondary: {
-          DEFAULT: "#228B22",
-          foreground: "#FFFFFF",
+          DEFAULT: "#F1F5F9",
+          foreground: "#1E293B",
         },
         accent: {
-          DEFAULT: "#F5F5DC",
-          foreground: "#000000",
+          DEFAULT: "#FDE68A",
+          foreground: "#1E293B",
         },
         muted: {
-          DEFAULT: "#F5F5F5",
-          foreground: "#666666",
+          DEFAULT: "#F1F5F9",
+          foreground: "#64748B",
         },
         popover: {
-          DEFAULT: "white",
-          foreground: "#000000",
+          DEFAULT: "#FFFFFF",
+          foreground: "#1E293B",
         },
         card: {
-          DEFAULT: "white",
-          foreground: "#000000",
+          DEFAULT: "#FFFFFF",
+          foreground: "#1E293B",
         },
         dialog: {
-          DEFAULT: "white",
-          foreground: "#000000",
+          DEFAULT: "#FFFFFF",
+          foreground: "#1E293B",
         }
       },
       fontFamily: {
