@@ -12,6 +12,10 @@
   h1, h2, h3, h4, h5, h6 {
     @apply font-display;
   }
+
+  [data-radix-popper-content-wrapper] {
+    @apply bg-white !important;
+  }
 }
 
 @layer components {
@@ -45,5 +49,9 @@
 
   .card-content {
     @apply p-6;
+  }
+
+  .dialog-content {
+    @apply bg-white shadow-xl border border-gray-200;
   }
 }

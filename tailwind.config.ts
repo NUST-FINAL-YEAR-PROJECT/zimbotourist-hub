@@ -40,6 +40,18 @@ export default {
           DEFAULT: "#F5F5F5",
           foreground: "#666666",
         },
+        popover: {
+          DEFAULT: "white",
+          foreground: "#000000",
+        },
+        card: {
+          DEFAULT: "white",
+          foreground: "#000000",
+        },
+        dialog: {
+          DEFAULT: "white",
+          foreground: "#000000",
+        }
       },
       fontFamily: {
         display: ["Playfair Display", "serif"],
