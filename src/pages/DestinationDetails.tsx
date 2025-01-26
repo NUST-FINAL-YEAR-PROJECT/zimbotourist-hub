@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DestinationCard } from "@/components/DestinationCard";
 import { motion } from "framer-motion";
-import { MapPin, Calendar, Clock, Star } from "lucide-react";
+import { MapPin, Calendar, Clock, Star, ArrowLeft } from "lucide-react";
 
 export const DestinationDetails = () => {
   const { id } = useParams();
@@ -46,20 +46,12 @@ export const DestinationDetails = () => {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto py-8 px-4 space-y-6">
+      <div className="container mx-auto py-4 px-4 space-y-4">
         <Skeleton className="h-8 w-1/3" />
-        <Skeleton className="h-[400px] w-full" />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-4">
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-2/3" />
-            <Skeleton className="h-4 w-3/4" />
-          </div>
-          <div className="space-y-4">
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-2/3" />
-            <Skeleton className="h-4 w-3/4" />
-          </div>
+        <Skeleton className="h-[300px] w-full" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Skeleton className="h-32" />
+          <Skeleton className="h-32" />
         </div>
       </div>
     );
@@ -67,8 +59,8 @@ export const DestinationDetails = () => {
 
   if (!destination) {
     return (
-      <div className="container mx-auto py-8 px-4 text-center">
-        <h1 className="text-2xl font-bold mb-4">Destination not found</h1>
+      <div className="container mx-auto py-4 px-4 text-center">
+        <h1 className="text-xl font-bold mb-4">Destination not found</h1>
         <Button onClick={() => navigate("/dashboard/destinations")}>
           Back to Destinations
         </Button>
@@ -77,33 +69,30 @@ export const DestinationDetails = () => {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="container mx-auto py-4 px-4">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-5xl mx-auto space-y-8"
+        className="max-w-4xl mx-auto space-y-6"
       >
-        <div className="flex justify-between items-center">
+        <div className="flex items-center gap-4 mb-2">
+          <Button 
+            variant="ghost" 
+            size="icon"
+            onClick={() => navigate("/dashboard/destinations")}
+            className="hover:bg-primary/10"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
           <div>
-            <motion.h1 
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="text-4xl md:text-5xl font-display font-bold text-foreground mb-2"
-            >
+            <h1 className="text-2xl md:text-3xl font-display font-bold text-foreground">
               {destination.name}
-            </motion.h1>
-            <div className="flex items-center text-muted-foreground">
-              <MapPin className="w-4 h-4 mr-2" />
+            </h1>
+            <div className="flex items-center text-muted-foreground text-sm">
+              <MapPin className="w-4 h-4 mr-1" />
               <span>{destination.location}</span>
             </div>
           </div>
-          <Button 
-            variant="outline" 
-            onClick={() => navigate("/dashboard/destinations")}
-            className="hover:bg-primary hover:text-white transition-colors"
-          >
-            Back to Destinations
-          </Button>
         </div>
 
         <motion.div 
@@ -111,7 +100,7 @@ export const DestinationDetails = () => {
           animate={{ opacity: 1, scale: 1 }}
           className="glass-card overflow-hidden"
         >
-          <div className="relative h-[400px]">
+          <div className="relative h-[300px]">
             <img
               src={destination.image_url || "/placeholder.svg"}
               alt={destination.name}
@@ -120,36 +109,26 @@ export const DestinationDetails = () => {
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <motion.div 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="space-y-6"
+            className="space-y-4"
           >
-            <div className="glass-card p-6">
-              <h3 className="text-2xl font-display font-semibold mb-4">About this destination</h3>
-              <p className="text-muted-foreground leading-relaxed">
+            <div className="glass-card p-4">
+              <h3 className="text-lg font-display font-semibold mb-2">About</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 {destination.description}
               </p>
             </div>
 
             {destination.best_time_to_visit && (
-              <div className="glass-card p-6">
-                <div className="flex items-center mb-4">
-                  <Calendar className="w-5 h-5 mr-2 text-primary" />
-                  <h3 className="text-xl font-display font-semibold">Best Time to Visit</h3>
+              <div className="glass-card p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Calendar className="w-4 h-4 text-primary" />
+                  <h3 className="text-sm font-display font-semibold">Best Time to Visit</h3>
                 </div>
-                <p className="text-muted-foreground">{destination.best_time_to_visit}</p>
-              </div>
-            )}
-
-            {destination.duration_recommended && (
-              <div className="glass-card p-6">
-                <div className="flex items-center mb-4">
-                  <Clock className="w-5 h-5 mr-2 text-primary" />
-                  <h3 className="text-xl font-display font-semibold">Recommended Duration</h3>
-                </div>
-                <p className="text-muted-foreground">{destination.duration_recommended}</p>
+                <p className="text-sm text-muted-foreground">{destination.best_time_to_visit}</p>
               </div>
             )}
           </motion.div>
@@ -157,15 +136,15 @@ export const DestinationDetails = () => {
           <motion.div 
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="space-y-6"
+            className="space-y-4"
           >
             {destination.activities && destination.activities.length > 0 && (
-              <div className="glass-card p-6">
-                <h3 className="text-2xl font-display font-semibold mb-4">Activities</h3>
-                <ul className="space-y-2">
+              <div className="glass-card p-4">
+                <h3 className="text-lg font-display font-semibold mb-2">Activities</h3>
+                <ul className="grid grid-cols-2 gap-2">
                   {destination.activities.map((activity, index) => (
-                    <li key={index} className="flex items-center text-muted-foreground">
-                      <Star className="w-4 h-4 mr-2 text-primary" />
+                    <li key={index} className="flex items-center text-sm text-muted-foreground">
+                      <Star className="w-3 h-3 mr-1 text-primary" />
                       {activity}
                     </li>
                   ))}
@@ -174,12 +153,12 @@ export const DestinationDetails = () => {
             )}
 
             {destination.amenities && destination.amenities.length > 0 && (
-              <div className="glass-card p-6">
-                <h3 className="text-2xl font-display font-semibold mb-4">Amenities</h3>
-                <ul className="space-y-2">
+              <div className="glass-card p-4">
+                <h3 className="text-lg font-display font-semibold mb-2">Amenities</h3>
+                <ul className="grid grid-cols-2 gap-2">
                   {destination.amenities.map((amenity, index) => (
-                    <li key={index} className="flex items-center text-muted-foreground">
-                      <Star className="w-4 h-4 mr-2 text-primary" />
+                    <li key={index} className="flex items-center text-sm text-muted-foreground">
+                      <Star className="w-3 h-3 mr-1 text-primary" />
                       {amenity}
                     </li>
                   ))}
@@ -192,24 +171,24 @@ export const DestinationDetails = () => {
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="glass-card p-6 flex justify-between items-center"
+          className="glass-card p-4 flex justify-between items-center"
         >
           <div>
-            <p className="text-3xl font-display font-bold text-primary">${destination.price}</p>
-            <p className="text-sm text-muted-foreground">per person</p>
+            <p className="text-2xl font-display font-bold text-primary">${destination.price}</p>
+            <p className="text-xs text-muted-foreground">per person</p>
           </div>
           <Button 
             onClick={() => navigate(`/booking/${destination.id}`)}
-            className="bg-primary hover:bg-primary/90 text-white px-8 py-6 text-lg font-semibold"
+            className="bg-primary hover:bg-primary/90 text-white"
           >
             Book Now
           </Button>
         </motion.div>
 
         {similarPlaces && similarPlaces.length > 0 && (
-          <div className="pt-12">
-            <h2 className="text-3xl font-display font-bold mb-8">Similar Places</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="pt-6">
+            <h2 className="text-xl font-display font-bold mb-4">Similar Places</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {similarPlaces.map((place) => (
                 <DestinationCard
                   key={place.id}
