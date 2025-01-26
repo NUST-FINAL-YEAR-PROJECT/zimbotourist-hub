@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -44,7 +44,7 @@ export function SettingsPage() {
   });
 
   // Fetch current user on component mount
-  useState(() => {
+  useEffect(() => {
     const getCurrentUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
@@ -52,7 +52,7 @@ export function SettingsPage() {
       }
     };
     getCurrentUser();
-  });
+  }, []);
 
   const onSubmit = async (data: SettingsFormValues) => {
     try {
@@ -224,7 +224,6 @@ export function SettingsPage() {
                 variant="outline"
                 className="w-full"
                 onClick={() => {
-                  // Implement password change logic
                   toast({
                     title: "Coming Soon",
                     description: "Password change functionality will be available soon.",
