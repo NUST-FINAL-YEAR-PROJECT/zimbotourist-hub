@@ -60,3 +60,17 @@ export interface Profile {
   username: string | null;
   avatar_url: string | null;
 }
+
+export interface Review {
+  id: string;
+  user_id: string;
+  destination_id: string;
+  rating: number;
+  comment: string | null;
+  created_at: string;
+  updated_at: string;
+  profiles?: {
+    username: string | null;
+    avatar_url: string | null;
+  };
+}

@@ -19,6 +19,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Calendar, MapPin, Users } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useProfile } from "@/hooks/useProfile";
+import { ReviewSection } from "@/components/ReviewSection";
 
 export const DestinationDetails = () => {
   const { id } = useParams();
@@ -117,7 +118,6 @@ export const DestinationDetails = () => {
     );
   }
 
-  // Since we don't have additional_images in our type, we'll just use the main image
   const images = destination.image_url ? [destination.image_url] : [];
 
   return (
@@ -196,6 +196,8 @@ export const DestinationDetails = () => {
               </Card>
             )}
           </div>
+
+          <ReviewSection destinationId={id!} userId={userId} />
         </div>
 
         <Card className="h-fit">
