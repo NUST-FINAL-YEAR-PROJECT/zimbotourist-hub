@@ -44,6 +44,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
+type BookingWithRelations = Booking & {
+  destinations: { name: string; image_url: string | null } | null;
+  events: { title: string; image_url: string | null } | null;
+};
+
 const DashboardHome = ({ profile }: { profile: Profile }) => {
   const { data: destinations, isLoading: isLoadingDestinations } = useDestinations();
   const { data: events, isLoading: isLoadingEvents } = useEvents();
@@ -134,7 +139,7 @@ const DashboardHome = ({ profile }: { profile: Profile }) => {
   );
 };
 
-const BookingsList = ({ bookings }: { bookings: Booking[] }) => {
+const BookingsList = ({ bookings }: { bookings: BookingWithRelations[] }) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -259,10 +264,7 @@ export const Dashboard = () => {
         .eq('user_id', profile.id);
 
       if (error) throw error;
-      return data as (Booking & {
-        destinations: { name: string; image_url: string | null } | null;
-        events: { title: string; image_url: string | null } | null;
-      })[];
+      return data as BookingWithRelations[];
     },
     enabled: !!profile?.id,
   });
