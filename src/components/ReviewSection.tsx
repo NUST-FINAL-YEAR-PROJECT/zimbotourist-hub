@@ -21,10 +21,10 @@ export const ReviewSection = ({ destinationId, userId }: ReviewSectionProps) => 
   const queryClient = useQueryClient();
 
   const { data: reviews, isLoading } = useQuery({
-    queryKey: ["reviews", destinationId],
+    queryKey: ["destination_reviews", destinationId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("reviews")
+        .from("destination_reviews")
         .select(`
           *,
           profiles (username, avatar_url)
@@ -39,17 +39,19 @@ export const ReviewSection = ({ destinationId, userId }: ReviewSectionProps) => 
 
   const createReviewMutation = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase.from("reviews").insert({
-        user_id: userId,
-        destination_id: destinationId,
-        rating,
-        comment,
-      });
+      const { error } = await supabase
+        .from("destination_reviews")
+        .insert({
+          user_id: userId,
+          destination_id: destinationId,
+          rating,
+          comment,
+        });
 
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["reviews", destinationId] });
+      queryClient.invalidateQueries({ queryKey: ["destination_reviews", destinationId] });
       setComment("");
       setRating(5);
       toast({
@@ -69,14 +71,14 @@ export const ReviewSection = ({ destinationId, userId }: ReviewSectionProps) => 
   const updateReviewMutation = useMutation({
     mutationFn: async () => {
       const { error } = await supabase
-        .from("reviews")
+        .from("destination_reviews")
         .update({ rating, comment })
         .eq("id", editingReviewId);
 
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["reviews", destinationId] });
+      queryClient.invalidateQueries({ queryKey: ["destination_reviews", destinationId] });
       setEditingReviewId(null);
       setComment("");
       setRating(5);
@@ -97,14 +99,14 @@ export const ReviewSection = ({ destinationId, userId }: ReviewSectionProps) => 
   const deleteReviewMutation = useMutation({
     mutationFn: async (reviewId: string) => {
       const { error } = await supabase
-        .from("reviews")
+        .from("destination_reviews")
         .delete()
         .eq("id", reviewId);
 
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["reviews", destinationId] });
+      queryClient.invalidateQueries({ queryKey: ["destination_reviews", destinationId] });
       toast({
         title: "Review deleted",
         description: "Your review has been deleted successfully.",
