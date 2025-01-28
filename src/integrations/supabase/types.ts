@@ -51,11 +51,13 @@ export type Database = {
       bookings: {
         Row: {
           booking_date: string
+          booking_details: Json | null
           created_at: string
           destination_id: string | null
           event_id: string | null
           id: string
           number_of_people: number
+          preferred_date: string
           status: string
           total_price: number
           updated_at: string
@@ -63,11 +65,13 @@ export type Database = {
         }
         Insert: {
           booking_date: string
+          booking_details?: Json | null
           created_at?: string
           destination_id?: string | null
           event_id?: string | null
           id?: string
           number_of_people?: number
+          preferred_date?: string
           status?: string
           total_price: number
           updated_at?: string
@@ -75,11 +79,13 @@ export type Database = {
         }
         Update: {
           booking_date?: string
+          booking_details?: Json | null
           created_at?: string
           destination_id?: string | null
           event_id?: string | null
           id?: string
           number_of_people?: number
+          preferred_date?: string
           status?: string
           total_price?: number
           updated_at?: string
@@ -366,6 +372,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_similar_destinations: {
+        Args: {
+          destination_id: string
+        }
+        Returns: {
+          id: string
+          name: string
+          description: string
+          location: string
+          price: number
+          image_url: string
+        }[]
+      }
       is_admin: {
         Args: {
           user_id: string

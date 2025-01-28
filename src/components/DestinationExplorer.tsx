@@ -41,6 +41,7 @@ export const DestinationExplorer = ({ destinations, isLoading }: DestinationExpl
             title={destination.name}
             description={destination.description || ""}
             price={`$${destination.price}`}
+            showSimilar={true}
           />
         ))}
       </div>
