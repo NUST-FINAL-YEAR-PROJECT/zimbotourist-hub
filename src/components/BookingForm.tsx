@@ -5,8 +5,10 @@ import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { BookingInvoice } from "./BookingInvoice";
 import type { Destination } from "@/types/models";
 
 interface BookingFormProps {
@@ -147,6 +149,22 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
               <span>${destination.price * numberOfPeople}</span>
             </div>
           </div>
+          
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button className="w-full" variant="outline">
+                Preview Invoice
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-4xl h-[700px]">
+              {date && <BookingInvoice 
+                destination={destination}
+                numberOfPeople={numberOfPeople}
+                date={date}
+              />}
+            </DialogContent>
+          </Dialog>
+
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => setStep(2)}>
               Back
