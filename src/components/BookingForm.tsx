@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
@@ -19,14 +19,31 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
   const [date, setDate] = useState<Date>();
   const [numberOfPeople, setNumberOfPeople] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [userId, setUserId] = useState<string>();
   const { toast } = useToast();
 
   const progress = (step / 3) * 100;
+
+  useEffect(() => {
+    const getUserId = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUserId(user?.id);
+    };
+    getUserId();
+  }, []);
 
   const handleSubmit = async () => {
     if (!date) {
       toast({
         title: "Please select a date",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!userId) {
+      toast({
+        title: "Please log in to make a booking",
         variant: "destructive",
       });
       return;
@@ -42,6 +59,7 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
           number_of_people: numberOfPeople,
           total_price: destination.price * numberOfPeople,
           booking_date: new Date().toISOString(),
+          user_id: userId,
         })
         .select()
         .single();
