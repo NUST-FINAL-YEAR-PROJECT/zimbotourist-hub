@@ -1,18 +1,29 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
+import { Image } from "lucide-react";
 
 const Documentation = () => {
   const [activeTab, setActiveTab] = useState("architecture");
 
-  const handleDownload = (imageName: string) => {
-    const link = document.createElement("a");
-    link.href = `/${imageName}.png`;
-    link.download = `${imageName}.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const DiagramDisplay = ({ src, alt, fallbackText }: { src: string; alt: string; fallbackText: string }) => {
+    return (
+      <div className="relative bg-white rounded-lg shadow-md overflow-hidden">
+        <img 
+          src={src} 
+          alt={alt} 
+          className="max-w-full h-auto mx-auto"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.style.display = 'none';
+            target.nextElementSibling?.classList.remove('hidden');
+          }}
+        />
+        <div className="hidden p-8 text-center text-gray-500">
+          <Image className="w-12 h-12 mx-auto mb-4" />
+          <p>{fallbackText}</p>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -29,19 +40,13 @@ const Documentation = () => {
 
         <TabsContent value="architecture" className="mt-6">
           <div className="bg-white p-6 rounded-lg shadow-md">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-semibold">System Architecture</h2>
-              <Button onClick={() => handleDownload("architecture")}>
-                <Download className="mr-2 h-4 w-4" />
-                Download Diagram
-              </Button>
-            </div>
-            <img 
+            <h2 className="text-2xl font-semibold mb-4">System Architecture</h2>
+            <DiagramDisplay 
               src="/architecture.png" 
-              alt="System Architecture" 
-              className="max-w-2xl mx-auto mb-4"
+              alt="System Architecture"
+              fallbackText="System architecture diagram will be displayed here"
             />
-            <div className="prose max-w-none">
+            <div className="prose max-w-none mt-6">
               <h3>Frontend Technologies</h3>
               <ul>
                 <li>React with TypeScript</li>
@@ -65,19 +70,13 @@ const Documentation = () => {
 
         <TabsContent value="sequence" className="mt-6">
           <div className="bg-white p-6 rounded-lg shadow-md">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-semibold">Sequence Diagram</h2>
-              <Button onClick={() => handleDownload("sequence")}>
-                <Download className="mr-2 h-4 w-4" />
-                Download Diagram
-              </Button>
-            </div>
-            <img 
+            <h2 className="text-2xl font-semibold mb-4">Sequence Diagram</h2>
+            <DiagramDisplay 
               src="/sequence.png" 
-              alt="Sequence Diagram" 
-              className="max-w-2xl mx-auto mb-4"
+              alt="Sequence Diagram"
+              fallbackText="Sequence diagram will be displayed here"
             />
-            <div className="prose max-w-none">
+            <div className="prose max-w-none mt-6">
               <h3>Key User Flows</h3>
               <ol>
                 <li>User Authentication Flow</li>
@@ -91,19 +90,13 @@ const Documentation = () => {
 
         <TabsContent value="er" className="mt-6">
           <div className="bg-white p-6 rounded-lg shadow-md">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-semibold">ER Diagram</h2>
-              <Button onClick={() => handleDownload("er")}>
-                <Download className="mr-2 h-4 w-4" />
-                Download Diagram
-              </Button>
-            </div>
-            <img 
+            <h2 className="text-2xl font-semibold mb-4">ER Diagram</h2>
+            <DiagramDisplay 
               src="/er.png" 
-              alt="ER Diagram" 
-              className="max-w-2xl mx-auto mb-4"
+              alt="ER Diagram"
+              fallbackText="ER diagram will be displayed here"
             />
-            <div className="prose max-w-none">
+            <div className="prose max-w-none mt-6">
               <h3>Database Tables</h3>
               <ul>
                 <li>Profiles</li>
