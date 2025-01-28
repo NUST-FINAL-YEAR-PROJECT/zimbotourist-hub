@@ -5,6 +5,9 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Destination } from "@/types/models";
 
+// Create a type for the simplified destination returned by the Supabase function
+type SimplifiedDestination = Pick<Destination, 'id' | 'name' | 'description' | 'location' | 'price' | 'image_url'>;
+
 interface DestinationCardProps {
   image: string;
   title: string;
@@ -25,7 +28,7 @@ export const DestinationCard = ({
   showSimilar = false
 }: DestinationCardProps) => {
   const navigate = useNavigate();
-  const [similarDestinations, setSimilarDestinations] = useState<Destination[]>([]);
+  const [similarDestinations, setSimilarDestinations] = useState<SimplifiedDestination[]>([]);
   const [showingSimilar, setShowingSimilar] = useState(false);
 
   const handleViewDetails = (e: React.MouseEvent) => {
