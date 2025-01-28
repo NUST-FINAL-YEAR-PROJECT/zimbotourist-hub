@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import { Dashboard } from "./pages/Dashboard";
 import { DestinationDetails } from "./pages/DestinationDetails";
+import Documentation from "./pages/Documentation";
 import type { User } from "@supabase/supabase-js";
 
 const queryClient = new QueryClient();
@@ -52,6 +53,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/documentation" element={<Documentation />} />
           <Route
             path="/dashboard/*"
             element={
