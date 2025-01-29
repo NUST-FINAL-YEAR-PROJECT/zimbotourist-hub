@@ -1,6 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
 import { MapPin, Calendar, Clock, Star, Activity, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { BookingForm } from "@/components/BookingForm";
@@ -18,35 +17,49 @@ export const DestinationDetails = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
-  const { data: destination, isLoading } = useQuery({
+  const { data: destination, isLoading, error } = useQuery({
     queryKey: ["destination", id],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("destinations")
         .select("*")
         .eq("id", id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
+      if (!data) throw new Error("Destination not found");
       return data as Destination;
     },
   });
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (!destination) {
-    return <div>Destination not found</div>;
-  }
-
   const handleBack = () => {
-    navigate(-1); // This will go back to the previous page
+    navigate(-1);
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (error || !destination) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+        <p className="text-lg text-gray-600">
+          {error?.message || "Destination not found"}
+        </p>
+        <Button onClick={handleBack} variant="outline">
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Go Back
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Mobile Navigation Header */}
       {isMobile && (
         <div className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200 px-4 py-2">
           <Button
@@ -63,9 +76,7 @@ export const DestinationDetails = () => {
 
       <div className="container mx-auto px-4 py-8 mt-14 md:mt-0">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content - Left Column (2/3) */}
           <div className="lg:col-span-2 space-y-8">
-            {/* Hero Image */}
             <div className="relative aspect-video rounded-lg overflow-hidden">
               <img
                 src={destination.image_url || "/placeholder.svg"}
@@ -74,7 +85,6 @@ export const DestinationDetails = () => {
               />
             </div>
 
-            {/* Destination Info */}
             <div className="space-y-6">
               <h1 className="text-3xl font-bold">{destination.name}</h1>
               
@@ -99,7 +109,6 @@ export const DestinationDetails = () => {
 
               <p className="text-gray-600">{destination.description}</p>
 
-              {/* Activities */}
               {destination.activities && destination.activities.length > 0 && (
                 <Card>
                   <CardContent className="pt-6">
@@ -119,7 +128,6 @@ export const DestinationDetails = () => {
                 </Card>
               )}
 
-              {/* Amenities */}
               {destination.amenities && destination.amenities.length > 0 && (
                 <Card>
                   <CardContent className="pt-6">
@@ -139,14 +147,11 @@ export const DestinationDetails = () => {
                 </Card>
               )}
 
-              {/* Reviews Section */}
               <ReviewSection destinationId={destination.id} />
             </div>
           </div>
 
-          {/* Sidebar - Right Column (1/3) */}
           <div className="space-y-8">
-            {/* Booking Form */}
             <Card>
               <CardContent className="pt-6">
                 <BookingForm 
@@ -161,7 +166,6 @@ export const DestinationDetails = () => {
               </CardContent>
             </Card>
 
-            {/* Similar Destinations */}
             <SimilarDestinations destinationId={destination.id} />
           </div>
         </div>
