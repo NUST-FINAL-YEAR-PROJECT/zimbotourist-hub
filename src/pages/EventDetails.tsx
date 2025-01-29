@@ -1,17 +1,14 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, MapPin, Users, ArrowLeft } from "lucide-react";
-import { EventBookingForm } from "@/components/EventBookingForm";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { CalendarDays, MapPin, Users } from "lucide-react";
 import type { Event } from "@/types/models";
 
 export const EventDetails = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
 
   const { data: event, isLoading } = useQuery({
     queryKey: ["event", id],
@@ -52,38 +49,29 @@ export const EventDetails = () => {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate(-1)}
-          className="h-8 w-8"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
+      <div className="space-y-4">
         <h1 className="text-3xl font-bold">{event.title}</h1>
-      </div>
-
-      <div className="flex items-center space-x-4 text-gray-600">
-        <div className="flex items-center">
-          <CalendarDays className="w-5 h-5 mr-2" />
-          <span>
-            {format(new Date(event.start_date), "PPP")} -{" "}
-            {format(new Date(event.end_date), "PPP")}
-          </span>
+        <div className="flex items-center space-x-4 text-gray-600">
+          <div className="flex items-center">
+            <CalendarDays className="w-5 h-5 mr-2" />
+            <span>
+              {format(new Date(event.start_date), "PPP")} -{" "}
+              {format(new Date(event.end_date), "PPP")}
+            </span>
+          </div>
+          {event.location && (
+            <div className="flex items-center">
+              <MapPin className="w-5 h-5 mr-2" />
+              <span>{event.location}</span>
+            </div>
+          )}
+          {event.capacity && (
+            <div className="flex items-center">
+              <Users className="w-5 h-5 mr-2" />
+              <span>{event.capacity} attendees max</span>
+            </div>
+          )}
         </div>
-        {event.location && (
-          <div className="flex items-center">
-            <MapPin className="w-5 h-5 mr-2" />
-            <span>{event.location}</span>
-          </div>
-        )}
-        {event.capacity && (
-          <div className="flex items-center">
-            <Users className="w-5 h-5 mr-2" />
-            <span>{event.capacity} attendees max</span>
-          </div>
-        )}
       </div>
 
       {event.image_url && (
@@ -123,16 +111,9 @@ export const EventDetails = () => {
         )}
       </div>
 
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button size="lg" className="w-full md:w-auto">
-            Book Now
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="max-w-4xl">
-          <EventBookingForm event={event} onSuccess={() => navigate("/dashboard/bookings")} />
-        </DialogContent>
-      </Dialog>
+      <Button size="lg" className="w-full md:w-auto">
+        Book Now
+      </Button>
     </div>
   );
 };
