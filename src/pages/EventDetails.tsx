@@ -13,7 +13,7 @@ export const EventDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const { data: event, isLoading } = useQuery({
+  const { data: event, isLoading, error } = useQuery({
     queryKey: ["event", id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -23,6 +23,7 @@ export const EventDetails = () => {
         .maybeSingle();
 
       if (error) throw error;
+      if (!data) throw new Error("Event not found");
       return data as Event;
     },
     enabled: !!id,
@@ -42,10 +43,15 @@ export const EventDetails = () => {
     );
   }
 
-  if (!event) {
+  if (error || !event) {
     return (
-      <div className="container mx-auto p-6">
-        <h1 className="text-2xl font-bold">Event not found</h1>
+      <div className="container mx-auto p-6 flex flex-col items-center justify-center gap-4">
+        <h1 className="text-2xl font-bold text-red-600">
+          {error?.message || "Event not found"}
+        </h1>
+        <Button variant="outline" onClick={() => navigate(-1)} className="gap-2">
+          <ArrowLeft className="h-4 w-4" /> Go Back
+        </Button>
       </div>
     );
   }
