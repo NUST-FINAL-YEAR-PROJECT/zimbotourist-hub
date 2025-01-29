@@ -20,27 +20,22 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check current session
+    // Check current session and handle refresh token errors
     const checkSession = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
           console.error("Session error:", error);
-          // Clear any stale session data and redirect to auth
+          toast.error("Session expired. Please login again.");
+          // Clear any stale session data
           await supabase.auth.signOut();
           setUser(null);
-          toast.error("Session expired. Please login again.");
           return;
         }
 
-        if (!session) {
-          setUser(null);
-          return;
-        }
-
-        setUser(session.user);
-      } catch (error: any) {
+        setUser(session?.user ?? null);
+      } catch (error) {
         console.error("Session check error:", error);
         toast.error("An error occurred checking your session");
         setUser(null);
@@ -53,13 +48,11 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN') {
-        setUser(session?.user ?? null);
+      if (event === 'TOKEN_REFRESHED') {
+        console.log('Token has been refreshed');
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
-      } else if (event === 'TOKEN_REFRESHED') {
-        setUser(session?.user ?? null);
-      } else if (event === 'USER_UPDATED') {
+      } else if (event === 'SIGNED_IN') {
         setUser(session?.user ?? null);
       }
     });
@@ -70,11 +63,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
 
   if (!user) {

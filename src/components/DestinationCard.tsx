@@ -34,7 +34,7 @@ export const DestinationCard = ({
   const handleViewDetails = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (id) {
-      navigate(`/destination/${id}`); // Changed from window.open to navigate
+      window.open(`/destination/${id}`, '_blank');
     }
   };
 
@@ -59,7 +59,7 @@ export const DestinationCard = ({
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
       className="glass-card overflow-hidden cursor-pointer group"
-      onClick={handleViewDetails} // Changed to use handleViewDetails directly
+      onClick={onClick}
     >
       <div className="relative aspect-[4/3] overflow-hidden">
         <img 
@@ -108,7 +108,7 @@ export const DestinationCard = ({
                 className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/50 transition-colors"
                 onClick={(e) => {
                   e.stopPropagation();
-                  navigate(`/destination/${dest.id}`); // Changed from window.open to navigate
+                  window.open(`/destination/${dest.id}`, '_blank');
                 }}
               >
                 <img 
