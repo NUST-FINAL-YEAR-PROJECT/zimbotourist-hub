@@ -52,9 +52,6 @@ export type Database = {
         Row: {
           booking_date: string
           booking_details: Json | null
-          contact_email: string
-          contact_name: string
-          contact_phone: string
           created_at: string
           destination_id: string | null
           event_id: string | null
@@ -69,9 +66,6 @@ export type Database = {
         Insert: {
           booking_date: string
           booking_details?: Json | null
-          contact_email?: string
-          contact_name?: string
-          contact_phone?: string
           created_at?: string
           destination_id?: string | null
           event_id?: string | null
@@ -86,9 +80,6 @@ export type Database = {
         Update: {
           booking_date?: string
           booking_details?: Json | null
-          contact_email?: string
-          contact_name?: string
-          contact_phone?: string
           created_at?: string
           destination_id?: string | null
           event_id?: string | null
