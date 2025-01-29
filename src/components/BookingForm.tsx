@@ -9,6 +9,8 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { BookingInvoice } from "./BookingInvoice";
+import { ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import type { Destination } from "@/types/models";
 
 interface BookingFormProps {
@@ -20,11 +22,15 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
   const [step, setStep] = useState(1);
   const [date, setDate] = useState<Date>();
   const [numberOfPeople, setNumberOfPeople] = useState(1);
+  const [contactName, setContactName] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userId, setUserId] = useState<string>();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const progress = (step / 3) * 100;
+  const progress = (step / 4) * 100;
 
   useEffect(() => {
     const getUserId = async () => {
@@ -35,9 +41,9 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
   }, []);
 
   const handleSubmit = async () => {
-    if (!date) {
+    if (!date || !contactName || !contactEmail || !contactPhone) {
       toast({
-        title: "Please select a date",
+        title: "Please fill in all required fields",
         variant: "destructive",
       });
       return;
@@ -62,6 +68,9 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
           total_price: destination.price * numberOfPeople,
           booking_date: new Date().toISOString(),
           user_id: userId,
+          contact_name: contactName,
+          contact_email: contactEmail,
+          contact_phone: contactPhone,
         })
         .select()
         .single();
@@ -134,6 +143,44 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
 
       {step === 3 && (
         <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Contact Details</h3>
+          <Input
+            placeholder="Full Name"
+            value={contactName}
+            onChange={(e) => setContactName(e.target.value)}
+            required
+          />
+          <Input
+            type="email"
+            placeholder="Email Address"
+            value={contactEmail}
+            onChange={(e) => setContactEmail(e.target.value)}
+            required
+          />
+          <Input
+            type="tel"
+            placeholder="Phone Number"
+            value={contactPhone}
+            onChange={(e) => setContactPhone(e.target.value)}
+            required
+          />
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setStep(2)}>
+              Back
+            </Button>
+            <Button 
+              className="flex-1" 
+              onClick={() => setStep(4)}
+              disabled={!contactName || !contactEmail || !contactPhone}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {step === 4 && (
+        <div className="space-y-4">
           <h3 className="text-lg font-semibold">Confirm Booking</h3>
           <div className="rounded-lg border p-4 space-y-2">
             <div className="flex justify-between">
@@ -143,6 +190,18 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
             <div className="flex justify-between">
               <span>Number of People</span>
               <span>{numberOfPeople}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Contact Name</span>
+              <span>{contactName}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Contact Email</span>
+              <span>{contactEmail}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Contact Phone</span>
+              <span>{contactPhone}</span>
             </div>
             <div className="flex justify-between font-semibold">
               <span>Total Price</span>
@@ -161,12 +220,15 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
                 destination={destination}
                 numberOfPeople={numberOfPeople}
                 date={date}
+                contactName={contactName}
+                contactEmail={contactEmail}
+                contactPhone={contactPhone}
               />}
             </DialogContent>
           </Dialog>
 
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setStep(2)}>
+            <Button variant="outline" onClick={() => setStep(3)}>
               Back
             </Button>
             <Button 
