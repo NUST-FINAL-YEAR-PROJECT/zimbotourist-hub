@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { format } from "date-fns";
 import { MapPin, Calendar, Clock, Star, Activity, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { BookingForm } from "@/components/BookingForm";
@@ -17,45 +18,31 @@ export const DestinationDetails = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
-  const { data: destination, isLoading, error } = useQuery({
+  const { data: destination, isLoading } = useQuery({
     queryKey: ["destination", id],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("destinations")
         .select("*")
         .eq("id", id)
-        .maybeSingle();
+        .single();
 
       if (error) throw error;
-      if (!data) throw new Error("Destination not found");
       return data as Destination;
     },
   });
 
-  const handleBack = () => {
-    navigate(-1);
-  };
-
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse text-lg">Loading...</div>
-      </div>
-    );
+    return <div>Loading...</div>;
   }
 
-  if (error || !destination) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
-        <h1 className="text-2xl font-semibold text-red-600">
-          {error?.message || "Destination not found"}
-        </h1>
-        <Button onClick={handleBack} variant="outline" className="gap-2">
-          <ArrowLeft className="h-4 w-4" /> Go Back
-        </Button>
-      </div>
-    );
+  if (!destination) {
+    return <div>Destination not found</div>;
   }
+
+  const handleBack = () => {
+    navigate(-1); // This will go back to the previous page
+  };
 
   return (
     <div className="min-h-screen bg-background">
