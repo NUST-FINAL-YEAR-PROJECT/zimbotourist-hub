@@ -39,7 +39,14 @@ export const ChatAssistant = () => {
       setUser(session?.user || null);
     });
 
-    return () => subscription.unsubscribe();
+    // Listen for custom event to toggle chat
+    const handleToggleChat = () => setIsOpen(prev => !prev);
+    window.addEventListener('toggleChatAssistant', handleToggleChat);
+
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener('toggleChatAssistant', handleToggleChat);
+    };
   }, []);
 
   useEffect(() => {
@@ -129,12 +136,13 @@ export const ChatAssistant = () => {
 
       if (fetchError) throw fetchError;
 
-      const typedMessages = messages.map(msg => ({
-        ...msg,
-        role: msg.role as 'user' | 'assistant'
-      }));
-
-      setConversation(prev => prev ? { ...prev, messages: typedMessages } : null);
+      setConversation(prev => prev ? {
+        ...prev,
+        messages: messages.map(msg => ({
+          ...msg,
+          role: msg.role as 'user' | 'assistant'
+        }))
+      } : null);
       setMessage("");
     } catch (error) {
       console.error('Error sending message:', error);
@@ -150,7 +158,7 @@ export const ChatAssistant = () => {
     <>
       <Button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 bg-primary text-white"
+        className="fixed bottom-6 left-6 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 bg-primary text-white"
         size="icon"
       >
         <MessageCircle className="h-6 w-6" />
@@ -163,7 +171,7 @@ export const ChatAssistant = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-24 right-6 w-[380px] h-[600px] bg-white rounded-2xl shadow-xl flex flex-col overflow-hidden border border-gray-100"
+            className="fixed bottom-24 left-6 w-[380px] h-[600px] bg-white rounded-2xl shadow-xl flex flex-col overflow-hidden border border-gray-100"
           >
             <div className="p-4 border-b flex justify-between items-center bg-primary text-white">
               <h3 className="font-semibold">Zimbabwe Travel Assistant</h3>
