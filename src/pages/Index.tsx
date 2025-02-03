@@ -6,7 +6,7 @@ import { useDestinations } from "@/hooks/useDestinations";
 import { useEvents } from "@/hooks/useEvents";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
-import { Search, MapPin, Calendar, Compass, Globe, ArrowRight, Plane, Sun, Users } from "lucide-react";
+import { Search, MapPin, Calendar, Compass, Globe, ArrowRight, Users, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -61,28 +61,37 @@ const Index = () => {
     {
       icon: Globe,
       title: "Explore Zimbabwe",
-      description: "Discover hidden gems and popular attractions"
+      description: "Discover hidden gems and popular attractions",
+      color: "bg-blue-500"
     },
     {
       icon: Compass,
       title: "Adventure Tours",
-      description: "Experience thrilling safaris and nature walks"
+      description: "Experience thrilling safaris and nature walks",
+      color: "bg-green-500"
+    },
+    {
+      icon: Sun,
+      title: "Perfect Weather",
+      description: "Enjoy year-round sunshine and mild climate",
+      color: "bg-yellow-500"
     },
     {
       icon: Users,
       title: "Local Guides",
-      description: "Connect with experienced local guides"
+      description: "Connect with experienced local guides",
+      color: "bg-purple-500"
     }
   ];
 
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="hero-section relative h-[80vh] overflow-hidden">
+      <section className="hero-section relative h-[90vh] overflow-hidden">
         <motion.div
           initial={{ scale: 1.1 }}
           animate={{ scale: 1 }}
-          transition={{ duration: 10, repeat: Infinity, repeatType: "reverse" }}
+          transition={{ duration: 20, repeat: Infinity, repeatType: "reverse" }}
           className="absolute inset-0"
         >
           <img
@@ -90,8 +99,8 @@ const Index = () => {
             alt="Victoria Falls"
             className="absolute inset-0 w-full h-full object-cover"
           />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70" />
         </motion.div>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70" />
         
         {/* Navigation */}
         <div className="relative z-10 container mx-auto px-4">
@@ -125,7 +134,7 @@ const Index = () => {
                   Sign In
                 </Button>
                 <Button
-                  className="bg-primary hover:bg-primary/90"
+                  className="bg-primary hover:bg-primary/90 shadow-lg hover:shadow-xl transition-all duration-300"
                   onClick={() => handleAuthClick('signup')}
                 >
                   Get Started
@@ -141,7 +150,7 @@ const Index = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="w-full max-w-3xl space-y-6"
+            className="w-full max-w-4xl space-y-8"
           >
             <h1 className="text-5xl md:text-7xl font-display font-bold text-white mb-6 leading-tight">
               Discover Zimbabwe's <span className="text-primary">Natural Wonders</span>
@@ -151,7 +160,7 @@ const Index = () => {
             </p>
             
             {/* Search Section */}
-            <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-4 shadow-lg max-w-2xl mx-auto">
+            <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl max-w-3xl mx-auto transform hover:scale-[1.02] transition-all duration-300">
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-1 relative">
                   <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -160,7 +169,7 @@ const Index = () => {
                     placeholder="Where are you going?"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 py-6 text-lg"
+                    className="pl-10 py-6 text-lg border-2 border-gray-100 focus:border-primary/20"
                   />
                 </div>
                 <div className="flex-1 relative">
@@ -168,11 +177,11 @@ const Index = () => {
                   <Input
                     type="text"
                     placeholder="Add dates"
-                    className="pl-10 py-6 text-lg"
+                    className="pl-10 py-6 text-lg border-2 border-gray-100 focus:border-primary/20"
                   />
                 </div>
                 <Button 
-                  className="bg-primary hover:bg-primary/90 text-lg py-6 px-8"
+                  className="bg-primary hover:bg-primary/90 text-lg py-6 px-8 shadow-lg hover:shadow-xl transition-all duration-300"
                   onClick={() => console.log("Search for:", searchQuery)}
                 >
                   <Search className="w-5 h-5 mr-2" />
@@ -182,24 +191,40 @@ const Index = () => {
             </div>
           </motion.div>
         </div>
+
+        {/* Scroll Indicator */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1, y: [0, 10, 0] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
+        >
+          <div className="w-6 h-10 border-2 border-white/50 rounded-full flex items-start justify-center p-2">
+            <motion.div
+              animate={{ y: [0, 12, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+              className="w-1.5 h-1.5 bg-white rounded-full"
+            />
+          </div>
+        </motion.div>
       </section>
 
       {/* Features Section */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="text-center p-6 rounded-xl hover:bg-gray-50 transition-colors duration-300"
+                className="text-center p-8 rounded-xl hover:bg-gray-50 transition-colors duration-300"
               >
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 text-primary mb-4">
-                  <feature.icon size={24} />
+                <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full ${feature.color} bg-opacity-10 mb-6`}>
+                  <feature.icon size={24} className={feature.color.replace('bg-', 'text-')} />
                 </div>
-                <h3 className="text-xl font-display font-semibold mb-2">{feature.title}</h3>
+                <h3 className="text-xl font-display font-semibold mb-3">{feature.title}</h3>
                 <p className="text-muted-foreground">{feature.description}</p>
               </motion.div>
             ))}
@@ -217,7 +242,7 @@ const Index = () => {
               </h2>
               <p className="text-muted-foreground">Explore our hand-picked destinations</p>
             </div>
-            <Button variant="ghost" className="text-primary group">
+            <Button variant="ghost" className="text-primary group hidden md:flex">
               View all 
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Button>
@@ -227,14 +252,14 @@ const Index = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="space-y-4">
-                  <Skeleton className="h-48 w-full" />
+                  <Skeleton className="h-48 w-full rounded-xl" />
                   <Skeleton className="h-4 w-3/4" />
                   <Skeleton className="h-4 w-full" />
                 </div>
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {(filteredDestinations || []).slice(0, 6).map((destination) => (
                 <DestinationCard
                   key={destination.id}
@@ -246,8 +271,14 @@ const Index = () => {
                 />
               ))}
               {filteredDestinations?.length === 0 && (
-                <div className="col-span-full text-center text-muted-foreground py-8">
-                  No destinations found matching your search.
+                <div className="col-span-full text-center py-12">
+                  <div className="max-w-md mx-auto">
+                    <Search className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold mb-2">No destinations found</h3>
+                    <p className="text-muted-foreground">
+                      Try adjusting your search criteria or explore our popular destinations
+                    </p>
+                  </div>
                 </div>
               )}
             </div>
@@ -272,7 +303,7 @@ const Index = () => {
             </p>
             <Button
               size="lg"
-              className="bg-white text-primary hover:bg-white/90"
+              className="bg-white text-primary hover:bg-white/90 shadow-lg hover:shadow-xl transition-all duration-300"
               onClick={() => handleAuthClick('signup')}
             >
               Start Planning Today
