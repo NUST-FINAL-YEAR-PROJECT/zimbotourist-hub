@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Search, MapPin, Calendar, Compass, Globe, ArrowRight, Users, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { ChatAssistant } from "@/components/ChatAssistant";
 
 const Index = () => {
   const { data: destinations, isLoading: isLoadingDestinations } = useDestinations();
@@ -311,6 +312,9 @@ const Index = () => {
           </motion.div>
         </div>
       </section>
+
+      {/* Chat Assistant */}
+      <ChatAssistant />
     </div>
   );
 };
