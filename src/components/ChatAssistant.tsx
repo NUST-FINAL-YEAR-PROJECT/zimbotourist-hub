@@ -25,7 +25,22 @@ export const ChatAssistant = () => {
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [conversation, setConversation] = useState<Conversation | null>(null);
+  const [user, setUser] = useState<any>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user || null);
+    };
+    checkUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -35,7 +50,6 @@ export const ChatAssistant = () => {
 
   const createNewConversation = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         toast.error("Please sign in to use the chat assistant");
         return null;
@@ -79,15 +93,29 @@ export const ChatAssistant = () => {
 
       if (userMessageError) throw userMessageError;
 
-      // Simulate AI response (replace with actual AI integration)
-      const aiResponse = "I'm here to help you explore Zimbabwe's destinations! You can ask me about specific locations, activities, or travel tips.";
+      // Get AI response
+      const response = await fetch('/functions/v1/chat-completion', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({ message }),
+      });
+
+      const data = await response.json();
       
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to get AI response');
+      }
+
+      // Insert AI response
       const { error: aiMessageError } = await supabase
         .from('chat_messages')
         .insert([{
           conversation_id: conversation.id,
           role: 'assistant' as const,
-          content: aiResponse
+          content: data.response
         }]);
 
       if (aiMessageError) throw aiMessageError;
@@ -101,11 +129,10 @@ export const ChatAssistant = () => {
 
       if (fetchError) throw fetchError;
 
-      // Type assertion to ensure messages conform to Message interface
-      const typedMessages = messages?.map(msg => ({
+      const typedMessages = messages.map(msg => ({
         ...msg,
         role: msg.role as 'user' | 'assistant'
-      })) || [];
+      }));
 
       setConversation(prev => prev ? { ...prev, messages: typedMessages } : null);
       setMessage("");
@@ -116,6 +143,8 @@ export const ChatAssistant = () => {
       setIsLoading(false);
     }
   };
+
+  if (!user) return null;
 
   return (
     <>
@@ -136,9 +165,8 @@ export const ChatAssistant = () => {
             transition={{ duration: 0.2 }}
             className="fixed bottom-24 right-6 w-[380px] h-[600px] bg-white rounded-2xl shadow-xl flex flex-col overflow-hidden border border-gray-100"
           >
-            {/* Header */}
             <div className="p-4 border-b flex justify-between items-center bg-primary text-white">
-              <h3 className="font-semibold">Travel Assistant</h3>
+              <h3 className="font-semibold">Zimbabwe Travel Assistant</h3>
               <Button
                 variant="ghost"
                 size="icon"
@@ -149,13 +177,12 @@ export const ChatAssistant = () => {
               </Button>
             </div>
 
-            {/* Messages */}
             <ScrollArea ref={scrollRef} className="flex-1 p-4">
               <div className="space-y-4">
                 {!conversation?.messages?.length && (
                   <div className="text-center text-muted-foreground py-8">
                     <MessageCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    <p>Start a conversation with your travel assistant!</p>
+                    <p>Ask me anything about traveling in Zimbabwe!</p>
                   </div>
                 )}
                 {conversation?.messages?.map((msg) => (
@@ -177,7 +204,6 @@ export const ChatAssistant = () => {
               </div>
             </ScrollArea>
 
-            {/* Input */}
             <div className="p-4 border-t bg-gray-50">
               <form
                 onSubmit={(e) => {
