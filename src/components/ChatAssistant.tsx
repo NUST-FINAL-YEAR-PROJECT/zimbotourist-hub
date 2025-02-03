@@ -73,7 +73,7 @@ export const ChatAssistant = () => {
         .from('chat_messages')
         .insert([{
           conversation_id: conversation.id,
-          role: 'user',
+          role: 'user' as const,
           content: message
         }]);
 
@@ -86,7 +86,7 @@ export const ChatAssistant = () => {
         .from('chat_messages')
         .insert([{
           conversation_id: conversation.id,
-          role: 'assistant',
+          role: 'assistant' as const,
           content: aiResponse
         }]);
 
@@ -101,7 +101,13 @@ export const ChatAssistant = () => {
 
       if (fetchError) throw fetchError;
 
-      setConversation(prev => prev ? { ...prev, messages: messages || [] } : null);
+      // Type assertion to ensure messages conform to Message interface
+      const typedMessages = messages?.map(msg => ({
+        ...msg,
+        role: msg.role as 'user' | 'assistant'
+      })) || [];
+
+      setConversation(prev => prev ? { ...prev, messages: typedMessages } : null);
       setMessage("");
     } catch (error) {
       console.error('Error sending message:', error);
