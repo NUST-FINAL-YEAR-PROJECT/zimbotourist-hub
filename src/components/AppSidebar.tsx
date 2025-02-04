@@ -1,3 +1,4 @@
+
 import { useNavigate } from "react-router-dom";
 import { LogOut, MapPin, Settings, Ticket, User, Home, Calendar, Menu, MessageCircle } from "lucide-react";
 import {
@@ -63,7 +64,10 @@ export function AppSidebar() {
     {
       title: "Chat Assistant",
       icon: MessageCircle,
-      onClick: () => window.dispatchEvent(new CustomEvent('toggleChatAssistant')),
+      onClick: () => {
+        const event = new CustomEvent('toggleChatAssistant');
+        window.dispatchEvent(event);
+      },
     },
     {
       title: "Settings",
