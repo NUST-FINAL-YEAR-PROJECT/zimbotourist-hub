@@ -126,7 +126,7 @@ export const ChatAssistant = () => {
       if (userMessageError) throw userMessageError;
 
       // Get AI response
-      const response = await fetch('/functions/v1/chat-completion', {
+      const response = await fetch('https://gduzxexxpbibimtiycur.supabase.co/functions/v1/chat-completion', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
