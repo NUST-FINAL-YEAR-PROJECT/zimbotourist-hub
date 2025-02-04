@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,7 +46,6 @@ export const ChatAssistant = () => {
 
       setUser(session.user);
 
-      // Subscribe to auth changes
       const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
         if (event === 'SIGNED_OUT' || !session) {
           setUser(null);
@@ -64,7 +62,6 @@ export const ChatAssistant = () => {
 
     initAuth();
 
-    // Listen for custom event to toggle chat
     const handleToggleChat = () => setIsOpen(prev => !prev);
     window.addEventListener('toggleChatAssistant', handleToggleChat);
 
@@ -130,12 +127,9 @@ export const ChatAssistant = () => {
           body: { message },
         });
 
-      if (functionError) {
-        throw new Error(functionError.message);
-      }
-
-      if (!aiResponse?.response) {
-        throw new Error('No response from AI');
+      if (functionError || !aiResponse) {
+        const errorMessage = aiResponse?.error || functionError?.message || 'Failed to get AI response';
+        throw new Error(errorMessage);
       }
 
       // Insert AI response
