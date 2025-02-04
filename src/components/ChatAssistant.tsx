@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,6 +7,7 @@ import { MessageCircle, X, Send, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface Message {
   id: string;
@@ -27,27 +29,50 @@ export const ChatAssistant = () => {
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [user, setUser] = useState<any>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user || null);
-    };
-    checkUser();
+    const initAuth = async () => {
+      // Check for existing session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.error('Error getting session:', sessionError);
+        return;
+      }
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null);
-    });
+      if (!session) {
+        navigate('/auth');
+        return;
+      }
+
+      setUser(session.user);
+
+      // Subscribe to auth changes
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_OUT' || !session) {
+          setUser(null);
+          navigate('/auth');
+        } else {
+          setUser(session.user);
+        }
+      });
+
+      return () => {
+        subscription.unsubscribe();
+      };
+    };
+
+    initAuth();
 
     // Listen for custom event to toggle chat
     const handleToggleChat = () => setIsOpen(prev => !prev);
     window.addEventListener('toggleChatAssistant', handleToggleChat);
 
     return () => {
-      subscription.unsubscribe();
       window.removeEventListener('toggleChatAssistant', handleToggleChat);
     };
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -70,7 +95,7 @@ export const ChatAssistant = () => {
 
       if (error) throw error;
       return { ...data, messages: [] };
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating conversation:', error);
       toast.error("Failed to start conversation");
       return null;
@@ -110,11 +135,12 @@ export const ChatAssistant = () => {
         body: JSON.stringify({ message }),
       });
 
-      const data = await response.json();
-      
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to get AI response');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to get AI response');
       }
+
+      const data = await response.json();
 
       // Insert AI response
       const { error: aiMessageError } = await supabase
@@ -143,8 +169,9 @@ export const ChatAssistant = () => {
           role: msg.role as 'user' | 'assistant'
         }))
       } : null);
+      
       setMessage("");
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error sending message:', error);
       toast.error("Failed to send message");
     } finally {
