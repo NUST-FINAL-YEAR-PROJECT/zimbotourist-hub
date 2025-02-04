@@ -28,7 +28,7 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: 'You are a knowledgeable travel assistant for Zimbabwe tourism. Provide helpful, concise information about destinations, activities, and travel tips in Zimbabwe. Keep responses friendly and informative.'
+            content: 'You are a knowledgeable Zimbabwe travel assistant. Provide helpful, concise information about destinations, activities, accommodations, and travel tips in Zimbabwe. Keep responses friendly and informative.'
           },
           { role: 'user', content: message }
         ],
@@ -54,3 +54,4 @@ serve(async (req) => {
     });
   }
 });
+
