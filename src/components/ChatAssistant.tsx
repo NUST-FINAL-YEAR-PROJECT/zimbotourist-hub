@@ -44,9 +44,16 @@ export const ChatAssistant = () => {
 
       setUser(session.user);
 
+      // Attempt to get or create a conversation when the component mounts
+      const newConversation = await createNewConversation(session.user.id);
+      if (newConversation) {
+        setConversation(newConversation);
+      }
+
       const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
         if (event === 'SIGNED_OUT' || !session) {
           setUser(null);
+          setConversation(null);
           navigate('/auth');
         } else {
           setUser(session.user);
@@ -68,20 +75,24 @@ export const ChatAssistant = () => {
     };
   }, [navigate]);
 
-  const createNewConversation = async () => {
+  const createNewConversation = async (userId: string) => {
     try {
-      if (!user) {
+      if (!userId) {
         toast.error("Please sign in to use the chat assistant");
         return null;
       }
 
       const { data, error } = await supabase
         .from('chat_conversations')
-        .insert([{ user_id: user.id, title: 'New Conversation' }])
+        .insert([{ user_id: userId, title: 'New Conversation' }])
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error creating conversation:', error);
+        throw error;
+      }
+      
       return { ...data, messages: [] };
     } catch (error: any) {
       console.error('Error creating conversation:', error);
@@ -95,11 +106,14 @@ export const ChatAssistant = () => {
       setIsLoading(true);
       
       if (!conversation) {
-        const newConversation = await createNewConversation();
-        if (!newConversation) return;
+        const newConversation = await createNewConversation(user.id);
+        if (!newConversation) {
+          throw new Error("Could not create conversation");
+        }
         setConversation(newConversation);
       }
 
+      // Insert user message
       const { error: userMessageError } = await supabase
         .from('chat_messages')
         .insert([{
@@ -110,16 +124,22 @@ export const ChatAssistant = () => {
 
       if (userMessageError) throw userMessageError;
 
+      // Get AI response
       const { data: aiResponse, error: functionError } = await supabase.functions
         .invoke('chat-completion', {
           body: { message },
         });
 
-      if (functionError || !aiResponse) {
-        const errorMessage = aiResponse?.error || functionError?.message || 'Failed to get AI response';
+      if (functionError) {
+        const errorMessage = functionError.message || 'Failed to get AI response';
         throw new Error(errorMessage);
       }
 
+      if (aiResponse?.error) {
+        throw new Error(aiResponse.error);
+      }
+
+      // Insert AI message
       const { error: aiMessageError } = await supabase
         .from('chat_messages')
         .insert([{
@@ -130,6 +150,7 @@ export const ChatAssistant = () => {
 
       if (aiMessageError) throw aiMessageError;
 
+      // Fetch updated messages
       const { data: messages, error: fetchError } = await supabase
         .from('chat_messages')
         .select('*')
@@ -138,6 +159,7 @@ export const ChatAssistant = () => {
 
       if (fetchError) throw fetchError;
 
+      // Update conversation with new messages
       setConversation(prev => prev ? {
         ...prev,
         messages: messages.map(msg => ({
@@ -180,3 +202,4 @@ export const ChatAssistant = () => {
     </>
   );
 };
+
