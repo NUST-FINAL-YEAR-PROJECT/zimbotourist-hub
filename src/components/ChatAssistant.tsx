@@ -33,7 +33,6 @@ export const ChatAssistant = () => {
 
   useEffect(() => {
     const initAuth = async () => {
-      // Check for existing session
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
       if (sessionError) {
@@ -125,22 +124,19 @@ export const ChatAssistant = () => {
 
       if (userMessageError) throw userMessageError;
 
-      // Get AI response
-      const response = await fetch('https://gduzxexxpbibimtiycur.supabase.co/functions/v1/chat-completion', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
-        },
-        body: JSON.stringify({ message }),
-      });
+      // Get AI response using Supabase Edge Function
+      const { data: aiResponse, error: functionError } = await supabase.functions
+        .invoke('chat-completion', {
+          body: { message },
+        });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to get AI response');
+      if (functionError) {
+        throw new Error(functionError.message);
       }
 
-      const data = await response.json();
+      if (!aiResponse?.response) {
+        throw new Error('No response from AI');
+      }
 
       // Insert AI response
       const { error: aiMessageError } = await supabase
@@ -148,7 +144,7 @@ export const ChatAssistant = () => {
         .insert([{
           conversation_id: conversation.id,
           role: 'assistant' as const,
-          content: data.response
+          content: aiResponse.response
         }]);
 
       if (aiMessageError) throw aiMessageError;
@@ -173,7 +169,7 @@ export const ChatAssistant = () => {
       setMessage("");
     } catch (error: any) {
       console.error('Error sending message:', error);
-      toast.error("Failed to send message");
+      toast.error(error.message || "Failed to send message");
     } finally {
       setIsLoading(false);
     }
