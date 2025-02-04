@@ -1,12 +1,11 @@
-
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { MessageCircle } from "lucide-react";
-import { AnimatePresence } from "framer-motion";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { MessageCircle, X, Send, Loader2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
-import { ChatWindow } from "./chat/ChatWindow";
 
 interface Message {
   id: string;
@@ -23,93 +22,63 @@ interface Conversation {
 
 export const ChatAssistant = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [user, setUser] = useState<any>(null);
-  const navigate = useNavigate();
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const initAuth = async () => {
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError) {
-        console.error('Error getting session:', sessionError);
-        return;
-      }
-
-      if (!session) {
-        navigate('/auth');
-        return;
-      }
-
-      setUser(session.user);
-
-      // Attempt to get or create a conversation when the component mounts
-      const newConversation = await createNewConversation(session.user.id);
-      if (newConversation) {
-        setConversation(newConversation);
-      }
-
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-        if (event === 'SIGNED_OUT' || !session) {
-          setUser(null);
-          setConversation(null);
-          navigate('/auth');
-        } else {
-          setUser(session.user);
-        }
-      });
-
-      return () => {
-        subscription.unsubscribe();
-      };
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user || null);
     };
+    checkUser();
 
-    initAuth();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
+    });
 
-    const handleToggleChat = () => setIsOpen(prev => !prev);
-    window.addEventListener('toggleChatAssistant', handleToggleChat);
+    return () => subscription.unsubscribe();
+  }, []);
 
-    return () => {
-      window.removeEventListener('toggleChatAssistant', handleToggleChat);
-    };
-  }, [navigate]);
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [conversation?.messages]);
 
-  const createNewConversation = async (userId: string) => {
+  const createNewConversation = async () => {
     try {
-      if (!userId) {
+      if (!user) {
         toast.error("Please sign in to use the chat assistant");
         return null;
       }
 
       const { data, error } = await supabase
         .from('chat_conversations')
-        .insert([{ user_id: userId, title: 'New Conversation' }])
+        .insert([{ user_id: user.id, title: 'New Conversation' }])
         .select()
         .single();
 
-      if (error) {
-        console.error('Error creating conversation:', error);
-        throw error;
-      }
-      
+      if (error) throw error;
       return { ...data, messages: [] };
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error creating conversation:', error);
       toast.error("Failed to start conversation");
       return null;
     }
   };
 
-  const sendMessage = async (message: string) => {
+  const sendMessage = async () => {
+    if (!message.trim()) return;
+
     try {
       setIsLoading(true);
       
       if (!conversation) {
-        const newConversation = await createNewConversation(user.id);
-        if (!newConversation) {
-          throw new Error("Could not create conversation");
-        }
+        const newConversation = await createNewConversation();
+        if (!newConversation) return;
         setConversation(newConversation);
       }
 
@@ -125,27 +94,28 @@ export const ChatAssistant = () => {
       if (userMessageError) throw userMessageError;
 
       // Get AI response
-      const { data: aiResponse, error: functionError } = await supabase.functions
-        .invoke('chat-completion', {
-          body: { message },
-        });
+      const response = await fetch('/functions/v1/chat-completion', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({ message }),
+      });
 
-      if (functionError) {
-        const errorMessage = functionError.message || 'Failed to get AI response';
-        throw new Error(errorMessage);
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to get AI response');
       }
 
-      if (aiResponse?.error) {
-        throw new Error(aiResponse.error);
-      }
-
-      // Insert AI message
+      // Insert AI response
       const { error: aiMessageError } = await supabase
         .from('chat_messages')
         .insert([{
           conversation_id: conversation.id,
           role: 'assistant' as const,
-          content: aiResponse.response
+          content: data.response
         }]);
 
       if (aiMessageError) throw aiMessageError;
@@ -159,18 +129,16 @@ export const ChatAssistant = () => {
 
       if (fetchError) throw fetchError;
 
-      // Update conversation with new messages
-      setConversation(prev => prev ? {
-        ...prev,
-        messages: messages.map(msg => ({
-          ...msg,
-          role: msg.role as 'user' | 'assistant'
-        }))
-      } : null);
-      
-    } catch (error: any) {
+      const typedMessages = messages.map(msg => ({
+        ...msg,
+        role: msg.role as 'user' | 'assistant'
+      }));
+
+      setConversation(prev => prev ? { ...prev, messages: typedMessages } : null);
+      setMessage("");
+    } catch (error) {
       console.error('Error sending message:', error);
-      toast.error(error.message || "Failed to send message");
+      toast.error("Failed to send message");
     } finally {
       setIsLoading(false);
     }
@@ -182,7 +150,7 @@ export const ChatAssistant = () => {
     <>
       <Button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 left-6 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 bg-primary text-white"
+        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 bg-primary text-white"
         size="icon"
       >
         <MessageCircle className="h-6 w-6" />
@@ -190,16 +158,83 @@ export const ChatAssistant = () => {
 
       <AnimatePresence>
         {isOpen && (
-          <ChatWindow
-            isOpen={isOpen}
-            onClose={() => setIsOpen(false)}
-            messages={conversation?.messages || []}
-            isLoading={isLoading}
-            onSendMessage={sendMessage}
-          />
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="fixed bottom-24 right-6 w-[380px] h-[600px] bg-white rounded-2xl shadow-xl flex flex-col overflow-hidden border border-gray-100"
+          >
+            <div className="p-4 border-b flex justify-between items-center bg-primary text-white">
+              <h3 className="font-semibold">Zimbabwe Travel Assistant</h3>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsOpen(false)}
+                className="hover:bg-white/10 text-white"
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+
+            <ScrollArea ref={scrollRef} className="flex-1 p-4">
+              <div className="space-y-4">
+                {!conversation?.messages?.length && (
+                  <div className="text-center text-muted-foreground py-8">
+                    <MessageCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <p>Ask me anything about traveling in Zimbabwe!</p>
+                  </div>
+                )}
+                {conversation?.messages?.map((msg) => (
+                  <div
+                    key={msg.id}
+                    className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div
+                      className={`max-w-[80%] rounded-2xl px-4 py-2 ${
+                        msg.role === 'user'
+                          ? 'bg-primary text-white'
+                          : 'bg-gray-100 text-gray-800'
+                      }`}
+                    >
+                      {msg.content}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+
+            <div className="p-4 border-t bg-gray-50">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  sendMessage();
+                }}
+                className="flex gap-2"
+              >
+                <Input
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="Type your message..."
+                  className="flex-1"
+                  disabled={isLoading}
+                />
+                <Button
+                  type="submit"
+                  disabled={isLoading || !message.trim()}
+                  className="bg-primary text-white hover:bg-primary/90"
+                >
+                  {isLoading ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <Send className="h-5 w-5" />
+                  )}
+                </Button>
+              </form>
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
     </>
   );
 };
-
