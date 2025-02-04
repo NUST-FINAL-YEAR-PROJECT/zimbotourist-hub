@@ -54,4 +54,3 @@ serve(async (req) => {
     });
   }
 });
-
