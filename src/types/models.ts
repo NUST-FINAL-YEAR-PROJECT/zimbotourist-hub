@@ -1,3 +1,4 @@
+
 export interface Destination {
   id: string;
   name: string;
@@ -82,7 +83,7 @@ export interface Review {
   };
 }
 
-export interface Notification {
+export interface AppNotification {
   id: string;
   user_id: string;
   title: string;
@@ -92,3 +93,4 @@ export interface Notification {
   created_at: string;
   updated_at: string;
 }
+

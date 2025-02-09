@@ -2,7 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
-import type { Notification } from "@/types/models";
+import type { AppNotification } from "@/types/models";
 import { useToast } from "@/hooks/use-toast";
 
 export const useNotifications = (userId: string | undefined) => {
@@ -21,7 +21,7 @@ export const useNotifications = (userId: string | undefined) => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data as Notification[];
+      return data as AppNotification[];
     },
     enabled: !!userId,
   });
@@ -54,7 +54,7 @@ export const useNotifications = (userId: string | undefined) => {
           filter: `user_id=eq.${userId}`,
         },
         (payload) => {
-          const newNotification = payload.new as Notification;
+          const newNotification = payload.new as AppNotification;
           queryClient.invalidateQueries({ queryKey: ["notifications"] });
           
           toast({

@@ -82,7 +82,7 @@ const StatsCard = ({ title, value, icon: Icon, description }: {
 );
 
 const NotificationItem = ({ notification, onRead }: { 
-  notification: Notification;
+  notification: AppNotification;
   onRead: (id: string) => void;
 }) => {
   const isUnread = !notification.is_read;
