@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { DestinationCard } from "@/components/DestinationCard";
 import { useDestinations } from "@/hooks/useDestinations";
@@ -19,6 +19,15 @@ const Index = () => {
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
+
+  const filteredDestinations = useMemo(() => {
+    if (!destinations) return [];
+    return destinations.filter((destination) =>
+      destination.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      destination.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      destination.description?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [destinations, searchQuery]);
 
   useEffect(() => {
     const checkUser = async () => {
@@ -279,7 +288,7 @@ const Index = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {(filteredDestinations || []).slice(0, 6).map((destination) => (
+              {filteredDestinations.slice(0, 6).map((destination) => (
                 <DestinationCard
                   key={destination.id}
                   image={destination.image_url || "https://images.unsplash.com/photo-1472396961693-142e6e269027"}
@@ -289,7 +298,7 @@ const Index = () => {
                   id={destination.id}
                 />
               ))}
-              {filteredDestinations?.length === 0 && (
+              {filteredDestinations.length === 0 && (
                 <div className="col-span-full text-center py-12">
                   <div className="max-w-md mx-auto">
                     <Search className="w-12 h-12 text-gray-300 mx-auto mb-4" />
