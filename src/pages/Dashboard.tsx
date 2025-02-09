@@ -43,6 +43,7 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { TravelRecommendations } from "@/components/TravelRecommendations";
 
 type BookingWithRelations = Booking & {
   destinations: { name: string; image_url: string | null } | null;
@@ -69,6 +70,8 @@ const DashboardHome = ({ profile }: { profile: Profile }) => {
       <h1 className="text-3xl font-bold text-gray-900">
         {getGreeting()}, {profile.username || profile.email.split('@')[0]}!
       </h1>
+
+      <TravelRecommendations />
 
       <div className="space-y-6">
         <section>
