@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { BookingInvoice } from "./BookingInvoice";
-import { ArrowLeft, ArrowRight, Calendar as CalendarIcon, Users, Mail, Phone, Receipt } from "lucide-react";
+import { ArrowLeft, ArrowRight, Calendar as CalendarIcon, Users, Mail, Phone, Receipt, AlertCircle, Check, Info } from "lucide-react";
 import type { Destination } from "@/types/models";
 
 interface BookingFormProps {
@@ -42,27 +42,30 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
   const handleSubmit = async () => {
     if (!date) {
       toast({
-        title: "Date Required",
-        description: "Please select a travel date before proceeding.",
+        title: "Select Travel Date",
+        description: "Please choose your preferred travel date to continue.",
         variant: "destructive",
+        icon: <AlertCircle className="h-5 w-5" />,
       });
       return;
     }
 
     if (!userId) {
       toast({
-        title: "Authentication Required",
-        description: "Please sign in to your account to make a booking.",
+        title: "Sign In Required",
+        description: "Please sign in to your account before making a booking.",
         variant: "destructive",
+        icon: <Info className="h-5 w-5" />,
       });
       return;
     }
 
     if (!contactName || !contactEmail || !contactPhone) {
       toast({
-        title: "Contact Information Required",
-        description: "Please fill in all contact information fields.",
+        title: "Complete Contact Information",
+        description: "Please fill in all required contact details to proceed.",
         variant: "destructive",
+        icon: <AlertCircle className="h-5 w-5" />,
       });
       return;
     }
@@ -89,7 +92,6 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
 
       if (bookingError) throw bookingError;
 
-      // Create payment record
       const { error: paymentError } = await supabase
         .from("payments")
         .insert({
@@ -102,15 +104,17 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
 
       toast({
         title: "Booking Created Successfully",
-        description: "Your booking has been created. You will be redirected to complete the payment.",
+        description: "Your booking has been confirmed. Redirecting to payment...",
         className: "bg-green-50 border-green-200",
+        icon: <Check className="h-5 w-5 text-green-600" />,
       });
       onSuccess();
     } catch (error: any) {
       toast({
         title: "Booking Creation Failed",
-        description: error.message || "There was an error creating your booking. Please try again.",
+        description: error.message || "An error occurred while creating your booking. Please try again.",
         variant: "destructive",
+        icon: <AlertCircle className="h-5 w-5" />,
       });
     } finally {
       setIsSubmitting(false);
@@ -308,7 +312,14 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
             onClick={handleSubmit}
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Creating Booking..." : "Confirm & Pay"}
+            {isSubmitting ? (
+              <>
+                <span className="animate-spin mr-2">⚬</span>
+                Processing...
+              </>
+            ) : (
+              "Confirm & Pay"
+            )}
           </Button>
         )}
       </div>
