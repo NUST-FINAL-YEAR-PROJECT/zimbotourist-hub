@@ -11,7 +11,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink } from "@/components/ui/breadcrumb";
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import type { Destination } from "@/types/models";
 
 export const DestinationDetails = () => {
@@ -99,21 +106,26 @@ export const DestinationDetails = () => {
         {/* Breadcrumb Navigation */}
         <div className="mb-6">
           <Breadcrumb>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/" icon={<Home className="h-4 w-4" />}>
-                Home
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/destinations">
-                Destinations
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbItem isCurrentPage>
-              <BreadcrumbLink href={`/destination/${destination.id}`}>
-                {destination.name}
-              </BreadcrumbLink>
-            </BreadcrumbItem>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink href="/">
+                  <Home className="h-4 w-4 mr-2" />
+                  Home
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink href="/destinations">
+                  Destinations
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>
+                  {destination.name}
+                </BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
           </Breadcrumb>
         </div>
 
@@ -226,4 +238,3 @@ export const DestinationDetails = () => {
     </div>
   );
 };
-
