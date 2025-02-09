@@ -1,4 +1,3 @@
-
 export interface Destination {
   id: string;
   name: string;
@@ -88,9 +87,8 @@ export interface AppNotification {
   user_id: string;
   title: string;
   description: string;
-  type: 'info' | 'success' | 'warning' | 'error';
+  type: 'default' | 'success' | 'warning' | 'error';
   is_read: boolean;
   created_at: string;
   updated_at: string;
 }
-
