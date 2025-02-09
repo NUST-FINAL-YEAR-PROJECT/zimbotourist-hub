@@ -11,39 +11,30 @@ export type Database = {
     Tables: {
       audit_logs: {
         Row: {
-          action: Database["public"]["Enums"]["audit_action"]
+          action: string
           created_at: string
           id: string
-          ip_address: string | null
           new_data: Json | null
-          old_data: Json | null
-          performed_by: string | null
-          record_id: string | null
-          table_name: string | null
+          record_id: string
+          table_name: string
           user_id: string | null
         }
         Insert: {
-          action: Database["public"]["Enums"]["audit_action"]
+          action: string
           created_at?: string
           id?: string
-          ip_address?: string | null
           new_data?: Json | null
-          old_data?: Json | null
-          performed_by?: string | null
-          record_id?: string | null
-          table_name?: string | null
+          record_id: string
+          table_name: string
           user_id?: string | null
         }
         Update: {
-          action?: Database["public"]["Enums"]["audit_action"]
+          action?: string
           created_at?: string
           id?: string
-          ip_address?: string | null
           new_data?: Json | null
-          old_data?: Json | null
-          performed_by?: string | null
-          record_id?: string | null
-          table_name?: string | null
+          record_id?: string
+          table_name?: string
           user_id?: string | null
         }
         Relationships: []
@@ -60,28 +51,28 @@ export type Database = {
           event_id: string | null
           id: string
           number_of_people: number
-          preferred_date: string
-          status: string
+          preferred_date: string | null
+          status: string | null
           total_price: number
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           booking_date: string
           booking_details?: Json | null
-          contact_email?: string
-          contact_name?: string
-          contact_phone?: string
+          contact_email: string
+          contact_name: string
+          contact_phone: string
           created_at?: string
           destination_id?: string | null
           event_id?: string | null
           id?: string
-          number_of_people?: number
-          preferred_date?: string
-          status?: string
+          number_of_people: number
+          preferred_date?: string | null
+          status?: string | null
           total_price: number
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           booking_date?: string
@@ -94,11 +85,11 @@ export type Database = {
           event_id?: string | null
           id?: string
           number_of_people?: number
-          preferred_date?: string
-          status?: string
+          preferred_date?: string | null
+          status?: string | null
           total_price?: number
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -113,13 +104,6 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "bookings_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -146,15 +130,7 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "chat_conversations_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       chat_messages: {
         Row: {
@@ -184,54 +160,6 @@ export type Database = {
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "chat_conversations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      destination_reviews: {
-        Row: {
-          comment: string | null
-          created_at: string
-          destination_id: string
-          id: string
-          image_url: string | null
-          rating: number
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          comment?: string | null
-          created_at?: string
-          destination_id: string
-          id?: string
-          image_url?: string | null
-          rating: number
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          comment?: string | null
-          created_at?: string
-          destination_id?: string
-          id?: string
-          image_url?: string | null
-          rating?: number
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "destination_reviews_destination_id_fkey"
-            columns: ["destination_id"]
-            isOneToOne: false
-            referencedRelation: "destinations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "destination_reviews_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -301,141 +229,75 @@ export type Database = {
       }
       events: {
         Row: {
-          available_tickets_per_type: Json | null
-          booking_deadline: string | null
-          cancellation_policy: string | null
-          capacity: number | null
           created_at: string
           description: string | null
-          end_date: string
+          end_date: string | null
           event_type: string | null
           id: string
           image_url: string | null
           location: string | null
-          max_tickets_per_type: Json | null
-          price: number
-          start_date: string
+          price: number | null
+          start_date: string | null
           ticket_types: Json | null
           title: string
           updated_at: string
-          venue_details: Json | null
         }
         Insert: {
-          available_tickets_per_type?: Json | null
-          booking_deadline?: string | null
-          cancellation_policy?: string | null
-          capacity?: number | null
           created_at?: string
           description?: string | null
-          end_date: string
+          end_date?: string | null
           event_type?: string | null
           id?: string
           image_url?: string | null
           location?: string | null
-          max_tickets_per_type?: Json | null
-          price: number
-          start_date: string
+          price?: number | null
+          start_date?: string | null
           ticket_types?: Json | null
           title: string
           updated_at?: string
-          venue_details?: Json | null
         }
         Update: {
-          available_tickets_per_type?: Json | null
-          booking_deadline?: string | null
-          cancellation_policy?: string | null
-          capacity?: number | null
           created_at?: string
           description?: string | null
-          end_date?: string
+          end_date?: string | null
           event_type?: string | null
           id?: string
           image_url?: string | null
           location?: string | null
-          max_tickets_per_type?: Json | null
-          price?: number
-          start_date?: string
+          price?: number | null
+          start_date?: string | null
           ticket_types?: Json | null
           title?: string
           updated_at?: string
-          venue_details?: Json | null
         }
         Relationships: []
-      }
-      payments: {
-        Row: {
-          amount: number
-          booking_id: string
-          created_at: string
-          currency: string
-          id: string
-          payment_method: string
-          poll_url: string | null
-          reference: string | null
-          status: string
-          updated_at: string
-        }
-        Insert: {
-          amount: number
-          booking_id: string
-          created_at?: string
-          currency?: string
-          id?: string
-          payment_method?: string
-          poll_url?: string | null
-          reference?: string | null
-          status?: string
-          updated_at?: string
-        }
-        Update: {
-          amount?: number
-          booking_id?: string
-          created_at?: string
-          currency?: string
-          id?: string
-          payment_method?: string
-          poll_url?: string | null
-          reference?: string | null
-          status?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fk_booking"
-            columns: ["booking_id"]
-            isOneToOne: false
-            referencedRelation: "bookings"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payments_booking_id_fkey"
-            columns: ["booking_id"]
-            isOneToOne: false
-            referencedRelation: "bookings"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       profiles: {
         Row: {
           avatar_url: string | null
-          email: string
+          created_at: string
+          email: string | null
           id: string
-          role: string
+          role: string | null
+          updated_at: string
           username: string | null
         }
         Insert: {
           avatar_url?: string | null
-          email: string
+          created_at?: string
+          email?: string | null
           id: string
-          role?: string
+          role?: string | null
+          updated_at?: string
           username?: string | null
         }
         Update: {
           avatar_url?: string | null
-          email?: string
+          created_at?: string
+          email?: string | null
           id?: string
-          role?: string
+          role?: string | null
+          updated_at?: string
           username?: string | null
         }
         Relationships: []
