@@ -114,7 +114,7 @@ const DashboardOverview = ({ bookings }: { bookings: BookingWithRelations[] }) =
   const completedBookings = bookings.filter(b => b.status === 'completed').length;
 
   return (
-    <div className="grid gap-4 md:grid-cols-3">
+    <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
       <StatsCard
         title="Total Spent"
         value={`$${totalSpent.toFixed(2)}`}
@@ -156,16 +156,16 @@ const DashboardHome = ({ profile, bookings }: { profile: Profile; bookings: Book
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
+      <div className="flex flex-col space-y-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
             {getGreeting()}, {profile.username || profile.email.split('@')[0]}!
           </h1>
           <p className="text-muted-foreground">
             Here's what's happening with your travel plans.
           </p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-4">
           <Sheet>
             <SheetTrigger asChild>
               <Button
@@ -185,7 +185,7 @@ const DashboardHome = ({ profile, bookings }: { profile: Profile; bookings: Book
                 )}
               </Button>
             </SheetTrigger>
-            <SheetContent>
+            <SheetContent side="right" className="w-full sm:w-[400px]">
               <SheetHeader>
                 <SheetTitle>Notifications</SheetTitle>
               </SheetHeader>
@@ -215,19 +215,21 @@ const DashboardHome = ({ profile, bookings }: { profile: Profile; bookings: Book
               </ScrollArea>
             </SheetContent>
           </Sheet>
-          <Button 
-            onClick={() => navigate('/dashboard/destinations')}
-            className="hidden sm:flex"
-          >
-            Browse Destinations
-          </Button>
-          <Button 
-            onClick={() => navigate('/dashboard/events')}
-            variant="outline"
-            className="hidden sm:flex"
-          >
-            View Events
-          </Button>
+          <div className="flex-1 flex flex-wrap gap-2">
+            <Button 
+              onClick={() => navigate('/dashboard/destinations')}
+              className="flex-1 sm:flex-none"
+            >
+              Browse Destinations
+            </Button>
+            <Button 
+              onClick={() => navigate('/dashboard/events')}
+              variant="outline"
+              className="flex-1 sm:flex-none"
+            >
+              View Events
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -238,7 +240,7 @@ const DashboardHome = ({ profile, bookings }: { profile: Profile; bookings: Book
       <div className="space-y-6">
         <section>
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold">Popular Destinations</h2>
+            <h2 className="text-xl sm:text-2xl font-bold">Popular Destinations</h2>
             <button 
               onClick={() => navigate('/dashboard/destinations')}
               className="text-primary hover:underline"
@@ -247,13 +249,13 @@ const DashboardHome = ({ profile, bookings }: { profile: Profile; bookings: Book
             </button>
           </div>
           {isLoadingDestinations ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
               {[1, 2, 3].map((i) => (
                 <Skeleton key={i} className="h-[300px] w-full" />
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
               {popularDestinations.map((destination) => (
                 <DestinationCard
                   key={destination.id}
@@ -270,7 +272,7 @@ const DashboardHome = ({ profile, bookings }: { profile: Profile; bookings: Book
 
         <section>
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold">Upcoming Events</h2>
+            <h2 className="text-xl sm:text-2xl font-bold">Upcoming Events</h2>
             <button 
               onClick={() => navigate('/dashboard/events')}
               className="text-primary hover:underline"
@@ -279,13 +281,13 @@ const DashboardHome = ({ profile, bookings }: { profile: Profile; bookings: Book
             </button>
           </div>
           {isLoadingEvents ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
               {[1, 2, 3].map((i) => (
                 <Skeleton key={i} className="h-[300px] w-full" />
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
               {upcomingEvents.map((event) => (
                 <DestinationCard
                   key={event.id}
