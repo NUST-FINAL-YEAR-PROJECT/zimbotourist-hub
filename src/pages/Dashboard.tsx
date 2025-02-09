@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import type { Profile, Booking } from "@/types/models";
-import { Bell, BellDot, CalendarDays, User, Trash2 } from "lucide-react";
+import { Bell, BellDot, CalendarDays, User, Trash2, LayoutDashboard, DollarSign, TrendingUp } from "lucide-react";
 import { AppSidebar } from "@/components/AppSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -45,13 +45,63 @@ import {
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { TravelRecommendations } from "@/components/TravelRecommendations";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 type BookingWithRelations = Booking & {
   destinations: { name: string; image_url: string | null } | null;
   events: { title: string; image_url: string | null } | null;
 };
 
-const DashboardHome = ({ profile }: { profile: Profile }) => {
+const StatsCard = ({ title, value, icon: Icon, description }: { 
+  title: string; 
+  value: string | number; 
+  icon: React.ElementType; 
+  description?: string;
+}) => (
+  <Card>
+    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <CardTitle className="text-sm font-medium">{title}</CardTitle>
+      <Icon className="h-4 w-4 text-muted-foreground" />
+    </CardHeader>
+    <CardContent>
+      <div className="text-2xl font-bold">{value}</div>
+      {description && (
+        <p className="text-xs text-muted-foreground">{description}</p>
+      )}
+    </CardContent>
+  </Card>
+);
+
+const DashboardOverview = ({ bookings }: { bookings: BookingWithRelations[] }) => {
+  const totalSpent = bookings.reduce((acc, booking) => acc + Number(booking.total_price), 0);
+  const upcomingBookings = bookings.filter(b => b.status === 'confirmed' && new Date(b.booking_date) > new Date()).length;
+  const completedBookings = bookings.filter(b => b.status === 'completed').length;
+
+  return (
+    <div className="grid gap-4 md:grid-cols-3">
+      <StatsCard
+        title="Total Spent"
+        value={`$${totalSpent.toFixed(2)}`}
+        icon={DollarSign}
+        description="All time spending"
+      />
+      <StatsCard
+        title="Upcoming Trips"
+        value={upcomingBookings}
+        icon={CalendarDays}
+        description="Confirmed bookings"
+      />
+      <StatsCard
+        title="Completed Trips"
+        value={completedBookings}
+        icon={TrendingUp}
+        description="Past adventures"
+      />
+    </div>
+  );
+};
+
+const DashboardHome = ({ profile, bookings }: { profile: Profile; bookings: BookingWithRelations[] }) => {
   const { data: destinations, isLoading: isLoadingDestinations } = useDestinations();
   const { data: events, isLoading: isLoadingEvents } = useEvents();
   const navigate = useNavigate();
@@ -68,9 +118,33 @@ const DashboardHome = ({ profile }: { profile: Profile }) => {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-3xl font-bold text-gray-900">
-        {getGreeting()}, {profile.username || profile.email.split('@')[0]}!
-      </h1>
+      <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">
+            {getGreeting()}, {profile.username || profile.email.split('@')[0]}!
+          </h1>
+          <p className="text-muted-foreground">
+            Here's what's happening with your travel plans.
+          </p>
+        </div>
+        <div className="flex items-center gap-4">
+          <Button 
+            onClick={() => navigate('/dashboard/destinations')}
+            className="hidden sm:flex"
+          >
+            Browse Destinations
+          </Button>
+          <Button 
+            onClick={() => navigate('/dashboard/events')}
+            variant="outline"
+            className="hidden sm:flex"
+          >
+            View Events
+          </Button>
+        </div>
+      </div>
+
+      <DashboardOverview bookings={bookings} />
 
       <TravelRecommendations />
 
@@ -419,7 +493,7 @@ export const Dashboard = () => {
             </div>
             
             <Routes>
-              <Route path="/" element={<DashboardHome profile={profile} />} />
+              <Route path="/" element={<DashboardHome profile={profile} bookings={bookings || []} />} />
               <Route path="/bookings" element={<BookingsList bookings={bookings || []} />} />
               <Route path="/destinations" element={
                 <DestinationExplorer 
