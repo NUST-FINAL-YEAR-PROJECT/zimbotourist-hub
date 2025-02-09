@@ -15,13 +15,20 @@ export const useProfile = (userId: string | undefined) => {
         .eq("id", userId)
         .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching profile:", error);
+        throw error;
+      }
       
       // Return null if no profile was found
-      if (!data) return null;
+      if (!data) {
+        console.warn(`No profile found for user ID: ${userId}`);
+        return null;
+      }
       
       return data as Profile;
     },
     enabled: !!userId,
+    retry: 1, // Only retry once if there's an error
   });
 };
