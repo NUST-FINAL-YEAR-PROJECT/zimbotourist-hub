@@ -6,7 +6,7 @@ import { toast } from "sonner";
 export const useWishlist = (userId: string | undefined) => {
   const queryClient = useQueryClient();
 
-  const { data: wishlist, isLoading } = useQuery({
+  const { data: wishlist = [], isLoading } = useQuery({
     queryKey: ["wishlist", userId],
     queryFn: async () => {
       if (!userId) return [];
@@ -19,7 +19,7 @@ export const useWishlist = (userId: string | undefined) => {
       if (error) {
         console.error("Error fetching wishlist:", error);
         toast.error("Failed to fetch wishlist");
-        throw error;
+        return [];
       }
 
       return data.map(item => item.destination_id);
@@ -33,17 +33,23 @@ export const useWishlist = (userId: string | undefined) => {
 
       const { error } = await supabase
         .from("wishlists")
-        .insert({ user_id: userId, destination_id: destinationId });
+        .insert([{ 
+          user_id: userId, 
+          destination_id: destinationId 
+        }]);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error adding to wishlist:", error);
+        throw error;
+      }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["wishlist", userId] });
+    onSuccess: (_, destinationId) => {
+      queryClient.setQueryData(["wishlist", userId], (old: string[] = []) => [...old, destinationId]);
       toast.success("Added to wishlist");
     },
     onError: (error: Error) => {
-      toast.error("Failed to add to wishlist");
       console.error("Error adding to wishlist:", error);
+      toast.error("Failed to add to wishlist");
     },
   });
 
@@ -57,20 +63,25 @@ export const useWishlist = (userId: string | undefined) => {
         .eq("user_id", userId)
         .eq("destination_id", destinationId);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error removing from wishlist:", error);
+        throw error;
+      }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["wishlist", userId] });
+    onSuccess: (_, destinationId) => {
+      queryClient.setQueryData(["wishlist", userId], (old: string[] = []) => 
+        old.filter(id => id !== destinationId)
+      );
       toast.success("Removed from wishlist");
     },
     onError: (error: Error) => {
-      toast.error("Failed to remove from wishlist");
       console.error("Error removing from wishlist:", error);
+      toast.error("Failed to remove from wishlist");
     },
   });
 
   return {
-    wishlist: wishlist || [],
+    wishlist,
     isLoading,
     addToWishlist,
     removeFromWishlist,
