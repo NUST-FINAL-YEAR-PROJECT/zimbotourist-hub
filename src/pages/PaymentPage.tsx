@@ -2,13 +2,19 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, CreditCard, Check, AlertCircle } from "lucide-react";
+import { ArrowLeft, AlertCircle } from "lucide-react";
 import type { Booking } from "@/types/models";
+import { PaymentForm } from "@/components/PaymentForm";
+
+// Initialize Stripe
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 type BookingWithDestination = Booking & {
   destinations: {
@@ -22,7 +28,7 @@ export const PaymentPage = () => {
   const bookingId = searchParams.get("booking_id");
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [clientSecret, setClientSecret] = useState<string>();
 
   const { data: booking, isLoading } = useQuery({
     queryKey: ["booking", bookingId],
@@ -55,57 +61,60 @@ export const PaymentPage = () => {
         description: "No booking ID provided",
       });
       navigate("/dashboard");
+      return;
     }
-  }, [bookingId, navigate, toast]);
 
-  const handlePayment = async () => {
-    setIsProcessing(true);
-    try {
-      // For now, we'll simulate a payment process
-      await new Promise(resolve => setTimeout(resolve, 2000));
+    if (booking) {
+      // Create a payment record and get a payment intent
+      const setupPayment = async () => {
+        try {
+          // First create a payment record
+          const { data: payment, error: paymentError } = await supabase
+            .from("payments")
+            .insert({
+              booking_id: bookingId,
+              amount: booking.total_price,
+              status: "pending",
+              payment_method: "card",
+              payment_gateway: "stripe",
+            })
+            .select()
+            .single();
 
-      const { error: paymentError } = await supabase
-        .from("payments")
-        .insert({
-          booking_id: bookingId,
-          amount: booking?.total_price,
-          status: "completed",
-          payment_method: "card",
-          payment_gateway: "stripe", // placeholder
-          payment_details: {
-            test_mode: true
-          }
-        });
+          if (paymentError) throw paymentError;
 
-      if (paymentError) throw paymentError;
+          // Then create a payment intent
+          const response = await fetch(
+            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-payment-intent`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+              },
+              body: JSON.stringify({
+                bookingId,
+                amount: booking.total_price,
+              }),
+            }
+          );
 
-      const { error: bookingError } = await supabase
-        .from("bookings")
-        .update({
-          payment_status: "completed",
-          status: "confirmed"
-        })
-        .eq("id", bookingId);
+          const { clientSecret, error } = await response.json();
+          if (error) throw new Error(error);
+          
+          setClientSecret(clientSecret);
+        } catch (error: any) {
+          toast({
+            variant: "destructive",
+            title: "Payment Setup Failed",
+            description: error.message,
+          });
+        }
+      };
 
-      if (bookingError) throw bookingError;
-
-      toast({
-        title: "Payment Successful",
-        description: "Your booking has been confirmed.",
-        className: "bg-green-50 border-green-200",
-      });
-
-      navigate("/dashboard/bookings");
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Payment Failed",
-        description: error.message,
-      });
-    } finally {
-      setIsProcessing(false);
+      setupPayment();
     }
-  };
+  }, [bookingId, booking, navigate, toast]);
 
   if (isLoading) {
     return (
@@ -179,37 +188,13 @@ export const PaymentPage = () => {
             </div>
           </div>
 
-          {/* Payment Method Section - For now, we'll just show a simple card payment option */}
-          <div className="space-y-4">
-            <h3 className="font-semibold">Payment Method</h3>
-            <div className="rounded-lg border p-4 flex items-center space-x-4">
-              <CreditCard className="h-5 w-5 text-primary" />
-              <div className="flex-1">
-                <p className="text-sm font-medium">Card Payment</p>
-                <p className="text-sm text-muted-foreground">Pay securely with your credit or debit card</p>
-              </div>
-              <Check className="h-5 w-5 text-primary" />
-            </div>
-          </div>
+          {clientSecret && (
+            <Elements stripe={stripePromise} options={{ clientSecret }}>
+              <PaymentForm bookingId={bookingId} />
+            </Elements>
+          )}
         </CardContent>
-        <CardFooter>
-          <Button 
-            className="w-full"
-            onClick={handlePayment}
-            disabled={isProcessing}
-          >
-            {isProcessing ? (
-              <>
-                <span className="animate-spin mr-2">⚬</span>
-                Processing...
-              </>
-            ) : (
-              `Pay $${booking.total_price}`
-            )}
-          </Button>
-        </CardFooter>
       </Card>
     </div>
   );
 };
-
