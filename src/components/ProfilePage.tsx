@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
@@ -47,10 +48,19 @@ export const ProfilePage = () => {
 
   const form = useForm<ProfileFormValues>({
     defaultValues: {
-      username: profile?.username || "",
-      email: profile?.email || "",
+      username: "",
+      email: "",
     },
   });
+
+  useEffect(() => {
+    if (profile) {
+      form.reset({
+        username: profile.username || "",
+        email: profile.email || "",
+      });
+    }
+  }, [profile, form]);
 
   const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -162,6 +172,17 @@ export const ProfilePage = () => {
     );
   }
 
+  if (!profile) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+        <h2 className="text-xl font-semibold">Profile Not Found</h2>
+        <p className="text-muted-foreground">
+          Your profile information could not be loaded. Please try refreshing the page.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
       <Card>
@@ -174,9 +195,9 @@ export const ProfilePage = () => {
         <CardContent className="space-y-8">
           <div className="flex flex-col items-center space-y-4">
             <Avatar className="h-32 w-32">
-              <AvatarImage src={profile?.avatar_url || undefined} />
+              <AvatarImage src={profile.avatar_url || undefined} />
               <AvatarFallback className="text-2xl">
-                {profile?.email?.[0].toUpperCase()}
+                {profile.email?.[0].toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div className="flex items-center space-x-2">
