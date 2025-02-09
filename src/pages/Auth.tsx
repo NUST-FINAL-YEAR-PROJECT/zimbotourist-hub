@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -34,7 +35,7 @@ const Auth = () => {
     const checkSession = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
+        if (session?.user) {
           navigate("/dashboard");
         }
       } catch (error) {
@@ -44,17 +45,6 @@ const Auth = () => {
       }
     };
     checkSession();
-  }, [navigate]);
-
-  // Listen for auth state changes
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
-        navigate("/dashboard");
-      }
-    });
-
-    return () => subscription.unsubscribe();
   }, [navigate]);
 
   const validateForm = () => {
@@ -96,24 +86,33 @@ const Auth = () => {
             title: "Welcome back!",
             description: "You have been successfully logged in.",
           });
-          navigate("/dashboard");  // Changed from "/" to "/dashboard"
+          navigate("/dashboard");
         }
       } else if (mode === "signup") {
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/auth`
+            emailRedirectTo: `${window.location.origin}/auth`,
           }
         });
         
         if (error) throw error;
         
-        toast({
-          title: "Account created!",
-          description: "Please check your email to verify your account.",
-        });
-        setMode("signin");
+        if (data.user?.identities?.length === 0) {
+          toast({
+            variant: "destructive",
+            title: "Account exists",
+            description: "An account with this email already exists. Please sign in instead.",
+          });
+          setMode("signin");
+        } else {
+          toast({
+            title: "Account created!",
+            description: "Please check your email to verify your account.",
+          });
+          setMode("signin");
+        }
       } else if (mode === "forgot-password") {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
           redirectTo: `${window.location.origin}/auth?mode=reset-password`,
