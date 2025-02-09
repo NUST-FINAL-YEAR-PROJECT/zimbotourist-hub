@@ -32,26 +32,17 @@ export const TravelRecommendations = () => {
           .select("destination_id, created_at")
           .order("created_at", { ascending: false });
 
-        const response = await fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-travel-recommendations`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
-            },
-            body: JSON.stringify({
-              preferences,
-              travelHistory: userBookings
-            })
+        const { data, error } = await supabase.functions.invoke('get-travel-recommendations', {
+          body: {
+            preferences,
+            travelHistory: userBookings
           }
-        );
+        });
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch recommendations");
+        if (error) {
+          throw error;
         }
 
-        const data = await response.json();
         return JSON.parse(data.recommendations);
       } catch (error) {
         console.error("Error fetching recommendations:", error);
