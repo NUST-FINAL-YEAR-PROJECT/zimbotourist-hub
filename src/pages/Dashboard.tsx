@@ -467,7 +467,6 @@ export const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [hasUnreadNotifications, setHasUnreadNotifications] = useState(true);
   const { data: destinations, isLoading: isLoadingDestinations } = useDestinations();
   const { data: events, isLoading: isLoadingEvents } = useEvents();
   
@@ -597,42 +596,6 @@ export const Dashboard = () => {
                 Dashboard
               </h1>
               <div className="flex items-center gap-4">
-                <Sheet>
-                  <SheetTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="relative bg-white/50 backdrop-blur-sm"
-                    >
-                      {hasUnreadNotifications ? (
-                        <BellDot className="h-5 w-5 text-primary" />
-                      ) : (
-                        <Bell className="h-5 w-5" />
-                      )}
-                      {hasUnreadNotifications && (
-                        <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-xs text-white flex items-center justify-center animate-pulse">
-                          {notifications?.filter(n => !n.is_read).length}
-                        </span>
-                      )}
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent side="right" className="w-full sm:w-[400px]">
-                    <SheetHeader>
-                      <SheetTitle>Notifications</SheetTitle>
-                    </SheetHeader>
-                    <ScrollArea className="h-[calc(100vh-8rem)] mt-4">
-                      <div className="space-y-1">
-                        {notifications?.map((notification) => (
-                          <NotificationItem
-                            key={notification.id}
-                            notification={notification}
-                            onRead={markNotificationAsRead}
-                          />
-                        ))}
-                      </div>
-                    </ScrollArea>
-                  </SheetContent>
-                </Sheet>
                 <SidebarTrigger />
               </div>
             </motion.div>
