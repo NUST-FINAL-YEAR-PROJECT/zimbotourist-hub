@@ -33,6 +33,30 @@ export const ChatAssistant = () => {
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setUser(session?.user || null);
+
+      if (session?.user) {
+        // Try to find or create a conversation
+        const { data: existingConversations } = await supabase
+          .from('chat_conversations')
+          .select('*')
+          .eq('user_id', session.user.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+
+        if (existingConversations) {
+          const { data: messages } = await supabase
+            .from('chat_messages')
+            .select('*')
+            .eq('conversation_id', existingConversations.id)
+            .order('created_at', { ascending: true });
+
+          setConversation({
+            ...existingConversations,
+            messages: messages || []
+          });
+        }
+      }
     };
     checkUser();
 
@@ -103,7 +127,6 @@ export const ChatAssistant = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
         },
         body: JSON.stringify({ message }),
       });
