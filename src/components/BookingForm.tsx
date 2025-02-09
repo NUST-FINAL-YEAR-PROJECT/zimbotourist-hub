@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
@@ -20,11 +21,14 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
   const [step, setStep] = useState(1);
   const [date, setDate] = useState<Date>();
   const [numberOfPeople, setNumberOfPeople] = useState(1);
+  const [contactName, setContactName] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userId, setUserId] = useState<string>();
   const { toast } = useToast();
 
-  const progress = (step / 3) * 100;
+  const progress = (step / 4) * 100;
 
   useEffect(() => {
     const getUserId = async () => {
@@ -62,6 +66,10 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
           total_price: destination.price * numberOfPeople,
           booking_date: new Date().toISOString(),
           user_id: userId,
+          contact_name: contactName,
+          contact_email: contactEmail,
+          contact_phone: contactPhone,
+          status: "pending"
         })
         .select()
         .single();
@@ -134,6 +142,43 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
 
       {step === 3 && (
         <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Contact Information</h3>
+          <Input
+            placeholder="Full Name"
+            value={contactName}
+            onChange={(e) => setContactName(e.target.value)}
+            required
+          />
+          <Input
+            type="email"
+            placeholder="Email"
+            value={contactEmail}
+            onChange={(e) => setContactEmail(e.target.value)}
+            required
+          />
+          <Input
+            placeholder="Phone Number"
+            value={contactPhone}
+            onChange={(e) => setContactPhone(e.target.value)}
+            required
+          />
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setStep(2)}>
+              Back
+            </Button>
+            <Button 
+              className="flex-1" 
+              onClick={() => setStep(4)}
+              disabled={!contactName || !contactEmail || !contactPhone}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {step === 4 && (
+        <div className="space-y-4">
           <h3 className="text-lg font-semibold">Confirm Booking</h3>
           <div className="rounded-lg border p-4 space-y-2">
             <div className="flex justify-between">
@@ -143,6 +188,10 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
             <div className="flex justify-between">
               <span>Number of People</span>
               <span>{numberOfPeople}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Contact</span>
+              <span>{contactName}</span>
             </div>
             <div className="flex justify-between font-semibold">
               <span>Total Price</span>
@@ -166,7 +215,7 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
           </Dialog>
 
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setStep(2)}>
+            <Button variant="outline" onClick={() => setStep(3)}>
               Back
             </Button>
             <Button 
