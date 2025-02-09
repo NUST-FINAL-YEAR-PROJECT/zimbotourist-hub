@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
@@ -44,8 +43,7 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
       toast({
         title: "Select Travel Date",
         description: "Please choose your preferred travel date to continue.",
-        variant: "destructive",
-        icon: <AlertCircle className="h-5 w-5" />,
+        variant: "destructive"
       });
       return;
     }
@@ -54,8 +52,7 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
       toast({
         title: "Sign In Required",
         description: "Please sign in to your account before making a booking.",
-        variant: "destructive",
-        icon: <Info className="h-5 w-5" />,
+        variant: "destructive"
       });
       return;
     }
@@ -64,8 +61,7 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
       toast({
         title: "Complete Contact Information",
         description: "Please fill in all required contact details to proceed.",
-        variant: "destructive",
-        icon: <AlertCircle className="h-5 w-5" />,
+        variant: "destructive"
       });
       return;
     }
@@ -105,16 +101,14 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
       toast({
         title: "Booking Created Successfully",
         description: "Your booking has been confirmed. Redirecting to payment...",
-        className: "bg-green-50 border-green-200",
-        icon: <Check className="h-5 w-5 text-green-600" />,
+        className: "bg-green-50 border-green-200"
       });
       onSuccess();
     } catch (error: any) {
       toast({
         title: "Booking Creation Failed",
         description: error.message || "An error occurred while creating your booking. Please try again.",
-        variant: "destructive",
-        icon: <AlertCircle className="h-5 w-5" />,
+        variant: "destructive"
       });
     } finally {
       setIsSubmitting(false);
