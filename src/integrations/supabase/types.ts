@@ -51,6 +51,8 @@ export type Database = {
           event_id: string | null
           id: string
           number_of_people: number
+          payment_id: string | null
+          payment_status: string | null
           preferred_date: string | null
           status: string | null
           total_price: number
@@ -68,6 +70,8 @@ export type Database = {
           event_id?: string | null
           id?: string
           number_of_people: number
+          payment_id?: string | null
+          payment_status?: string | null
           preferred_date?: string | null
           status?: string | null
           total_price: number
@@ -85,6 +89,8 @@ export type Database = {
           event_id?: string | null
           id?: string
           number_of_people?: number
+          payment_id?: string | null
+          payment_status?: string | null
           preferred_date?: string | null
           status?: string | null
           total_price?: number
@@ -104,6 +110,13 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
             referencedColumns: ["id"]
           },
         ]
@@ -277,6 +290,47 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      payments: {
+        Row: {
+          amount: number
+          booking_id: string
+          created_at: string
+          id: string
+          payment_details: Json | null
+          payment_method: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          booking_id: string
+          created_at?: string
+          id?: string
+          payment_details?: Json | null
+          payment_method?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          booking_id?: string
+          created_at?: string
+          id?: string
+          payment_details?: Json | null
+          payment_method?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
