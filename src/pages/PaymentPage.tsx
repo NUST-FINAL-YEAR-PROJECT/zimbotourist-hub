@@ -83,9 +83,13 @@ export const PaymentPage = () => {
 
           if (paymentError) throw paymentError;
 
-          // Then create a payment intent
+          // Get the Supabase URL from the client
+          const { data: { publicUrl } } = await supabase.storage.from('').getPublicUrl('');
+          const supabaseUrl = publicUrl.split('/storage/')[0];
+
+          // Then create a payment intent using the correct URL
           const response = await fetch(
-            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-payment-intent`,
+            `${supabaseUrl}/functions/v1/create-payment-intent`,
             {
               method: "POST",
               headers: {
