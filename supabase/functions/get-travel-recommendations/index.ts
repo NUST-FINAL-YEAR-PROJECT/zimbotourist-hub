@@ -20,10 +20,11 @@ serve(async (req) => {
       throw new Error('OpenAI API key not found');
     }
 
-    const systemPrompt = `You are an expert Zimbabwe travel advisor. Your goal is to provide personalized travel recommendations based on the user's preferences and travel history. Focus on authentic experiences, local culture, and unique attractions. Format your response in JSON with sections for recommended destinations, activities, and practical tips.`;
+    const systemPrompt = `You are an expert Zimbabwe travel advisor. Your goal is to provide personalized travel recommendations based on the user's preferences and travel history. Focus on authentic experiences, local culture, and unique attractions. Format your response in a very specific JSON structure with these exact keys: destinations (array of strings), activities (array of strings), and tips (array of strings).`;
 
     const userPrompt = `Based on these preferences: ${JSON.stringify(preferences)} and travel history: ${JSON.stringify(travelHistory)}, provide personalized travel recommendations for Zimbabwe. Include must-visit destinations, suggested activities, best time to visit, and local insights.`;
 
+    console.log('Making OpenAI API request...');
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -42,6 +43,7 @@ serve(async (req) => {
     });
 
     const data = await response.json();
+    console.log('OpenAI API response:', data);
     
     if (!data.choices || !data.choices[0]) {
       throw new Error('Invalid response from OpenAI API');
@@ -49,10 +51,13 @@ serve(async (req) => {
 
     let recommendations;
     try {
-      // Try to parse the response as JSON first
-      recommendations = JSON.parse(data.choices[0].message.content);
+      // Try to parse the response as JSON
+      const content = data.choices[0].message.content;
+      console.log('Attempting to parse content:', content);
+      recommendations = JSON.parse(content);
     } catch (e) {
-      // If parsing fails, use the raw content with a basic structure
+      console.error('Failed to parse OpenAI response as JSON:', e);
+      // Provide a fallback with the expected structure
       recommendations = {
         destinations: ['Victoria Falls', 'Hwange National Park', 'Great Zimbabwe'],
         activities: ['Wildlife viewing', 'Cultural tours', 'Adventure sports'],
@@ -60,21 +65,37 @@ serve(async (req) => {
       };
     }
 
-    return new Response(JSON.stringify({ recommendations }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    // Ensure the response has the expected structure
+    const validatedRecommendations = {
+      destinations: Array.isArray(recommendations.destinations) ? recommendations.destinations : [],
+      activities: Array.isArray(recommendations.activities) ? recommendations.activities : [],
+      tips: Array.isArray(recommendations.tips) ? recommendations.tips : []
+    };
+
+    return new Response(
+      JSON.stringify(validatedRecommendations),
+      { 
+        headers: { 
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
   } catch (error) {
     console.error('Error:', error);
-    return new Response(JSON.stringify({ 
-      error: error.message,
-      recommendations: {
+    // Return a fallback response with the correct structure
+    return new Response(
+      JSON.stringify({
         destinations: ['Victoria Falls', 'Hwange National Park', 'Great Zimbabwe'],
         activities: ['Wildlife viewing', 'Cultural tours', 'Adventure sports'],
         tips: ['Best time to visit is during dry season', 'Book accommodations in advance', 'Carry cash for local markets']
+      }), 
+      {
+        headers: { 
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        }
       }
-    }), {
-      status: 200, // Return 200 even on error, with fallback data
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    );
   }
 });

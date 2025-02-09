@@ -14,6 +14,12 @@ interface TravelPreferences {
   duration: string;
 }
 
+interface TravelRecommendations {
+  destinations: string[];
+  activities: string[];
+  tips: string[];
+}
+
 export const TravelRecommendations = () => {
   const [preferences, setPreferences] = useState<TravelPreferences>({
     interests: [],
@@ -32,29 +38,32 @@ export const TravelRecommendations = () => {
           .select("destination_id, created_at")
           .order("created_at", { ascending: false });
 
-        const { data, error } = await supabase.functions.invoke('get-travel-recommendations', {
+        const response = await supabase.functions.invoke<TravelRecommendations>('get-travel-recommendations', {
           body: {
             preferences,
             travelHistory: userBookings
           }
         });
 
-        if (error) {
-          throw error;
+        if (response.error) throw response.error;
+        
+        if (!response.data) {
+          throw new Error("No recommendations received");
         }
 
-        return JSON.parse(data.recommendations);
+        return response.data as TravelRecommendations;
       } catch (error) {
         console.error("Error fetching recommendations:", error);
         toast({
           title: "Error",
-          description: "Failed to fetch travel recommendations",
-          variant: "destructive"
+          description: "Failed to fetch travel recommendations. Please try again.",
+          variant: "destructive",
         });
-        return null;
+        throw error;
       }
     },
-    enabled: false
+    enabled: false,
+    retry: 1
   });
 
   const handleGetRecommendations = () => {
