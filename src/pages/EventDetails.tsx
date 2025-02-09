@@ -21,7 +21,10 @@ export const EventDetails = () => {
         .eq("id", id)
         .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching event:", error);
+        throw error;
+      }
       return data as Event;
     },
     enabled: !!id,
