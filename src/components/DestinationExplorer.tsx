@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Search, Filter } from "lucide-react";
+import { Search, Filter, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { DestinationCard } from "@/components/DestinationCard";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import { useWishlist } from "@/hooks/useWishlist";
+import { useAuth } from "@/hooks/useAuth";
 import type { Destination } from "@/types/models";
 
 interface DestinationExplorerProps {
@@ -22,12 +25,47 @@ interface DestinationExplorerProps {
 export const DestinationExplorer = ({ destinations, isLoading }: DestinationExplorerProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("newest");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [showFilters, setShowFilters] = useState(false);
+  const { user } = useAuth();
+  const { wishlist, addToWishlist, removeFromWishlist } = useWishlist(user?.id);
 
-  const filteredDestinations = destinations?.filter((destination) =>
-    destination.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    destination.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    destination.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  // Get unique categories from all destinations
+  const allCategories = Array.from(
+    new Set(
+      destinations
+        .flatMap((dest) => dest.categories || [])
+        .filter(Boolean)
+    )
   );
+
+  const handleWishlistToggle = (destinationId: string) => {
+    if (!user) {
+      toast.error("Please sign in to add to wishlist");
+      return;
+    }
+    
+    if (wishlist.includes(destinationId)) {
+      removeFromWishlist.mutate(destinationId);
+    } else {
+      addToWishlist.mutate(destinationId);
+    }
+  };
+
+  const filteredDestinations = destinations?.filter((destination) => {
+    const matchesSearch = 
+      destination.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      destination.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      destination.description?.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesCategories = 
+      selectedCategories.length === 0 ||
+      selectedCategories.every(cat => 
+        destination.categories?.includes(cat)
+      );
+
+    return matchesSearch && matchesCategories;
+  });
 
   const sortedDestinations = [...(filteredDestinations || [])].sort((a, b) => {
     switch (sortBy) {
@@ -37,6 +75,8 @@ export const DestinationExplorer = ({ destinations, isLoading }: DestinationExpl
         return b.price - a.price;
       case "name":
         return a.name.localeCompare(b.name);
+      case "featured":
+        return (b.is_featured ? 1 : 0) - (a.is_featured ? 1 : 0);
       default: // newest
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     }
@@ -80,13 +120,46 @@ export const DestinationExplorer = ({ destinations, isLoading }: DestinationExpl
                 <SelectItem value="price-low">Price: Low to High</SelectItem>
                 <SelectItem value="price-high">Price: High to Low</SelectItem>
                 <SelectItem value="name">Name</SelectItem>
+                <SelectItem value="featured">Featured</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline" size="icon">
+            <Button 
+              variant="outline" 
+              size="icon"
+              onClick={() => setShowFilters(!showFilters)}
+              className={showFilters ? "bg-primary text-white" : ""}
+            >
               <Filter className="h-4 w-4" />
             </Button>
           </div>
         </div>
+
+        {showFilters && (
+          <div className="p-4 bg-white/50 backdrop-blur-sm rounded-xl border border-gray-200">
+            <h3 className="font-medium mb-3">Categories</h3>
+            <div className="flex flex-wrap gap-2">
+              {allCategories.map((category) => (
+                <Badge
+                  key={category}
+                  variant={selectedCategories.includes(category) ? "default" : "outline"}
+                  className="cursor-pointer"
+                  onClick={() => {
+                    setSelectedCategories(prev =>
+                      prev.includes(category)
+                        ? prev.filter(c => c !== category)
+                        : [...prev, category]
+                    );
+                  }}
+                >
+                  {category}
+                  {selectedCategories.includes(category) && (
+                    <X className="ml-1 h-3 w-3" />
+                  )}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {sortedDestinations.length === 0 ? (
@@ -106,6 +179,9 @@ export const DestinationExplorer = ({ destinations, isLoading }: DestinationExpl
               description={destination.description || ""}
               price={`$${destination.price}`}
               showSimilar={true}
+              isInWishlist={wishlist.includes(destination.id)}
+              onWishlistToggle={handleWishlistToggle}
+              categories={destination.categories || []}
             />
           ))}
         </div>

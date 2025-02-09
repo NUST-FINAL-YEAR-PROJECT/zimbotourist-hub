@@ -1,10 +1,9 @@
-
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { MapPin, Calendar, DollarSign } from "lucide-react";
+import { MapPin, Calendar, DollarSign, Heart } from "lucide-react";
 import type { Destination } from "@/types/models";
 
 type SimplifiedDestination = Pick<
@@ -20,6 +19,9 @@ interface DestinationCardProps {
   id?: string;
   onClick?: () => void;
   showSimilar?: boolean;
+  isInWishlist?: boolean;
+  onWishlistToggle?: (id: string) => void;
+  categories?: string[];
 }
 
 export const DestinationCard = ({
@@ -30,6 +32,9 @@ export const DestinationCard = ({
   id,
   onClick,
   showSimilar = false,
+  isInWishlist = false,
+  onWishlistToggle,
+  categories = [],
 }: DestinationCardProps) => {
   const navigate = useNavigate();
   const [similarDestinations, setSimilarDestinations] = useState<SimplifiedDestination[]>([]);
@@ -39,6 +44,13 @@ export const DestinationCard = ({
     e.stopPropagation();
     if (id) {
       navigate(`/destination/${id}`);
+    }
+  };
+
+  const handleWishlistClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (id && onWishlistToggle) {
+      onWishlistToggle(id);
     }
   };
 
@@ -72,11 +84,33 @@ export const DestinationCard = ({
           className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-        <div className="absolute bottom-4 left-4 right-4">
+        <div className="absolute top-4 right-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            className={`rounded-full ${isInWishlist ? 'text-red-500' : 'text-white'} hover:bg-white/20`}
+            onClick={handleWishlistClick}
+          >
+            <Heart className={`h-5 w-5 ${isInWishlist ? 'fill-current' : ''}`} />
+          </Button>
+        </div>
+        <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center">
           <span className="inline-flex items-center gap-1 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium text-primary shadow-sm">
             <DollarSign className="h-4 w-4" />
             {price}
           </span>
+          {categories.length > 0 && (
+            <div className="flex gap-2">
+              {categories.map((category, index) => (
+                <span
+                  key={index}
+                  className="bg-black/50 text-white text-xs px-2 py-1 rounded-full backdrop-blur-sm"
+                >
+                  {category}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

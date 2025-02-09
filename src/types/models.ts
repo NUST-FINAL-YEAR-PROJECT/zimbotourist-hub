@@ -17,6 +17,8 @@ export interface Destination {
   getting_there: string | null;
   created_at: string;
   updated_at: string;
+  categories: string[] | null;
+  is_featured: boolean | null;
 }
 
 export interface Event {
