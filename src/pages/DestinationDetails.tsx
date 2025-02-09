@@ -1,3 +1,4 @@
+
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -18,31 +19,63 @@ export const DestinationDetails = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
-  const { data: destination, isLoading } = useQuery({
+  const { data: destination, isLoading, error } = useQuery({
     queryKey: ["destination", id],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("destinations")
         .select("*")
         .eq("id", id)
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching destination:", error);
+        throw error;
+      }
+
+      if (!data) {
+        throw new Error("Destination not found");
+      }
+
       return data as Destination;
     },
   });
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (!destination) {
-    return <div>Destination not found</div>;
-  }
-
   const handleBack = () => {
     navigate(-1); // This will go back to the previous page
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+        <h2 className="text-xl font-semibold">Destination not found</h2>
+        <Button onClick={handleBack} variant="outline">
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Go Back
+        </Button>
+      </div>
+    );
+  }
+
+  if (!destination) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+        <h2 className="text-xl font-semibold">Destination not found</h2>
+        <Button onClick={handleBack} variant="outline">
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Go Back
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
