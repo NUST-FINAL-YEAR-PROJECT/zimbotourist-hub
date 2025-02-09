@@ -77,17 +77,21 @@ export const ChatAssistant = () => {
     try {
       setIsLoading(true);
       
-      if (!conversation) {
-        const newConversation = await createNewConversation();
-        if (!newConversation) return;
-        setConversation(newConversation);
+      let currentConversation = conversation;
+      if (!currentConversation) {
+        currentConversation = await createNewConversation();
+        if (!currentConversation) {
+          setIsLoading(false);
+          return;
+        }
+        setConversation(currentConversation);
       }
 
       // Insert user message
       const { error: userMessageError } = await supabase
         .from('chat_messages')
         .insert([{
-          conversation_id: conversation.id,
+          conversation_id: currentConversation.id,
           role: 'user' as const,
           content: message
         }]);
@@ -95,26 +99,26 @@ export const ChatAssistant = () => {
       if (userMessageError) throw userMessageError;
 
       // Get AI response
-      const response = await fetch('/functions/v1/chat-completion', {
+      const response = await fetch(`${window.location.origin}/functions/v1/chat-completion`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
+          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
         },
         body: JSON.stringify({ message }),
       });
 
-      const data = await response.json();
-      
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to get AI response');
+        throw new Error('Failed to get AI response');
       }
+
+      const data = await response.json();
 
       // Insert AI response
       const { error: aiMessageError } = await supabase
         .from('chat_messages')
         .insert([{
-          conversation_id: conversation.id,
+          conversation_id: currentConversation.id,
           role: 'assistant' as const,
           content: data.response
         }]);
@@ -125,17 +129,21 @@ export const ChatAssistant = () => {
       const { data: messages, error: fetchError } = await supabase
         .from('chat_messages')
         .select('*')
-        .eq('conversation_id', conversation.id)
+        .eq('conversation_id', currentConversation.id)
         .order('created_at', { ascending: true });
 
       if (fetchError) throw fetchError;
 
-      const typedMessages = messages.map(msg => ({
-        ...msg,
-        role: msg.role as 'user' | 'assistant'
-      }));
-
-      setConversation(prev => prev ? { ...prev, messages: typedMessages } : null);
+      setConversation(prev => 
+        prev ? { 
+          ...prev, 
+          messages: messages.map(msg => ({
+            ...msg,
+            role: msg.role as 'user' | 'assistant'
+          }))
+        } : null
+      );
+      
       setMessage("");
     } catch (error) {
       console.error('Error sending message:', error);
