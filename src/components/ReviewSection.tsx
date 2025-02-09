@@ -24,7 +24,8 @@ export const ReviewSection = ({ destinationId, userId }: ReviewSectionProps) => 
   const { data: reviews, isLoading } = useQuery({
     queryKey: ["reviews", destinationId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // First fetch reviews
+      const { data: reviewsData, error: reviewsError } = await supabase
         .from("reviews")
         .select(`
           id,
@@ -33,17 +34,29 @@ export const ReviewSection = ({ destinationId, userId }: ReviewSectionProps) => 
           rating,
           comment,
           created_at,
-          updated_at,
-          profiles (
-            username,
-            avatar_url
-          )
+          updated_at
         `)
         .eq("destination_id", destinationId)
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      return data as Review[];
+      if (reviewsError) throw reviewsError;
+
+      // Then fetch profiles for the user_ids in the reviews
+      const userIds = reviewsData.map(review => review.user_id);
+      const { data: profilesData, error: profilesError } = await supabase
+        .from("profiles")
+        .select("id, username, avatar_url")
+        .in("id", userIds);
+
+      if (profilesError) throw profilesError;
+
+      // Merge the profiles data with the reviews
+      const reviewsWithProfiles = reviewsData.map(review => ({
+        ...review,
+        profiles: profilesData.find(profile => profile.id === review.user_id)
+      }));
+
+      return reviewsWithProfiles as Review[];
     },
   });
 
