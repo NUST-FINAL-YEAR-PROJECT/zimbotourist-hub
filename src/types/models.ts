@@ -1,3 +1,4 @@
+
 export interface Destination {
   id: string;
   name: string;
@@ -49,6 +50,11 @@ export interface Booking {
   booking_date: string;
   number_of_people: number;
   total_price: number;
+  contact_name: string;
+  contact_email: string;
+  contact_phone: string;
+  preferred_date: string | null;
+  booking_details: Record<string, any> | null;
   created_at: string;
   updated_at: string;
 }

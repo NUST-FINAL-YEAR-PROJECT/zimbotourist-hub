@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { Star, Edit, Trash2 } from "lucide-react";
@@ -21,10 +22,10 @@ export const ReviewSection = ({ destinationId, userId }: ReviewSectionProps) => 
   const queryClient = useQueryClient();
 
   const { data: reviews, isLoading } = useQuery({
-    queryKey: ["destination_reviews", destinationId],
+    queryKey: ["reviews", destinationId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("destination_reviews")
+        .from("reviews")
         .select(`
           *,
           profiles (username, avatar_url)
@@ -33,14 +34,14 @@ export const ReviewSection = ({ destinationId, userId }: ReviewSectionProps) => 
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data as Review[];
     },
   });
 
   const createReviewMutation = useMutation({
     mutationFn: async () => {
       const { error } = await supabase
-        .from("destination_reviews")
+        .from("reviews")
         .insert({
           user_id: userId,
           destination_id: destinationId,
@@ -51,7 +52,7 @@ export const ReviewSection = ({ destinationId, userId }: ReviewSectionProps) => 
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["destination_reviews", destinationId] });
+      queryClient.invalidateQueries({ queryKey: ["reviews", destinationId] });
       setComment("");
       setRating(5);
       toast({
@@ -71,14 +72,14 @@ export const ReviewSection = ({ destinationId, userId }: ReviewSectionProps) => 
   const updateReviewMutation = useMutation({
     mutationFn: async () => {
       const { error } = await supabase
-        .from("destination_reviews")
+        .from("reviews")
         .update({ rating, comment })
         .eq("id", editingReviewId);
 
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["destination_reviews", destinationId] });
+      queryClient.invalidateQueries({ queryKey: ["reviews", destinationId] });
       setEditingReviewId(null);
       setComment("");
       setRating(5);
@@ -99,14 +100,14 @@ export const ReviewSection = ({ destinationId, userId }: ReviewSectionProps) => 
   const deleteReviewMutation = useMutation({
     mutationFn: async (reviewId: string) => {
       const { error } = await supabase
-        .from("destination_reviews")
+        .from("reviews")
         .delete()
         .eq("id", reviewId);
 
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["destination_reviews", destinationId] });
+      queryClient.invalidateQueries({ queryKey: ["reviews", destinationId] });
       toast({
         title: "Review deleted",
         description: "Your review has been deleted successfully.",
@@ -183,7 +184,7 @@ export const ReviewSection = ({ destinationId, userId }: ReviewSectionProps) => 
       )}
 
       <div className="space-y-4">
-        {reviews?.map((review: any) => (
+        {reviews?.map((review) => (
           <div
             key={review.id}
             className="border rounded-lg p-4 space-y-2 bg-white/50"
