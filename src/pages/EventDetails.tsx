@@ -1,14 +1,16 @@
-import { useParams } from "react-router-dom";
+
+import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, MapPin, Users } from "lucide-react";
+import { CalendarDays, MapPin, Users, ChevronLeft, Home } from "lucide-react";
 import type { Event } from "@/types/models";
 
 export const EventDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const { data: event, isLoading } = useQuery({
     queryKey: ["event", id],
@@ -43,77 +45,102 @@ export const EventDetails = () => {
     return (
       <div className="container mx-auto p-6">
         <h1 className="text-2xl font-bold">Event not found</h1>
+        <Button onClick={() => navigate(-1)} className="mt-4">
+          <ChevronLeft className="w-4 h-4 mr-2" />
+          Go Back
+        </Button>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="space-y-4">
-        <h1 className="text-3xl font-bold">{event.title}</h1>
-        <div className="flex items-center space-x-4 text-gray-600">
-          <div className="flex items-center">
-            <CalendarDays className="w-5 h-5 mr-2" />
-            <span>
-              {format(new Date(event.start_date), "PPP")} -{" "}
-              {format(new Date(event.end_date), "PPP")}
-            </span>
-          </div>
-          {event.location && (
-            <div className="flex items-center">
-              <MapPin className="w-5 h-5 mr-2" />
-              <span>{event.location}</span>
-            </div>
-          )}
-          {event.capacity && (
-            <div className="flex items-center">
-              <Users className="w-5 h-5 mr-2" />
-              <span>{event.capacity} attendees max</span>
-            </div>
-          )}
+    <div className="container mx-auto p-6">
+      <div className="flex justify-between items-center mb-6">
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={() => navigate(-1)}
+          >
+            <ChevronLeft className="w-4 h-4 mr-2" />
+            Back
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={() => navigate("/")}
+          >
+            <Home className="w-4 h-4 mr-2" />
+            Home
+          </Button>
         </div>
       </div>
 
-      {event.image_url && (
-        <img
-          src={event.image_url}
-          alt={event.title}
-          className="w-full h-64 object-cover rounded-lg"
-        />
-      )}
-
-      <div className="prose max-w-none">
-        <p>{event.description}</p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="p-6 bg-white rounded-lg shadow">
-          <h3 className="font-semibold mb-2">Price</h3>
-          <p className="text-2xl font-bold">${event.price}</p>
+      <div className="space-y-6">
+        <div className="space-y-4">
+          <h1 className="text-3xl font-bold">{event.title}</h1>
+          <div className="flex items-center space-x-4 text-gray-600">
+            <div className="flex items-center">
+              <CalendarDays className="w-5 h-5 mr-2" />
+              <span>
+                {format(new Date(event.start_date), "PPP")} -{" "}
+                {format(new Date(event.end_date), "PPP")}
+              </span>
+            </div>
+            {event.location && (
+              <div className="flex items-center">
+                <MapPin className="w-5 h-5 mr-2" />
+                <span>{event.location}</span>
+              </div>
+            )}
+            {event.capacity && (
+              <div className="flex items-center">
+                <Users className="w-5 h-5 mr-2" />
+                <span>{event.capacity} attendees max</span>
+              </div>
+            )}
+          </div>
         </div>
 
-        {event.ticket_types && event.ticket_types.length > 0 && (
-          <div className="p-6 bg-white rounded-lg shadow">
-            <h3 className="font-semibold mb-2">Ticket Types</h3>
-            <ul className="space-y-2">
-              {event.ticket_types.map((type: any, index: number) => (
-                <li key={index}>{type.name}</li>
-              ))}
-            </ul>
-          </div>
+        {event.image_url && (
+          <img
+            src={event.image_url}
+            alt={event.title}
+            className="w-full h-64 object-cover rounded-lg"
+          />
         )}
 
-        {event.cancellation_policy && (
+        <div className="prose max-w-none">
+          <p>{event.description}</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="p-6 bg-white rounded-lg shadow">
-            <h3 className="font-semibold mb-2">Cancellation Policy</h3>
-            <p>{event.cancellation_policy}</p>
+            <h3 className="font-semibold mb-2">Price</h3>
+            <p className="text-2xl font-bold">${event.price}</p>
           </div>
-        )}
+
+          {event.ticket_types && event.ticket_types.length > 0 && (
+            <div className="p-6 bg-white rounded-lg shadow">
+              <h3 className="font-semibold mb-2">Ticket Types</h3>
+              <ul className="space-y-2">
+                {event.ticket_types.map((type: any, index: number) => (
+                  <li key={index}>{type.name}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {event.cancellation_policy && (
+            <div className="p-6 bg-white rounded-lg shadow">
+              <h3 className="font-semibold mb-2">Cancellation Policy</h3>
+              <p>{event.cancellation_policy}</p>
+            </div>
+          )}
+        </div>
+
+        <Button size="lg" className="w-full md:w-auto">
+          Book Now
+        </Button>
       </div>
-
-      <Button size="lg" className="w-full md:w-auto">
-        Book Now
-      </Button>
     </div>
   );
 };
