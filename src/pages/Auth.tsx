@@ -30,7 +30,7 @@ const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Check if user is already logged in
+  // Check if user is already logged in and listen for auth changes
   useEffect(() => {
     const checkSession = async () => {
       try {
@@ -45,18 +45,36 @@ const Auth = () => {
       }
     };
     checkSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        navigate("/dashboard");
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, [navigate]);
 
   const validateForm = () => {
-    if (!email || !password) {
+    if (!email) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Please fill in all fields",
+        description: "Please enter your email",
       });
       return false;
     }
-    if (password.length < 6) {
+
+    if (mode !== "forgot-password" && !password) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please enter your password",
+      });
+      return false;
+    }
+
+    if (mode !== "forgot-password" && password.length < 6) {
       toast({
         variant: "destructive",
         title: "Error",
@@ -64,6 +82,16 @@ const Auth = () => {
       });
       return false;
     }
+
+    if (!email.includes("@")) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please enter a valid email address",
+      });
+      return false;
+    }
+
     return true;
   };
 
