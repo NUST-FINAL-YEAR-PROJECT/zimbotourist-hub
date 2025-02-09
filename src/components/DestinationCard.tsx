@@ -1,12 +1,16 @@
+
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { MapPin, Calendar, DollarSign } from "lucide-react";
 import type { Destination } from "@/types/models";
 
-// Create a type for the simplified destination returned by the Supabase function
-type SimplifiedDestination = Pick<Destination, 'id' | 'name' | 'description' | 'location' | 'price' | 'image_url'>;
+type SimplifiedDestination = Pick<
+  Destination,
+  "id" | "name" | "description" | "location" | "price" | "image_url"
+>;
 
 interface DestinationCardProps {
   image: string;
@@ -18,14 +22,14 @@ interface DestinationCardProps {
   showSimilar?: boolean;
 }
 
-export const DestinationCard = ({ 
-  image, 
-  title, 
-  description, 
-  price, 
+export const DestinationCard = ({
+  image,
+  title,
+  description,
+  price,
   id,
   onClick,
-  showSimilar = false
+  showSimilar = false,
 }: DestinationCardProps) => {
   const navigate = useNavigate();
   const [similarDestinations, setSimilarDestinations] = useState<SimplifiedDestination[]>([]);
@@ -34,16 +38,17 @@ export const DestinationCard = ({
   const handleViewDetails = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (id) {
-      navigate(`/destination/${id}`); // Changed from window.open to navigate
+      navigate(`/destination/${id}`);
     }
   };
 
   const handleViewSimilar = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (id && !showingSimilar) {
-      const { data, error } = await supabase
-        .rpc('get_similar_destinations', { destination_id: id });
-      
+      const { data, error } = await supabase.rpc("get_similar_destinations", {
+        destination_id: id,
+      });
+
       if (!error && data) {
         setSimilarDestinations(data);
         setShowingSimilar(true);
@@ -58,31 +63,34 @@ export const DestinationCard = ({
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="glass-card overflow-hidden cursor-pointer group"
-      onClick={handleViewDetails} // Changed to use handleViewDetails directly
+      className="group rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-xl transition-all duration-300"
     >
       <div className="relative aspect-[4/3] overflow-hidden">
-        <img 
-          src={image} 
-          alt={title} 
+        <img
+          src={image}
+          alt={title}
           className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
         />
-        <div className="absolute top-4 right-4">
-          <span className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full font-semibold text-primary shadow-sm">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        <div className="absolute bottom-4 left-4 right-4">
+          <span className="inline-flex items-center gap-1 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium text-primary shadow-sm">
+            <DollarSign className="h-4 w-4" />
             {price}
           </span>
         </div>
       </div>
-      <div className="p-6">
-        <h3 className="text-xl font-display font-semibold mb-2 text-foreground group-hover:text-primary transition-colors duration-300">
-          {title}
-        </h3>
-        <p className="text-muted-foreground line-clamp-3 mb-4 text-sm">
-          {description}
-        </p>
-        <div className="flex gap-2">
-          <Button 
-            className="flex-1 bg-white text-primary hover:bg-primary hover:text-white border border-primary/20 transition-all duration-300 shadow-sm hover:shadow-md"
+
+      <div className="p-6 space-y-4">
+        <div>
+          <h3 className="text-xl font-semibold mb-2 text-foreground group-hover:text-primary transition-colors duration-300">
+            {title}
+          </h3>
+          <p className="text-muted-foreground line-clamp-2 text-sm">{description}</p>
+        </div>
+
+        <div className="flex gap-4">
+          <Button
+            className="flex-1 bg-primary/10 hover:bg-primary text-primary hover:text-white transition-all duration-300"
             onClick={handleViewDetails}
           >
             View Details
@@ -93,34 +101,41 @@ export const DestinationCard = ({
               className="flex-1"
               onClick={handleViewSimilar}
             >
-              {showingSimilar ? 'Hide Similar' : 'Show Similar'}
+              {showingSimilar ? "Hide Similar" : "Show Similar"}
             </Button>
           )}
         </div>
       </div>
+
       {showingSimilar && similarDestinations.length > 0 && (
-        <div className="p-4 bg-muted/50 border-t">
-          <h4 className="text-sm font-semibold mb-3">Similar Destinations</h4>
+        <div className="p-4 bg-muted/50 border-t space-y-3">
+          <h4 className="text-sm font-semibold">Similar Destinations</h4>
           <div className="space-y-3">
             {similarDestinations.map((dest) => (
-              <div 
+              <motion.div
                 key={dest.id}
-                className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/50 transition-colors"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/50 transition-colors cursor-pointer"
                 onClick={(e) => {
                   e.stopPropagation();
-                  navigate(`/destination/${dest.id}`); // Changed from window.open to navigate
+                  navigate(`/destination/${dest.id}`);
                 }}
               >
-                <img 
-                  src={dest.image_url || "/placeholder.svg"} 
+                <img
+                  src={dest.image_url || "/placeholder.svg"}
                   alt={dest.name}
-                  className="w-12 h-12 rounded-md object-cover"
+                  className="w-16 h-12 rounded-md object-cover"
                 />
-                <div>
-                  <h5 className="font-medium text-sm">{dest.name}</h5>
-                  <p className="text-xs text-muted-foreground">${dest.price}</p>
+                <div className="flex-1 min-w-0">
+                  <h5 className="font-medium text-sm truncate">{dest.name}</h5>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <MapPin className="h-3 w-3" />
+                    <span className="truncate">{dest.location}</span>
+                  </div>
                 </div>
-              </div>
+                <span className="text-sm font-medium text-primary">${dest.price}</span>
+              </motion.div>
             ))}
           </div>
         </div>
