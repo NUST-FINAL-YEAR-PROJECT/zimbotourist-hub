@@ -27,8 +27,17 @@ export const ReviewSection = ({ destinationId, userId }: ReviewSectionProps) => 
       const { data, error } = await supabase
         .from("reviews")
         .select(`
-          *,
-          profiles (username, avatar_url)
+          id,
+          user_id,
+          destination_id,
+          rating,
+          comment,
+          created_at,
+          updated_at,
+          profiles (
+            username,
+            avatar_url
+          )
         `)
         .eq("destination_id", destinationId)
         .order("created_at", { ascending: false });
