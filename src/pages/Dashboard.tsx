@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, Routes, Route } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -131,7 +132,7 @@ const DashboardHome = ({ profile }: { profile: Profile }) => {
                   image={event.image_url || "https://images.unsplash.com/photo-1472396961693-142e6e269027"}
                   title={event.title}
                   description={event.description || ""}
-                  price={`$${event.price}`}
+                  price={event.price ? `$${event.price}` : "Free"}
                 />
               ))}
             </div>
@@ -426,7 +427,7 @@ export const Dashboard = () => {
                   isLoading={isLoadingDestinations}
                 />
               } />
-              <Route path="/events" element={<EventsList events={events || []} />} />
+              <Route path="/events" element={<EventsList />} />
               <Route path="/events/:id" element={<EventDetails />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/settings" element={<SettingsPage />} />
