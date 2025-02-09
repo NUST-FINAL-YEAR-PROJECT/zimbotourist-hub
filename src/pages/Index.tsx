@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
@@ -58,9 +57,8 @@ const Index = () => {
         toast.success("Successfully signed out");
       } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
         setUser(session?.user || null);
-      } else if (event === 'USER_DELETED') {
-        setUser(null);
-        toast.info("Account has been deleted");
+      } else if (event === 'INITIAL_SESSION' || event === 'USER_UPDATED') {
+        setUser(session?.user || null);
       }
     });
 
@@ -346,4 +344,3 @@ const Index = () => {
 };
 
 export default Index;
-
