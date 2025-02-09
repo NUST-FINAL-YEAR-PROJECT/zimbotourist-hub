@@ -1,3 +1,4 @@
+
 import { useNavigate } from "react-router-dom";
 import { DestinationCard } from "@/components/DestinationCard";
 import type { Event } from "@/types/models";
@@ -10,7 +11,7 @@ export const EventsList = ({ events }: { events: Event[] }) => {
       {events?.map((event) => (
         <div 
           key={event.id} 
-          onClick={() => navigate(`/dashboard/events/${event.id}`)}
+          onClick={() => navigate(`/events/${event.id}`)}
           className="cursor-pointer"
         >
           <DestinationCard

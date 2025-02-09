@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,6 +11,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import { Dashboard } from "./pages/Dashboard";
 import { DestinationDetails } from "./pages/DestinationDetails";
+import { EventDetails } from "./pages/EventDetails";
 import Documentation from "./pages/Documentation";
 import type { User } from "@supabase/supabase-js";
 
@@ -96,6 +98,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <DestinationDetails />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/events/:id"
+            element={
+              <ProtectedRoute>
+                <EventDetails />
               </ProtectedRoute>
             }
           />
