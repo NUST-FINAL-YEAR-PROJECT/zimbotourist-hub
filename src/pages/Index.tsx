@@ -1,3 +1,4 @@
+
 import { motion } from "framer-motion";
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
@@ -9,7 +10,6 @@ import { Input } from "@/components/ui/input";
 import { Search, MapPin, Calendar, Compass, Globe, ArrowRight, Users, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { ChatAssistant } from "@/components/ChatAssistant";
 import { toast } from "sonner";
 
 const Index = () => {
