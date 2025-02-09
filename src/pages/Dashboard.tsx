@@ -30,6 +30,7 @@ import { useNotifications } from "@/hooks/useNotifications";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { motion } from "framer-motion";
 
 type BookingWithRelations = Booking & {
   destinations: { name: string; image_url: string | null } | null;
@@ -42,18 +43,23 @@ const StatsCard = ({ title, value, icon: Icon, description }: {
   icon: React.ElementType; 
   description?: string;
 }) => (
-  <Card>
-    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-      <CardTitle className="text-sm font-medium">{title}</CardTitle>
-      <Icon className="h-4 w-4 text-muted-foreground" />
-    </CardHeader>
-    <CardContent>
-      <div className="text-2xl font-bold">{value}</div>
-      {description && (
-        <p className="text-xs text-muted-foreground">{description}</p>
-      )}
-    </CardContent>
-  </Card>
+  <motion.div
+    whileHover={{ scale: 1.02 }}
+    transition={{ type: "spring", stiffness: 300 }}
+  >
+    <Card className="bg-white/50 backdrop-blur-sm border border-gray-200/50 hover:border-primary/20 transition-colors">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
+        <Icon className="h-4 w-4 text-primary" />
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold text-foreground">{value}</div>
+        {description && (
+          <p className="text-xs text-muted-foreground mt-1">{description}</p>
+        )}
+      </CardContent>
+    </Card>
+  </motion.div>
 );
 
 const NotificationItem = ({ notification, onRead }: { 
@@ -63,10 +69,13 @@ const NotificationItem = ({ notification, onRead }: {
   const isUnread = !notification.is_read;
   
   return (
-    <div 
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
       className={cn(
-        "p-4 hover:bg-accent transition-colors cursor-pointer",
-        isUnread && "bg-accent/50"
+        "p-4 hover:bg-accent/50 transition-all cursor-pointer rounded-lg",
+        isUnread && "bg-primary/5"
       )}
       onClick={() => onRead(notification.id)}
     >
@@ -79,7 +88,7 @@ const NotificationItem = ({ notification, onRead }: {
       <p className="text-sm text-muted-foreground">
         {notification.description}
       </p>
-    </div>
+    </motion.div>
   );
 };
 
@@ -315,16 +324,23 @@ const BookingsList = ({ bookings }: { bookings: BookingWithRelations[] }) => {
     return (
       <div className="space-y-4">
         {bookings.map((booking) => (
-          <div key={booking.id} className="bg-white rounded-lg shadow-sm p-4 space-y-3">
+          <motion.div
+            key={booking.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="bg-white/50 backdrop-blur-sm rounded-lg shadow-sm p-4 space-y-3 border border-gray-200/50"
+          >
             <div className="flex justify-between items-start">
               <h3 className="font-medium">
                 {booking.destinations?.name || booking.events?.title}
               </h3>
-              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+              <span className={cn(
+                "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
                 booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
                 booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                 'bg-red-100 text-red-800'
-              }`}>
+              )}>
                 {booking.status.toUpperCase()}
               </span>
             </div>
@@ -367,14 +383,14 @@ const BookingsList = ({ bookings }: { bookings: BookingWithRelations[] }) => {
                 </AlertDialogContent>
               </AlertDialog>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
     );
   }
 
   return (
-    <div className="rounded-md border overflow-x-auto">
+    <div className="rounded-xl overflow-hidden border border-gray-200/50 bg-white/50 backdrop-blur-sm">
       <Table>
         <TableHeader>
           <TableRow>
@@ -396,11 +412,12 @@ const BookingsList = ({ bookings }: { bookings: BookingWithRelations[] }) => {
                 {new Date(booking.booking_date).toLocaleDateString()}
               </TableCell>
               <TableCell>
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                <span className={cn(
+                  "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
                   booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
                   booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                   'bg-red-100 text-red-800'
-                }`}>
+                )}>
                   {booking.status.toUpperCase()}
                 </span>
               </TableCell>
@@ -549,7 +566,7 @@ export const Dashboard = () => {
           <AppSidebar />
           <div className="flex-1 p-8">
             <div className="container mx-auto space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
                 {[1, 2, 3].map((i) => (
                   <div key={i} className="space-y-4">
                     <Skeleton className="h-[300px] w-full" />
@@ -567,57 +584,58 @@ export const Dashboard = () => {
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full">
+      <div className="flex min-h-screen w-full bg-gradient-to-br from-gray-50 to-blue-50/50">
         <AppSidebar />
-        <div className="flex-1 bg-gray-50">
+        <div className="flex-1">
           <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between mb-6">
-              <h1 className="text-2xl font-bold">Dashboard</h1>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex items-center justify-between mb-6"
+            >
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                Dashboard
+              </h1>
               <div className="flex items-center gap-4">
-                <Popover>
-                  <PopoverTrigger asChild>
+                <Sheet>
+                  <SheetTrigger asChild>
                     <Button
                       variant="outline"
                       size="icon"
-                      className="relative"
-                      onClick={() => setHasUnreadNotifications(false)}
+                      className="relative bg-white/50 backdrop-blur-sm"
                     >
                       {hasUnreadNotifications ? (
                         <BellDot className="h-5 w-5 text-primary" />
                       ) : (
                         <Bell className="h-5 w-5" />
                       )}
+                      {hasUnreadNotifications && (
+                        <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-xs text-white flex items-center justify-center animate-pulse">
+                          {notifications?.filter(n => !n.is_read).length}
+                        </span>
+                      )}
                     </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-80 p-0">
-                    <div className="p-4 border-b">
-                      <h4 className="font-semibold">Notifications</h4>
-                    </div>
-                    <ScrollArea className="h-80">
-                      <div className="divide-y">
-                        {notifications.map((notification) => (
-                          <div
+                  </SheetTrigger>
+                  <SheetContent side="right" className="w-full sm:w-[400px]">
+                    <SheetHeader>
+                      <SheetTitle>Notifications</SheetTitle>
+                    </SheetHeader>
+                    <ScrollArea className="h-[calc(100vh-8rem)] mt-4">
+                      <div className="space-y-1">
+                        {notifications?.map((notification) => (
+                          <NotificationItem
                             key={notification.id}
-                            className="p-4 hover:bg-accent transition-colors"
-                          >
-                            <div className="flex justify-between items-start mb-1">
-                              <h5 className="font-medium">{notification.title}</h5>
-                              <span className="text-xs text-muted-foreground">
-                                {notification.time}
-                              </span>
-                            </div>
-                            <p className="text-sm text-muted-foreground">
-                              {notification.description}
-                            </p>
-                          </div>
+                            notification={notification}
+                            onRead={markNotificationAsRead}
+                          />
                         ))}
                       </div>
                     </ScrollArea>
-                  </PopoverContent>
-                </Popover>
+                  </SheetContent>
+                </Sheet>
                 <SidebarTrigger />
               </div>
-            </div>
+            </motion.div>
             
             <Routes>
               <Route path="/" element={<DashboardHome profile={profile} bookings={bookings || []} />} />
