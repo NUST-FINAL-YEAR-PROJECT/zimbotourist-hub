@@ -53,7 +53,12 @@ export const ChatAssistant = () => {
 
           setConversation({
             ...existingConversations,
-            messages: messages || []
+            messages: messages?.map(msg => ({
+              id: msg.id,
+              role: msg.role as 'user' | 'assistant',
+              content: msg.content,
+              created_at: msg.created_at
+            })) || []
           });
         }
       }
@@ -161,8 +166,10 @@ export const ChatAssistant = () => {
         prev ? { 
           ...prev, 
           messages: messages.map(msg => ({
-            ...msg,
-            role: msg.role as 'user' | 'assistant'
+            id: msg.id,
+            role: msg.role as 'user' | 'assistant',
+            content: msg.content,
+            created_at: msg.created_at
           }))
         } : null
       );
