@@ -55,6 +55,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 type BookingWithRelations = Booking & {
   destinations: { name: string; image_url: string | null } | null;
@@ -309,6 +310,7 @@ const DashboardHome = ({ profile, bookings }: { profile: Profile; bookings: Book
 const BookingsList = ({ bookings }: { bookings: BookingWithRelations[] }) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
 
   const deleteBookingMutation = useMutation({
     mutationFn: async (bookingId: string) => {
@@ -335,8 +337,70 @@ const BookingsList = ({ bookings }: { bookings: BookingWithRelations[] }) => {
     },
   });
 
+  if (isMobile) {
+    return (
+      <div className="space-y-4">
+        {bookings.map((booking) => (
+          <div key={booking.id} className="bg-white rounded-lg shadow-sm p-4 space-y-3">
+            <div className="flex justify-between items-start">
+              <h3 className="font-medium">
+                {booking.destinations?.name || booking.events?.title}
+              </h3>
+              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
+                booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                'bg-red-100 text-red-800'
+              }`}>
+                {booking.status.toUpperCase()}
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div className="text-muted-foreground">Date</div>
+              <div>{new Date(booking.booking_date).toLocaleDateString()}</div>
+              <div className="text-muted-foreground">People</div>
+              <div>{booking.number_of_people}</div>
+              <div className="text-muted-foreground">Price</div>
+              <div>${booking.total_price.toFixed(2)}</div>
+            </div>
+            <div className="flex gap-2 pt-2">
+              {booking.status === 'pending' && (
+                <Button variant="default" size="sm" className="flex-1">
+                  Pay Now
+                </Button>
+              )}
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" size="sm" className="flex-1">
+                    Delete
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="w-[95%] max-w-md mx-auto">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete your booking.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+                    <AlertDialogCancel className="flex-1">Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      className="flex-1"
+                      onClick={() => deleteBookingMutation.mutate(booking.id)}
+                    >
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md border overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>
