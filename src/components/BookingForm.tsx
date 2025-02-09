@@ -42,7 +42,8 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
   const handleSubmit = async () => {
     if (!date) {
       toast({
-        title: "Please select a date",
+        title: "Date Required",
+        description: "Please select a travel date before proceeding.",
         variant: "destructive",
       });
       return;
@@ -50,7 +51,17 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
 
     if (!userId) {
       toast({
-        title: "Please log in to make a booking",
+        title: "Authentication Required",
+        description: "Please sign in to your account to make a booking.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!contactName || !contactEmail || !contactPhone) {
+      toast({
+        title: "Contact Information Required",
+        description: "Please fill in all contact information fields.",
         variant: "destructive",
       });
       return;
@@ -90,14 +101,15 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
       if (paymentError) throw paymentError;
 
       toast({
-        title: "Booking created successfully",
-        description: "Proceeding to payment...",
+        title: "Booking Created Successfully",
+        description: "Your booking has been created. You will be redirected to complete the payment.",
+        className: "bg-green-50 border-green-200",
       });
       onSuccess();
     } catch (error: any) {
       toast({
-        title: "Error creating booking",
-        description: error.message,
+        title: "Booking Creation Failed",
+        description: error.message || "There was an error creating your booking. Please try again.",
         variant: "destructive",
       });
     } finally {

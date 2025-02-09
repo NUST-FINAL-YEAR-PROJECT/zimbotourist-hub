@@ -43,6 +43,10 @@ export type Database = {
         Row: {
           booking_date: string
           booking_details: Json | null
+          cancellation_date: string | null
+          cancellation_reason: string | null
+          completion_date: string | null
+          confirmation_date: string | null
           contact_email: string
           contact_name: string
           contact_phone: string
@@ -52,9 +56,9 @@ export type Database = {
           id: string
           number_of_people: number
           payment_id: string | null
-          payment_status: string | null
+          payment_status: Database["public"]["Enums"]["payment_status"] | null
           preferred_date: string | null
-          status: string | null
+          status: Database["public"]["Enums"]["booking_status"] | null
           total_price: number
           updated_at: string
           user_id: string | null
@@ -62,6 +66,10 @@ export type Database = {
         Insert: {
           booking_date: string
           booking_details?: Json | null
+          cancellation_date?: string | null
+          cancellation_reason?: string | null
+          completion_date?: string | null
+          confirmation_date?: string | null
           contact_email: string
           contact_name: string
           contact_phone: string
@@ -71,9 +79,9 @@ export type Database = {
           id?: string
           number_of_people: number
           payment_id?: string | null
-          payment_status?: string | null
+          payment_status?: Database["public"]["Enums"]["payment_status"] | null
           preferred_date?: string | null
-          status?: string | null
+          status?: Database["public"]["Enums"]["booking_status"] | null
           total_price: number
           updated_at?: string
           user_id?: string | null
@@ -81,6 +89,10 @@ export type Database = {
         Update: {
           booking_date?: string
           booking_details?: Json | null
+          cancellation_date?: string | null
+          cancellation_reason?: string | null
+          completion_date?: string | null
+          confirmation_date?: string | null
           contact_email?: string
           contact_name?: string
           contact_phone?: string
@@ -90,9 +102,9 @@ export type Database = {
           id?: string
           number_of_people?: number
           payment_id?: string | null
-          payment_status?: string | null
+          payment_status?: Database["public"]["Enums"]["payment_status"] | null
           preferred_date?: string | null
-          status?: string | null
+          status?: Database["public"]["Enums"]["booking_status"] | null
           total_price?: number
           updated_at?: string
           user_id?: string | null
@@ -117,6 +129,54 @@ export type Database = {
             columns: ["payment_id"]
             isOneToOne: false
             referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cart_items: {
+        Row: {
+          created_at: string
+          destination_id: string | null
+          event_id: string | null
+          id: string
+          preferred_date: string | null
+          quantity: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          destination_id?: string | null
+          event_id?: string | null
+          id?: string
+          preferred_date?: string | null
+          quantity?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          destination_id?: string | null
+          event_id?: string | null
+          id?: string
+          preferred_date?: string | null
+          quantity?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cart_items_destination_id_fkey"
+            columns: ["destination_id"]
+            isOneToOne: false
+            referencedRelation: "destinations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cart_items_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
             referencedColumns: ["id"]
           },
         ]
@@ -298,6 +358,8 @@ export type Database = {
           created_at: string
           id: string
           payment_details: Json | null
+          payment_gateway: string | null
+          payment_gateway_reference: string | null
           payment_method: string | null
           status: string
           updated_at: string
@@ -308,6 +370,8 @@ export type Database = {
           created_at?: string
           id?: string
           payment_details?: Json | null
+          payment_gateway?: string | null
+          payment_gateway_reference?: string | null
           payment_method?: string | null
           status?: string
           updated_at?: string
@@ -318,6 +382,8 @@ export type Database = {
           created_at?: string
           id?: string
           payment_details?: Json | null
+          payment_gateway?: string | null
+          payment_gateway_reference?: string | null
           payment_method?: string | null
           status?: string
           updated_at?: string
@@ -454,6 +520,13 @@ export type Database = {
         | "LOGIN"
         | "LOGOUT"
         | "ROLE_CHANGE"
+      booking_status: "pending" | "confirmed" | "cancelled" | "completed"
+      payment_status:
+        | "pending"
+        | "processing"
+        | "completed"
+        | "failed"
+        | "refunded"
     }
     CompositeTypes: {
       [_ in never]: never
