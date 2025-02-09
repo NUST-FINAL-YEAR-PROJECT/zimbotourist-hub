@@ -2,7 +2,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { MapPin, Calendar, Clock, Star, Activity, ArrowLeft } from "lucide-react";
+import { MapPin, Calendar, Clock, Star, Activity, ArrowLeft, Home } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { BookingForm } from "@/components/BookingForm";
 import { ReviewSection } from "@/components/ReviewSection";
@@ -11,6 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink } from "@/components/ui/breadcrumb";
 import type { Destination } from "@/types/models";
 
 export const DestinationDetails = () => {
@@ -42,7 +43,7 @@ export const DestinationDetails = () => {
   });
 
   const handleBack = () => {
-    navigate(-1); // This will go back to the previous page
+    navigate(-1);
   };
 
   if (isLoading) {
@@ -95,6 +96,27 @@ export const DestinationDetails = () => {
       )}
 
       <div className="container mx-auto px-4 py-8 mt-14 md:mt-0">
+        {/* Breadcrumb Navigation */}
+        <div className="mb-6">
+          <Breadcrumb>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/" icon={<Home className="h-4 w-4" />}>
+                Home
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/destinations">
+                Destinations
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbItem isCurrentPage>
+              <BreadcrumbLink href={`/destination/${destination.id}`}>
+                {destination.name}
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+          </Breadcrumb>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content - Left Column (2/3) */}
           <div className="lg:col-span-2 space-y-8">
@@ -189,6 +211,8 @@ export const DestinationDetails = () => {
                       title: "Booking successful",
                       description: "Your booking has been confirmed.",
                     });
+                    // Navigate to dashboard after successful booking
+                    navigate('/dashboard/bookings');
                   }}
                 />
               </CardContent>
@@ -202,3 +226,4 @@ export const DestinationDetails = () => {
     </div>
   );
 };
+
