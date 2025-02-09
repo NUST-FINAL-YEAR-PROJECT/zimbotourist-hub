@@ -10,6 +10,7 @@ import { Search, MapPin, Calendar, Compass, Globe, ArrowRight, Users, Sun } from
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { ChatAssistant } from "@/components/ChatAssistant";
+import { toast } from "sonner";
 
 const Index = () => {
   const { data: destinations, isLoading: isLoadingDestinations } = useDestinations();
@@ -22,10 +23,18 @@ const Index = () => {
   useEffect(() => {
     const checkUser = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("Error checking session:", error);
+          toast.error("Authentication error. Please try logging in again.");
+          return;
+        }
+        
         setUser(session?.user || null);
       } catch (error) {
         console.error("Error checking user session:", error);
+        toast.error("Failed to check authentication status");
       } finally {
         setIsLoadingAuth(false);
       }
@@ -33,28 +42,44 @@ const Index = () => {
 
     checkUser();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_OUT') {
+        setUser(null);
+        toast.success("Successfully signed out");
+      } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        setUser(session?.user || null);
+      } else if (event === 'USER_DELETED') {
+        setUser(null);
+        toast.info("Account has been deleted");
+      }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 
-  const filteredDestinations = destinations?.filter(destination => 
-    destination.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    destination.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    destination.description?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const handleAuthClick = (mode: 'signin' | 'signup') => {
-    navigate(mode === 'signup' ? '/auth?mode=signup' : '/auth');
+  const handleAuthClick = async (mode: 'signin' | 'signup') => {
+    try {
+      if (mode === 'signup') {
+        navigate('/auth?mode=signup');
+      } else {
+        navigate('/auth');
+      }
+    } catch (error) {
+      console.error("Navigation error:", error);
+      toast.error("Failed to navigate to authentication page");
+    }
   };
 
   const handleLogout = async () => {
     try {
-      await supabase.auth.signOut();
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      toast.success("Successfully logged out");
     } catch (error) {
       console.error("Error signing out:", error);
+      toast.error("Failed to sign out");
     }
   };
 
@@ -87,7 +112,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
       <section className="hero-section relative h-[90vh] overflow-hidden">
         <motion.div
           initial={{ scale: 1.1 }}
@@ -103,7 +127,6 @@ const Index = () => {
           <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70" />
         </motion.div>
         
-        {/* Navigation */}
         <div className="relative z-10 container mx-auto px-4">
           <div className="flex justify-end items-center py-6 gap-4">
             {isLoadingAuth ? (
@@ -145,7 +168,6 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Hero Content */}
         <div className="relative z-10 h-full container mx-auto flex flex-col items-center justify-center text-center px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -160,7 +182,6 @@ const Index = () => {
               Experience the magic of Southern Africa's hidden paradise
             </p>
             
-            {/* Search Section */}
             <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl max-w-3xl mx-auto transform hover:scale-[1.02] transition-all duration-300">
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-1 relative">
@@ -193,7 +214,6 @@ const Index = () => {
           </motion.div>
         </div>
 
-        {/* Scroll Indicator */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1, y: [0, 10, 0] }}
@@ -210,7 +230,6 @@ const Index = () => {
         </motion.div>
       </section>
 
-      {/* Features Section */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -233,7 +252,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Featured Destinations */}
       <section className="py-20 px-4 md:px-8 bg-gray-50">
         <div className="container mx-auto">
           <div className="flex justify-between items-center mb-12">
@@ -287,7 +305,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Call to Action */}
       <section className="py-20 bg-primary text-white">
         <div className="container mx-auto px-4 text-center">
           <motion.div
@@ -313,7 +330,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Chat Assistant */}
       <ChatAssistant />
     </div>
   );

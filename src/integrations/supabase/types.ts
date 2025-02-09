@@ -170,6 +170,7 @@ export type Database = {
           additional_costs: Json | null
           amenities: string[] | null
           best_time_to_visit: string | null
+          categories: string[] | null
           created_at: string
           description: string | null
           difficulty_level: string | null
@@ -178,6 +179,7 @@ export type Database = {
           highlights: string[] | null
           id: string
           image_url: string | null
+          is_featured: boolean | null
           location: string
           name: string
           price: number
@@ -190,6 +192,7 @@ export type Database = {
           additional_costs?: Json | null
           amenities?: string[] | null
           best_time_to_visit?: string | null
+          categories?: string[] | null
           created_at?: string
           description?: string | null
           difficulty_level?: string | null
@@ -198,6 +201,7 @@ export type Database = {
           highlights?: string[] | null
           id?: string
           image_url?: string | null
+          is_featured?: boolean | null
           location: string
           name: string
           price: number
@@ -210,6 +214,7 @@ export type Database = {
           additional_costs?: Json | null
           amenities?: string[] | null
           best_time_to_visit?: string | null
+          categories?: string[] | null
           created_at?: string
           description?: string | null
           difficulty_level?: string | null
@@ -218,6 +223,7 @@ export type Database = {
           highlights?: string[] | null
           id?: string
           image_url?: string | null
+          is_featured?: boolean | null
           location?: string
           name?: string
           price?: number
