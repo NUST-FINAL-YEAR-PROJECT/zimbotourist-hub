@@ -25,6 +25,11 @@ export const EventDetails = () => {
         console.error("Error fetching event:", error);
         throw error;
       }
+
+      if (!data) {
+        throw new Error("Event not found");
+      }
+
       return data as Event;
     },
     enabled: !!id,
@@ -80,24 +85,20 @@ export const EventDetails = () => {
       <div className="space-y-6">
         <div className="space-y-4">
           <h1 className="text-3xl font-bold">{event.title}</h1>
-          <div className="flex items-center space-x-4 text-gray-600">
-            <div className="flex items-center">
-              <CalendarDays className="w-5 h-5 mr-2" />
-              <span>
-                {format(new Date(event.start_date), "PPP")} -{" "}
-                {format(new Date(event.end_date), "PPP")}
-              </span>
-            </div>
+          <div className="flex flex-wrap items-center gap-4 text-gray-600">
+            {event.start_date && event.end_date && (
+              <div className="flex items-center">
+                <CalendarDays className="w-5 h-5 mr-2" />
+                <span>
+                  {format(new Date(event.start_date), "PPP")} -{" "}
+                  {format(new Date(event.end_date), "PPP")}
+                </span>
+              </div>
+            )}
             {event.location && (
               <div className="flex items-center">
                 <MapPin className="w-5 h-5 mr-2" />
                 <span>{event.location}</span>
-              </div>
-            )}
-            {event.capacity && (
-              <div className="flex items-center">
-                <Users className="w-5 h-5 mr-2" />
-                <span>{event.capacity} attendees max</span>
               </div>
             )}
           </div>
@@ -118,7 +119,7 @@ export const EventDetails = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="p-6 bg-white rounded-lg shadow">
             <h3 className="font-semibold mb-2">Price</h3>
-            <p className="text-2xl font-bold">${event.price}</p>
+            <p className="text-2xl font-bold">{event.price ? `$${event.price}` : "Free"}</p>
           </div>
 
           {event.ticket_types && event.ticket_types.length > 0 && (
@@ -132,10 +133,10 @@ export const EventDetails = () => {
             </div>
           )}
 
-          {event.cancellation_policy && (
+          {event.event_type && (
             <div className="p-6 bg-white rounded-lg shadow">
-              <h3 className="font-semibold mb-2">Cancellation Policy</h3>
-              <p>{event.cancellation_policy}</p>
+              <h3 className="font-semibold mb-2">Event Type</h3>
+              <p>{event.event_type}</p>
             </div>
           )}
         </div>
