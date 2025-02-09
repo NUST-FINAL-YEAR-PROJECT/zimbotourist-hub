@@ -17,6 +17,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ProfilePage } from "@/components/ProfilePage";
 import { SettingsPage } from "@/components/SettingsPage";
 import { EventDetails } from "./EventDetails";
+import { PaymentPage } from "./PaymentPage";
 import {
   AlertDialog,
   AlertDialogAction,
