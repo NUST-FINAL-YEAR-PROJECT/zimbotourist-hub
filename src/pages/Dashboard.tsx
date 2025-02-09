@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, Routes, Route } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -431,6 +430,7 @@ export const Dashboard = () => {
               <Route path="/events/:id" element={<EventDetails />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/payment" element={<PaymentPage />} />
             </Routes>
           </div>
         </div>

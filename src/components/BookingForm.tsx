@@ -88,22 +88,14 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
 
       if (bookingError) throw bookingError;
 
-      const { error: paymentError } = await supabase
-        .from("payments")
-        .insert({
-          booking_id: booking.id,
-          amount: destination.price * numberOfPeople,
-          status: "pending"
-        });
-
-      if (paymentError) throw paymentError;
-
       toast({
         title: "Booking Created Successfully",
-        description: "Your booking has been confirmed. Redirecting to payment...",
+        description: "Redirecting to payment...",
         className: "bg-green-50 border-green-200"
       });
-      onSuccess();
+      
+      // Redirect to payment page instead of calling onSuccess
+      window.location.href = `/dashboard/payment?booking_id=${booking.id}`;
     } catch (error: any) {
       toast({
         title: "Booking Creation Failed",
