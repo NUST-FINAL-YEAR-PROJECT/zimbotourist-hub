@@ -81,3 +81,14 @@ export interface Review {
     avatar_url: string | null;
   };
 }
+
+export interface Notification {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string;
+  type: 'info' | 'success' | 'warning' | 'error';
+  is_read: boolean;
+  created_at: string;
+  updated_at: string;
+}

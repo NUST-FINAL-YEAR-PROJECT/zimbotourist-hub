@@ -46,6 +46,15 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { TravelRecommendations } from "@/components/TravelRecommendations";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useNotifications } from "@/hooks/useNotifications";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { cn } from "@/lib/utils";
 
 type BookingWithRelations = Booking & {
   destinations: { name: string; image_url: string | null } | null;
@@ -71,6 +80,33 @@ const StatsCard = ({ title, value, icon: Icon, description }: {
     </CardContent>
   </Card>
 );
+
+const NotificationItem = ({ notification, onRead }: { 
+  notification: Notification;
+  onRead: (id: string) => void;
+}) => {
+  const isUnread = !notification.is_read;
+  
+  return (
+    <div 
+      className={cn(
+        "p-4 hover:bg-accent transition-colors cursor-pointer",
+        isUnread && "bg-accent/50"
+      )}
+      onClick={() => onRead(notification.id)}
+    >
+      <div className="flex justify-between items-start mb-1">
+        <h5 className="font-medium">{notification.title}</h5>
+        <span className="text-xs text-muted-foreground">
+          {new Date(notification.created_at).toLocaleDateString()}
+        </span>
+      </div>
+      <p className="text-sm text-muted-foreground">
+        {notification.description}
+      </p>
+    </div>
+  );
+};
 
 const DashboardOverview = ({ bookings }: { bookings: BookingWithRelations[] }) => {
   const totalSpent = bookings.reduce((acc, booking) => acc + Number(booking.total_price), 0);
@@ -102,9 +138,11 @@ const DashboardOverview = ({ bookings }: { bookings: BookingWithRelations[] }) =
 };
 
 const DashboardHome = ({ profile, bookings }: { profile: Profile; bookings: BookingWithRelations[] }) => {
+  const { notifications, isLoading: isLoadingNotifications, markAsRead } = useNotifications(profile?.id);
   const { data: destinations, isLoading: isLoadingDestinations } = useDestinations();
   const { data: events, isLoading: isLoadingEvents } = useEvents();
   const navigate = useNavigate();
+  const unreadCount = notifications?.filter(n => !n.is_read).length || 0;
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -128,6 +166,55 @@ const DashboardHome = ({ profile, bookings }: { profile: Profile; bookings: Book
           </p>
         </div>
         <div className="flex items-center gap-4">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="relative"
+              >
+                {unreadCount > 0 ? (
+                  <BellDot className="h-5 w-5 text-primary" />
+                ) : (
+                  <Bell className="h-5 w-5" />
+                )}
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-xs text-white flex items-center justify-center">
+                    {unreadCount}
+                  </span>
+                )}
+              </Button>
+            </SheetTrigger>
+            <SheetContent>
+              <SheetHeader>
+                <SheetTitle>Notifications</SheetTitle>
+              </SheetHeader>
+              <ScrollArea className="h-[calc(100vh-8rem)] mt-4">
+                <div className="divide-y">
+                  {isLoadingNotifications ? (
+                    Array.from({ length: 3 }).map((_, i) => (
+                      <div key={i} className="p-4 space-y-2">
+                        <Skeleton className="h-4 w-3/4" />
+                        <Skeleton className="h-4 w-full" />
+                      </div>
+                    ))
+                  ) : notifications?.length === 0 ? (
+                    <div className="p-4 text-center text-muted-foreground">
+                      No notifications yet
+                    </div>
+                  ) : (
+                    notifications?.map((notification) => (
+                      <NotificationItem
+                        key={notification.id}
+                        notification={notification}
+                        onRead={(id) => markAsRead.mutate(id)}
+                      />
+                    ))
+                  )}
+                </div>
+              </ScrollArea>
+            </SheetContent>
+          </Sheet>
           <Button 
             onClick={() => navigate('/dashboard/destinations')}
             className="hidden sm:flex"
