@@ -9,7 +9,7 @@ import { EventsList } from "@/components/EventsList";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
-import type { Profile, Booking } from "@/types/models";
+import type { Profile, Booking, AppNotification } from "@/types/models";
 import { Bell, BellDot, CalendarDays, User, Trash2, LayoutDashboard, DollarSign, TrendingUp } from "lucide-react";
 import { AppSidebar } from "@/components/AppSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
