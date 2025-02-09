@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Search, Filter, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -15,6 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 import type { Destination } from "@/types/models";
 
 interface DestinationExplorerProps {
@@ -29,6 +29,7 @@ export const DestinationExplorer = ({ destinations, isLoading }: DestinationExpl
   const [showFilters, setShowFilters] = useState(false);
   const { user } = useAuth();
   const { wishlist, addToWishlist, removeFromWishlist } = useWishlist(user?.id);
+  const { toast } = useToast();
 
   // Get unique categories from all destinations
   const allCategories = Array.from(
@@ -41,7 +42,11 @@ export const DestinationExplorer = ({ destinations, isLoading }: DestinationExpl
 
   const handleWishlistToggle = (destinationId: string) => {
     if (!user) {
-      toast.error("Please sign in to add to wishlist");
+      toast({
+        variant: "destructive",
+        title: "Authentication required",
+        description: "Please sign in to add to wishlist"
+      });
       return;
     }
     
