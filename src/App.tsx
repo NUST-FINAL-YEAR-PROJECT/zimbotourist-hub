@@ -52,7 +52,7 @@ const App = () => (
             }
           />
           <Route
-            path="/destination/:id"
+            path="/destinations/:id"
             element={
               <ProtectedRoute>
                 <DestinationDetails />
