@@ -118,6 +118,38 @@ const DashboardOverview = ({ bookings }: { bookings: BookingWithRelations[] }) =
   );
 };
 
+const DestinationCard = ({ id, image, title, description, price }: {
+  id: string;
+  image: string;
+  title: string;
+  description: string;
+  price: string;
+}) => {
+  const navigate = useNavigate();
+
+  return (
+    <motion.div
+      whileHover={{ scale: 1.05 }}
+      transition={{ duration: 0.2 }}
+      className="relative rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer"
+      onClick={() => navigate(`/destinations/${id}`)}
+    >
+      <img
+        src={image}
+        alt={title}
+        className="w-full h-48 object-cover"
+      />
+      <div className="p-4 bg-white">
+        <h3 className="font-semibold text-lg text-gray-800">{title}</h3>
+        <p className="text-sm text-gray-500 mt-2">{description}</p>
+        <div className="mt-3 flex justify-between items-center">
+          <span className="text-gray-700 font-medium">{price}</span>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
 const DashboardHome = ({ profile, bookings }: { profile: Profile; bookings: BookingWithRelations[] }) => {
   const { notifications, isLoading: isLoadingNotifications, markAsRead } = useNotifications(profile?.id);
   const { data: destinations, isLoading: isLoadingDestinations } = useDestinations();
@@ -614,12 +646,10 @@ export const Dashboard = () => {
             <Routes>
               <Route path="/" element={<DashboardHome profile={profile} bookings={bookings || []} />} />
               <Route path="/bookings" element={<BookingsList bookings={bookings || []} />} />
-              <Route path="/destinations" element={
-                <DestinationExplorer 
-                  destinations={destinations || []} 
-                  isLoading={isLoadingDestinations}
-                />
-              } />
+              <Route 
+                path="/destinations" 
+                element={<DestinationExplorer destinations={destinations || []} isLoading={false} />} 
+              />
               <Route path="/events" element={<EventsList />} />
               <Route path="/events/:id" element={<EventDetails />} />
               <Route path="/settings" element={<SettingsPage />} />
