@@ -91,7 +91,7 @@ export const PaymentPage = () => {
           }
 
           // Then create a payment intent using the edge function
-          const { data, error } = await supabase.functions.invoke(
+          const response = await supabase.functions.invoke(
             'create-payment-intent',
             {
               body: JSON.stringify({
@@ -104,13 +104,16 @@ export const PaymentPage = () => {
             }
           );
 
-          if (error) throw error;
+          if (response.error) {
+            console.error('Payment intent error:', response.error);
+            throw new Error(response.error.message || 'Failed to create payment intent');
+          }
           
-          if (!data.clientSecret) {
+          if (!response.data?.clientSecret) {
             throw new Error("No client secret returned");
           }
 
-          setClientSecret(data.clientSecret);
+          setClientSecret(response.data.clientSecret);
         } catch (error: any) {
           console.error("Payment setup error:", error);
           toast({

@@ -22,9 +22,15 @@ serve(async (req) => {
   try {
     // Get the authorization header
     const authHeader = req.headers.get('Authorization')
+    console.log('Auth header received:', authHeader ? 'present' : 'missing')
+
     if (!authHeader) {
       throw new Error('No authorization header')
     }
+
+    // Ensure the header is in the correct format
+    const token = authHeader.replace('Bearer ', '')
+    console.log('Token extracted from header')
 
     // Create Supabase client with auth context
     const supabaseClient = createClient(
@@ -32,19 +38,31 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
       {
         global: {
-          headers: { Authorization: authHeader },
+          headers: { Authorization: `Bearer ${token}` },
         },
       }
     )
 
     // Get the user from the request
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser()
-    if (userError || !user) {
-      throw new Error('Unauthorized')
+    console.log('Auth check result:', userError ? 'error' : 'success')
+
+    if (userError) {
+      console.error('User error:', userError)
+      throw new Error('Authentication failed')
     }
+
+    if (!user) {
+      console.error('No user found')
+      throw new Error('User not found')
+    }
+
+    console.log('User authenticated:', user.id)
 
     // Parse the request body
     const { bookingId, amount } = await req.json()
+    console.log('Received booking data:', { bookingId, amount })
+
     if (!bookingId || !amount) {
       throw new Error('Missing required fields')
     }
@@ -57,9 +75,16 @@ serve(async (req) => {
       .eq('user_id', user.id)
       .single()
 
-    if (bookingError || !booking) {
+    if (bookingError) {
+      console.error('Booking error:', bookingError)
+      throw new Error('Error fetching booking')
+    }
+
+    if (!booking) {
       throw new Error('Booking not found or unauthorized')
     }
+
+    console.log('Booking verified for user')
 
     // Create a PaymentIntent with the order amount and currency
     const paymentIntent = await stripe.paymentIntents.create({
@@ -74,6 +99,8 @@ serve(async (req) => {
       },
     })
 
+    console.log('Payment intent created:', paymentIntent.id)
+
     // Update the payment record in Supabase
     const { error: paymentError } = await supabaseClient
       .from('payments')
@@ -87,8 +114,11 @@ serve(async (req) => {
       .eq('booking_id', bookingId)
 
     if (paymentError) {
+      console.error('Payment record update error:', paymentError)
       throw paymentError
     }
+
+    console.log('Payment record updated successfully')
 
     return new Response(
       JSON.stringify({
@@ -100,7 +130,7 @@ serve(async (req) => {
       }
     )
   } catch (error) {
-    console.error('Error:', error.message)
+    console.error('Error in create-payment-intent:', error.message)
     return new Response(
       JSON.stringify({ error: error.message }),
       {
