@@ -1,5 +1,6 @@
+
 import { useNavigate } from "react-router-dom";
-import { LogOut, MapPin, Settings, Ticket, User, Home, Calendar, Menu } from "lucide-react";
+import { LogOut, MapPin, Settings, Ticket, Home, Calendar, Menu } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -39,11 +40,6 @@ export function AppSidebar() {
       title: "Home",
       icon: Home,
       onClick: () => navigate("/dashboard"),
-    },
-    {
-      title: "Profile",
-      icon: User,
-      onClick: () => navigate("/dashboard/profile"),
     },
     {
       title: "My Bookings",
