@@ -332,16 +332,16 @@ const Index = () => {
                 >
                   <img
                     src={event.image_url || "https://images.unsplash.com/photo-1516026672322-bc52d61a55d5"}
-                    alt={event.name}
+                    alt={event.title}
                     className="w-full h-48 object-cover"
                   />
                   <div className="p-6">
-                    <h3 className="text-xl font-semibold mb-2">{event.name}</h3>
+                    <h3 className="text-xl font-semibold mb-2">{event.title}</h3>
                     <p className="text-muted-foreground mb-4">{event.description}</p>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center text-primary">
                         <Calendar className="w-4 h-4 mr-2" />
-                        <span className="text-sm">{new Date(event.date).toLocaleDateString()}</span>
+                        <span className="text-sm">{new Date(event.start_date || '').toLocaleDateString()}</span>
                       </div>
                       <div className="flex items-center text-primary">
                         <DollarSign className="w-4 h-4 mr-1" />
@@ -357,7 +357,7 @@ const Index = () => {
       )}
 
       <section className="py-20 px-4 md:px-8 bg-gradient-to-b from-gray-50 to-white">
-        <div className="container mx-auto">
+        <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-12">
             <div>
               <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-2">
