@@ -293,6 +293,7 @@ const DashboardHome = ({ profile, bookings }: { profile: Profile; bookings: Book
 const BookingsList = ({ bookings }: { bookings: BookingWithRelations[] }) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
 
   const deleteBookingMutation = useMutation({
@@ -319,6 +320,10 @@ const BookingsList = ({ bookings }: { bookings: BookingWithRelations[] }) => {
       });
     },
   });
+
+  const handlePayNow = (bookingId: string) => {
+    navigate(`/dashboard/payment?bookingId=${bookingId}`);
+  };
 
   if (isMobile) {
     return (
@@ -354,7 +359,12 @@ const BookingsList = ({ bookings }: { bookings: BookingWithRelations[] }) => {
             </div>
             <div className="flex gap-2 pt-2">
               {booking.status === 'pending' && (
-                <Button variant="default" size="sm" className="flex-1">
+                <Button 
+                  variant="default" 
+                  size="sm" 
+                  className="flex-1"
+                  onClick={() => handlePayNow(booking.id)}
+                >
                   Pay Now
                 </Button>
               )}
@@ -426,7 +436,11 @@ const BookingsList = ({ bookings }: { bookings: BookingWithRelations[] }) => {
               <TableCell>
                 <div className="flex items-center gap-2">
                   {booking.status === 'pending' && (
-                    <Button variant="default" size="sm">
+                    <Button 
+                      variant="default" 
+                      size="sm"
+                      onClick={() => handlePayNow(booking.id)}
+                    >
                       Pay Now
                     </Button>
                   )}
