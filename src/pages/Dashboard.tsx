@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, Routes, Route } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -14,7 +15,6 @@ import { Bell, BellDot, CalendarDays, User, Trash2, LayoutDashboard, DollarSign,
 import { AppSidebar } from "@/components/AppSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ProfilePage } from "@/components/ProfilePage";
 import { SettingsPage } from "@/components/SettingsPage";
 import { EventDetails } from "./EventDetails";
 import { PaymentPage } from "./PaymentPage";
@@ -625,7 +625,6 @@ export const Dashboard = () => {
               } />
               <Route path="/events" element={<EventsList />} />
               <Route path="/events/:id" element={<EventDetails />} />
-              <Route path="/profile" element={<ProfilePage />} />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/payment" element={<PaymentPage />} />
             </Routes>
@@ -636,3 +635,4 @@ export const Dashboard = () => {
     </SidebarProvider>
   );
 };
+
