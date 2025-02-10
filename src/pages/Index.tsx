@@ -95,31 +95,31 @@ const Index = () => {
       icon: Globe,
       title: "Explore Zimbabwe",
       description: "Discover hidden gems and popular attractions",
-      color: "bg-blue-500"
+      color: "bg-violet-500"
     },
     {
       icon: Compass,
       title: "Adventure Tours",
       description: "Experience thrilling safaris and nature walks",
-      color: "bg-green-500"
+      color: "bg-fuchsia-500"
     },
     {
       icon: Sun,
       title: "Perfect Weather",
       description: "Enjoy year-round sunshine and mild climate",
-      color: "bg-yellow-500"
+      color: "bg-amber-500"
     },
     {
       icon: Users,
       title: "Local Guides",
       description: "Connect with experienced local guides",
-      color: "bg-purple-500"
+      color: "bg-emerald-500"
     }
   ];
 
   return (
     <div className="min-h-screen">
-      <section className="hero-section relative h-[90vh] overflow-hidden">
+      <section className="hero-section">
         <motion.div
           initial={{ scale: 1.1 }}
           animate={{ scale: 1 }}
@@ -131,7 +131,7 @@ const Index = () => {
             alt="Victoria Falls"
             className="absolute inset-0 w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70 backdrop-blur-[2px]" />
         </motion.div>
         
         <div className="relative z-10 container mx-auto px-4">
@@ -142,14 +142,14 @@ const Index = () => {
               <>
                 <Button
                   variant="outline"
-                  className="text-white hover:text-white/90 border-white/30 hover:border-white/50 hover:bg-white/10"
+                  className="text-white hover:text-white/90 border-white/30 hover:border-white/50 hover:bg-white/10 backdrop-blur-sm"
                   onClick={() => navigate('/dashboard')}
                 >
                   Dashboard
                 </Button>
                 <Button
                   variant="outline"
-                  className="text-white hover:text-white/90 border-white/30 hover:border-white/50 hover:bg-white/10"
+                  className="text-white hover:text-white/90 border-white/30 hover:border-white/50 hover:bg-white/10 backdrop-blur-sm"
                   onClick={handleLogout}
                 >
                   Sign Out
@@ -159,7 +159,7 @@ const Index = () => {
               <>
                 <Button
                   variant="outline"
-                  className="text-white hover:text-white/90 border-white/30 hover:border-white/50 hover:bg-white/10"
+                  className="text-white hover:text-white/90 border-white/30 hover:border-white/50 hover:bg-white/10 backdrop-blur-sm"
                   onClick={() => handleAuthClick('signin')}
                 >
                   Sign In
@@ -182,7 +182,7 @@ const Index = () => {
             transition={{ duration: 0.8 }}
             className="w-full max-w-4xl space-y-8"
           >
-            <h1 className="text-5xl md:text-7xl font-display font-bold text-white mb-6 leading-tight">
+            <h1 className="text-5xl md:text-7xl font-display font-bold text-white mb-6 leading-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-white/80">
               Discover Zimbabwe's <span className="text-primary">Natural Wonders</span>
             </h1>
             <p className="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto mb-12">
@@ -237,7 +237,7 @@ const Index = () => {
         </motion.div>
       </section>
 
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-gradient-to-b from-white to-gray-50">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => (
@@ -246,7 +246,7 @@ const Index = () => {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="text-center p-8 rounded-xl hover:bg-gray-50 transition-colors duration-300"
+                className="glass-card p-8 hover:scale-105 transition-transform duration-300"
               >
                 <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full ${feature.color} bg-opacity-10 mb-6`}>
                   <feature.icon size={24} className={feature.color.replace('bg-', 'text-')} />
@@ -259,7 +259,7 @@ const Index = () => {
         </div>
       </section>
 
-      <section className="py-20 px-4 md:px-8 bg-gray-50">
+      <section className="py-20 px-4 md:px-8 bg-gradient-to-b from-gray-50 to-white">
         <div className="container mx-auto">
           <div className="flex justify-between items-center mb-12">
             <div>
@@ -287,14 +287,20 @@ const Index = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredDestinations.slice(0, 6).map((destination) => (
-                <DestinationCard
+                <motion.div
                   key={destination.id}
-                  image={destination.image_url || "https://images.unsplash.com/photo-1472396961693-142e6e269027"}
-                  title={destination.name}
-                  description={destination.description || ""}
-                  price={`$${destination.price}`}
-                  id={destination.id}
-                />
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <DestinationCard
+                    image={destination.image_url || "https://images.unsplash.com/photo-1472396961693-142e6e269027"}
+                    title={destination.name}
+                    description={destination.description || ""}
+                    price={`$${destination.price}`}
+                    id={destination.id}
+                  />
+                </motion.div>
               ))}
               {filteredDestinations.length === 0 && (
                 <div className="col-span-full text-center py-12">
@@ -312,13 +318,13 @@ const Index = () => {
         </div>
       </section>
 
-      <section className="py-20 bg-primary text-white">
-        <div className="container mx-auto px-4 text-center">
+      <section className="py-20 bg-primary text-white overflow-hidden">
+        <div className="container mx-auto px-4 text-center relative">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="max-w-2xl mx-auto"
+            className="max-w-2xl mx-auto relative z-10"
           >
             <h2 className="text-4xl md:text-5xl font-display font-bold mb-6">
               Ready for Your Next Adventure?
@@ -334,6 +340,10 @@ const Index = () => {
               Start Planning Today
             </Button>
           </motion.div>
+          
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/20 to-transparent" />
+          </div>
         </div>
       </section>
     </div>

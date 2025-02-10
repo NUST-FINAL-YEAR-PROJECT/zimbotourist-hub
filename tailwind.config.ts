@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -23,17 +24,17 @@ export default {
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "#FFFFFF",
-        foreground: "#1E293B",
+        foreground: "#1A1F2C",
         primary: {
-          DEFAULT: "#2563EB",
+          DEFAULT: "#8B5CF6",
           foreground: "#FFFFFF",
         },
         secondary: {
           DEFAULT: "#F8FAFC",
-          foreground: "#1E293B",
+          foreground: "#1A1F2C",
         },
         accent: {
-          DEFAULT: "#3B82F6",
+          DEFAULT: "#D946EF",
           foreground: "#FFFFFF",
         },
         muted: {
@@ -42,22 +43,22 @@ export default {
         },
         popover: {
           DEFAULT: "#FFFFFF",
-          foreground: "#1E293B",
+          foreground: "#1A1F2C",
         },
         card: {
           DEFAULT: "#FFFFFF",
-          foreground: "#1E293B",
+          foreground: "#1A1F2C",
         },
         dialog: {
           DEFAULT: "#FFFFFF",
-          foreground: "#1E293B",
+          foreground: "#1A1F2C",
         },
         sidebar: {
           DEFAULT: "#F8FAFC",
-          foreground: "#1E293B",
+          foreground: "#1A1F2C",
           border: "#E2E8F0",
           accent: "#EFF6FF",
-          "accent-foreground": "#2563EB",
+          "accent-foreground": "#8B5CF6",
           ring: "#BFDBFE",
         }
       },
@@ -84,10 +85,19 @@ export default {
             opacity: "1",
           },
         },
+        "scale-up": {
+          "0%": {
+            transform: "scale(0.95)",
+          },
+          "100%": {
+            transform: "scale(1)",
+          },
+        }
       },
       animation: {
         "fade-up": "fade-up 0.5s ease-out",
         "fade-in": "fade-in 0.3s ease-out",
+        "scale-up": "scale-up 0.3s ease-out",
       },
       boxShadow: {
         'glass': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
