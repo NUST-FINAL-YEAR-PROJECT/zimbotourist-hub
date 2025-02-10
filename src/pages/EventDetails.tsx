@@ -5,7 +5,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { CalendarDays, MapPin, Users, ChevronLeft, Home } from "lucide-react";
+import { EventBookingForm } from "@/components/EventBookingForm";
 import type { Event } from "@/types/models";
 
 export const EventDetails = () => {
@@ -108,7 +110,7 @@ export const EventDetails = () => {
           <img
             src={event.image_url}
             alt={event.title}
-            className="w-full h-64 object-cover rounded-lg"
+            className="w-full h-64 md:h-96 object-cover rounded-lg"
           />
         )}
 
@@ -127,7 +129,10 @@ export const EventDetails = () => {
               <h3 className="font-semibold mb-2">Ticket Types</h3>
               <ul className="space-y-2">
                 {event.ticket_types.map((type: any, index: number) => (
-                  <li key={index}>{type.name}</li>
+                  <li key={index} className="flex justify-between">
+                    <span>{type.name}</span>
+                    <span className="font-medium">${type.price}</span>
+                  </li>
                 ))}
               </ul>
             </div>
@@ -141,9 +146,22 @@ export const EventDetails = () => {
           )}
         </div>
 
-        <Button size="lg" className="w-full md:w-auto">
-          Book Now
-        </Button>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button size="lg" className="w-full md:w-auto">
+              Book Now
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <h2 className="text-2xl font-bold mb-6">Book Event</h2>
+              <EventBookingForm 
+                event={event}
+                onSuccess={() => navigate("/dashboard/bookings")}
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
