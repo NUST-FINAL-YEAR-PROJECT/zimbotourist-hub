@@ -6,11 +6,19 @@ import { useDestinations } from "@/hooks/useDestinations";
 import { useEvents } from "@/hooks/useEvents";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
-import { Search, MapPin, Calendar, Compass, Globe, ArrowRight, Users, Sun, Star, Clock, DollarSign } from "lucide-react";
+import { Search, MapPin, Calendar, Compass, Globe, ArrowRight, Users, Sun, Star, Clock, DollarSign, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 
 const Index = () => {
   const { data: destinations, isLoading: isLoadingDestinations } = useDestinations();
@@ -19,15 +27,69 @@ const Index = () => {
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
+  const [searchFilters, setSearchFilters] = useState({
+    location: "",
+    priceRange: "",
+    category: "",
+    date: "",
+  });
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
 
   const filteredDestinations = useMemo(() => {
     if (!destinations) return [];
-    return destinations.filter((destination) =>
-      destination.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      destination.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      destination.description?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [destinations, searchQuery]);
+    
+    return destinations.filter((destination) => {
+      const matchesSearch = searchQuery
+        ? destination.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          destination.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          destination.description?.toLowerCase().includes(searchQuery.toLowerCase())
+        : true;
+
+      const matchesLocation = searchFilters.location
+        ? destination.location.toLowerCase().includes(searchFilters.location.toLowerCase())
+        : true;
+
+      const matchesPriceRange = searchFilters.priceRange
+        ? (searchFilters.priceRange === "under100" && destination.price < 100) ||
+          (searchFilters.priceRange === "100to300" && destination.price >= 100 && destination.price <= 300) ||
+          (searchFilters.priceRange === "over300" && destination.price > 300)
+        : true;
+
+      const matchesCategory = searchFilters.category
+        ? destination.categories?.includes(searchFilters.category)
+        : true;
+
+      return matchesSearch && matchesLocation && matchesPriceRange && matchesCategory;
+    });
+  }, [destinations, searchQuery, searchFilters]);
+
+  const handleFilterChange = (key: string, value: string) => {
+    setSearchFilters((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const clearFilters = () => {
+    setSearchFilters({
+      location: "",
+      priceRange: "",
+      category: "",
+      date: "",
+    });
+    setSearchQuery("");
+  };
+
+  const allCategories = useMemo(() => {
+    if (!destinations) return [];
+    const categories = new Set<string>();
+    destinations.forEach((destination) => {
+      destination.categories?.forEach((category) => {
+        categories.add(category);
+      });
+    });
+    return Array.from(categories);
+  }, [destinations]);
 
   useEffect(() => {
     const checkUser = async () => {
@@ -222,32 +284,127 @@ const Index = () => {
             </p>
             
             <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl max-w-3xl mx-auto transform hover:scale-[1.02] transition-all duration-300">
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex-1 relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <Input
-                    type="text"
-                    placeholder="Where are you going?"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 py-6 text-lg border-2 border-gray-100 focus:border-primary/20"
-                  />
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col md:flex-row gap-4">
+                  <div className="flex-1 relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <Input
+                      type="text"
+                      placeholder="Search destinations, activities, or locations..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10 py-6 text-lg border-2 border-gray-100 focus:border-primary/20"
+                    />
+                  </div>
+                  <Button 
+                    variant="outline"
+                    onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
+                    className="md:w-auto w-full"
+                  >
+                    {showAdvancedSearch ? "Hide Filters" : "Show Filters"}
+                  </Button>
+                  <Button 
+                    className="bg-primary hover:bg-primary/90 text-lg py-6 px-8 shadow-lg hover:shadow-xl transition-all duration-300"
+                    onClick={() => console.log("Search for:", searchQuery, searchFilters)}
+                  >
+                    <Search className="w-5 h-5 mr-2" />
+                    Search
+                  </Button>
                 </div>
-                <div className="flex-1 relative">
-                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <Input
-                    type="text"
-                    placeholder="Add dates"
-                    className="pl-10 py-6 text-lg border-2 border-gray-100 focus:border-primary/20"
-                  />
-                </div>
-                <Button 
-                  className="bg-primary hover:bg-primary/90 text-lg py-6 px-8 shadow-lg hover:shadow-xl transition-all duration-300"
-                  onClick={() => console.log("Search for:", searchQuery)}
-                >
-                  <Search className="w-5 h-5 mr-2" />
-                  Search
-                </Button>
+
+                {showAdvancedSearch && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="grid grid-cols-1 md:grid-cols-3 gap-4"
+                  >
+                    <Select
+                      value={searchFilters.location}
+                      onValueChange={(value) => handleFilterChange("location", value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select location" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">Any location</SelectItem>
+                        <SelectItem value="harare">Harare</SelectItem>
+                        <SelectItem value="victoria falls">Victoria Falls</SelectItem>
+                        <SelectItem value="bulawayo">Bulawayo</SelectItem>
+                        <SelectItem value="hwange">Hwange</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    <Select
+                      value={searchFilters.priceRange}
+                      onValueChange={(value) => handleFilterChange("priceRange", value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Price range" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">Any price</SelectItem>
+                        <SelectItem value="under100">Under $100</SelectItem>
+                        <SelectItem value="100to300">$100 - $300</SelectItem>
+                        <SelectItem value="over300">Over $300</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    <Select
+                      value={searchFilters.category}
+                      onValueChange={(value) => handleFilterChange("category", value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">Any category</SelectItem>
+                        {allCategories.map((category) => (
+                          <SelectItem key={category} value={category}>
+                            {category}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </motion.div>
+                )}
+
+                {(searchQuery || Object.values(searchFilters).some(Boolean)) && (
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    {searchQuery && (
+                      <Badge variant="secondary" className="gap-2">
+                        Search: {searchQuery}
+                        <X
+                          className="h-3 w-3 cursor-pointer"
+                          onClick={() => setSearchQuery("")}
+                        />
+                      </Badge>
+                    )}
+                    {Object.entries(searchFilters).map(([key, value]) => {
+                      if (!value) return null;
+                      return (
+                        <Badge key={key} variant="secondary" className="gap-2">
+                          {key}: {value}
+                          <X
+                            className="h-3 w-3 cursor-pointer"
+                            onClick={() => handleFilterChange(key, "")}
+                          />
+                        </Badge>
+                      );
+                    })}
+                    {(searchQuery || Object.values(searchFilters).some(Boolean)) && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={clearFilters}
+                        className="text-sm"
+                      >
+                        Clear all
+                      </Button>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </motion.div>
