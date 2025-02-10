@@ -38,8 +38,8 @@ export const EventsList = () => {
       {events?.map((event) => (
         <div 
           key={event.id} 
+          className="group relative cursor-pointer transform transition-all duration-300 hover:scale-105"
           onClick={() => navigate(`/events/${event.id}`)}
-          className="cursor-pointer"
         >
           <DestinationCard
             id={event.id}
@@ -48,6 +48,11 @@ export const EventsList = () => {
             description={event.description || ""}
             price={event.price ? `$${event.price}` : "Free"}
           />
+          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+            <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+              <span className="text-primary font-medium">View Details</span>
+            </div>
+          </div>
         </div>
       ))}
     </div>

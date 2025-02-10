@@ -1,9 +1,10 @@
+
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { MapPin, Calendar, DollarSign, Heart } from "lucide-react";
+import { MapPin, Calendar, DollarSign, Heart, ArrowRight } from "lucide-react";
 import type { Destination } from "@/types/models";
 
 type SimplifiedDestination = Pick<
@@ -128,6 +129,7 @@ export const DestinationCard = ({
             onClick={handleViewDetails}
           >
             View Details
+            <ArrowRight className="w-4 h-4 ml-2 opacity-0 group-hover:opacity-100 transform translate-x-0 group-hover:translate-x-1 transition-all duration-300" />
           </Button>
           {showSimilar && (
             <Button
