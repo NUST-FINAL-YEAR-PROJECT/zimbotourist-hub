@@ -45,19 +45,19 @@ const Index = () => {
           destination.description?.toLowerCase().includes(searchQuery.toLowerCase())
         : true;
 
-      const matchesLocation = searchFilters.location
-        ? destination.location.toLowerCase().includes(searchFilters.location.toLowerCase())
-        : true;
+      const matchesLocation = searchFilters.location === "all" || !searchFilters.location
+        ? true
+        : destination.location.toLowerCase().includes(searchFilters.location.toLowerCase());
 
-      const matchesPriceRange = searchFilters.priceRange
-        ? (searchFilters.priceRange === "under100" && destination.price < 100) ||
+      const matchesPriceRange = searchFilters.priceRange === "all" || !searchFilters.priceRange
+        ? true
+        : (searchFilters.priceRange === "under100" && destination.price < 100) ||
           (searchFilters.priceRange === "100to300" && destination.price >= 100 && destination.price <= 300) ||
-          (searchFilters.priceRange === "over300" && destination.price > 300)
-        : true;
+          (searchFilters.priceRange === "over300" && destination.price > 300);
 
-      const matchesCategory = searchFilters.category
-        ? destination.categories?.includes(searchFilters.category)
-        : true;
+      const matchesCategory = searchFilters.category === "all" || !searchFilters.category
+        ? true
+        : destination.categories?.includes(searchFilters.category);
 
       return matchesSearch && matchesLocation && matchesPriceRange && matchesCategory;
     });
@@ -328,7 +328,7 @@ const Index = () => {
                         <SelectValue placeholder="Select location" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Any location</SelectItem>
+                        <SelectItem value="all">Any location</SelectItem>
                         <SelectItem value="harare">Harare</SelectItem>
                         <SelectItem value="victoria falls">Victoria Falls</SelectItem>
                         <SelectItem value="bulawayo">Bulawayo</SelectItem>
@@ -344,7 +344,7 @@ const Index = () => {
                         <SelectValue placeholder="Price range" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Any price</SelectItem>
+                        <SelectItem value="all">Any price</SelectItem>
                         <SelectItem value="under100">Under $100</SelectItem>
                         <SelectItem value="100to300">$100 - $300</SelectItem>
                         <SelectItem value="over300">Over $300</SelectItem>
@@ -359,7 +359,7 @@ const Index = () => {
                         <SelectValue placeholder="Category" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Any category</SelectItem>
+                        <SelectItem value="all">Any category</SelectItem>
                         {allCategories.map((category) => (
                           <SelectItem key={category} value={category}>
                             {category}
