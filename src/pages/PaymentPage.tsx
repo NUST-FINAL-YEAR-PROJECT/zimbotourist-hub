@@ -98,6 +98,9 @@ export const PaymentPage = () => {
                 bookingId,
                 amount: booking.total_price,
               }),
+              headers: {
+                Authorization: `Bearer ${session.access_token}`,
+              },
             }
           );
 

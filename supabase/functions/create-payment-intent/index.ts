@@ -20,27 +20,31 @@ serve(async (req) => {
   }
 
   try {
-    // Create Supabase client with auth context from request
+    // Get the authorization header
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
+      throw new Error('No authorization header')
+    }
+
+    // Create Supabase client with auth context
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
       {
         global: {
-          headers: { Authorization: req.headers.get('Authorization')! },
+          headers: { Authorization: authHeader },
         },
       }
     )
 
     // Get the user from the request
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser()
-
     if (userError || !user) {
       throw new Error('Unauthorized')
     }
 
     // Parse the request body
     const { bookingId, amount } = await req.json()
-    
     if (!bookingId || !amount) {
       throw new Error('Missing required fields')
     }
