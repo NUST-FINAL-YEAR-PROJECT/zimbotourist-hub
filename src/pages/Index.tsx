@@ -6,10 +6,11 @@ import { useDestinations } from "@/hooks/useDestinations";
 import { useEvents } from "@/hooks/useEvents";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
-import { Search, MapPin, Calendar, Compass, Globe, ArrowRight, Users, Sun } from "lucide-react";
+import { Search, MapPin, Calendar, Compass, Globe, ArrowRight, Users, Sun, Star, Clock, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Card } from "@/components/ui/card";
 
 const Index = () => {
   const { data: destinations, isLoading: isLoadingDestinations } = useDestinations();
@@ -115,6 +116,37 @@ const Index = () => {
       description: "Connect with experienced local guides",
       color: "bg-emerald-500"
     }
+  ];
+
+  const testimonials = [
+    {
+      name: "Sarah Johnson",
+      role: "Adventure Enthusiast",
+      content: "Zimbabwe exceeded all my expectations. The natural beauty and warm hospitality made my trip unforgettable.",
+      rating: 5,
+      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330"
+    },
+    {
+      name: "Michael Chen",
+      role: "Travel Photographer",
+      content: "The diversity of wildlife and stunning landscapes provided endless photography opportunities.",
+      rating: 5,
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d"
+    },
+    {
+      name: "Emily Davis",
+      role: "Cultural Explorer",
+      content: "The local guides shared incredible insights into Zimbabwe's rich history and traditions.",
+      rating: 5,
+      image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb"
+    }
+  ];
+
+  const stats = [
+    { label: "Happy Travelers", value: "10,000+", icon: Users },
+    { label: "Destinations", value: "50+", icon: MapPin },
+    { label: "Local Guides", value: "100+", icon: Compass },
+    { label: "Years Experience", value: "15+", icon: Clock }
   ];
 
   return (
@@ -259,6 +291,71 @@ const Index = () => {
         </div>
       </section>
 
+      <section className="py-16 bg-primary text-white">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {stats.map((stat, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="text-center"
+              >
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-white/10 mb-4">
+                  <stat.icon className="w-6 h-6" />
+                </div>
+                <h4 className="text-3xl font-bold mb-2">{stat.value}</h4>
+                <p className="text-white/80">{stat.label}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {!isLoadingEvents && events && events.length > 0 && (
+        <section className="py-20 bg-gray-50">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">Upcoming Events</h2>
+              <p className="text-muted-foreground">Don't miss out on these amazing experiences</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {events.slice(0, 3).map((event) => (
+                <motion.div
+                  key={event.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
+                  onClick={() => navigate(`/events/${event.id}`)}
+                >
+                  <img
+                    src={event.image_url || "https://images.unsplash.com/photo-1516026672322-bc52d61a55d5"}
+                    alt={event.name}
+                    className="w-full h-48 object-cover"
+                  />
+                  <div className="p-6">
+                    <h3 className="text-xl font-semibold mb-2">{event.name}</h3>
+                    <p className="text-muted-foreground mb-4">{event.description}</p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center text-primary">
+                        <Calendar className="w-4 h-4 mr-2" />
+                        <span className="text-sm">{new Date(event.date).toLocaleDateString()}</span>
+                      </div>
+                      <div className="flex items-center text-primary">
+                        <DollarSign className="w-4 h-4 mr-1" />
+                        <span className="text-sm font-semibold">{event.price}</span>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       <section className="py-20 px-4 md:px-8 bg-gradient-to-b from-gray-50 to-white">
         <div className="container mx-auto">
           <div className="flex justify-between items-center mb-12">
@@ -343,6 +440,45 @@ const Index = () => {
           
           <div className="absolute inset-0 opacity-10">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/20 to-transparent" />
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">What Our Travelers Say</h2>
+            <p className="text-muted-foreground">Real experiences from real adventurers</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {testimonials.map((testimonial, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <Card className="p-6 h-full flex flex-col">
+                  <div className="flex items-center mb-4">
+                    <img
+                      src={testimonial.image}
+                      alt={testimonial.name}
+                      className="w-12 h-12 rounded-full object-cover mr-4"
+                    />
+                    <div>
+                      <h4 className="font-semibold">{testimonial.name}</h4>
+                      <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+                    </div>
+                  </div>
+                  <p className="text-muted-foreground flex-grow">{testimonial.content}</p>
+                  <div className="flex items-center mt-4">
+                    {Array.from({ length: testimonial.rating }).map((_, i) => (
+                      <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
+                    ))}
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
