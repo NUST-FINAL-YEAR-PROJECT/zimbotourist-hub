@@ -41,13 +41,6 @@ export const DestinationCard = ({
   const [similarDestinations, setSimilarDestinations] = useState<SimplifiedDestination[]>([]);
   const [showingSimilar, setShowingSimilar] = useState(false);
 
-  const handleViewDetails = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (id) {
-      navigate(`/destination/${id}`);
-    }
-  };
-
   const handleWishlistClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (id && onWishlistToggle) {
@@ -71,12 +64,24 @@ export const DestinationCard = ({
     }
   };
 
+  const handleCardClick = () => {
+    if (onClick) {
+      onClick();
+    } else if (id) {
+      // Determine if this is a destination or event based on the price format
+      const isEvent = price.startsWith("$");
+      const path = isEvent ? `/events/${id}` : `/destination/${id}`;
+      navigate(path);
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="group rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-xl transition-all duration-300"
+      className="group rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer"
+      onClick={handleCardClick}
     >
       <div className="relative aspect-[4/3] overflow-hidden">
         <img
@@ -124,13 +129,6 @@ export const DestinationCard = ({
         </div>
 
         <div className="flex gap-4">
-          <Button
-            className="flex-1 bg-primary/10 hover:bg-primary text-primary hover:text-white transition-all duration-300"
-            onClick={handleViewDetails}
-          >
-            View Details
-            <ArrowRight className="w-4 h-4 ml-2 opacity-0 group-hover:opacity-100 transform translate-x-0 group-hover:translate-x-1 transition-all duration-300" />
-          </Button>
           {showSimilar && (
             <Button
               variant="outline"
@@ -179,3 +177,4 @@ export const DestinationCard = ({
     </motion.div>
   );
 };
+
