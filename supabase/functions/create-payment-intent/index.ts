@@ -14,11 +14,13 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
+    // Create Supabase client with auth context from request
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
@@ -29,14 +31,30 @@ serve(async (req) => {
       }
     )
 
+    // Get the user from the request
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser()
+
     if (userError || !user) {
       throw new Error('Unauthorized')
     }
 
+    // Parse the request body
     const { bookingId, amount } = await req.json()
+    
     if (!bookingId || !amount) {
       throw new Error('Missing required fields')
+    }
+
+    // Verify that the booking belongs to the user
+    const { data: booking, error: bookingError } = await supabaseClient
+      .from('bookings')
+      .select('*')
+      .eq('id', bookingId)
+      .eq('user_id', user.id)
+      .single()
+
+    if (bookingError || !booking) {
+      throw new Error('Booking not found or unauthorized')
     }
 
     // Create a PaymentIntent with the order amount and currency
@@ -78,6 +96,7 @@ serve(async (req) => {
       }
     )
   } catch (error) {
+    console.error('Error:', error.message)
     return new Response(
       JSON.stringify({ error: error.message }),
       {

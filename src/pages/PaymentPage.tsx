@@ -83,19 +83,17 @@ export const PaymentPage = () => {
 
           if (paymentError) throw paymentError;
 
-          // Get the Supabase URL from the client
-          const { data: { publicUrl } } = await supabase.storage.from('').getPublicUrl('');
-          const supabaseUrl = publicUrl.split('/storage/')[0];
+          // Get the current session
+          const { data: { session } } = await supabase.auth.getSession();
+          
+          if (!session) {
+            throw new Error("No active session found");
+          }
 
-          // Then create a payment intent using the correct URL
-          const response = await fetch(
-            `${supabaseUrl}/functions/v1/create-payment-intent`,
+          // Then create a payment intent using the edge function
+          const { data, error } = await supabase.functions.invoke(
+            'create-payment-intent',
             {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
-              },
               body: JSON.stringify({
                 bookingId,
                 amount: booking.total_price,
@@ -103,15 +101,19 @@ export const PaymentPage = () => {
             }
           );
 
-          const { clientSecret, error } = await response.json();
-          if (error) throw new Error(error);
+          if (error) throw error;
           
-          setClientSecret(clientSecret);
+          if (!data.clientSecret) {
+            throw new Error("No client secret returned");
+          }
+
+          setClientSecret(data.clientSecret);
         } catch (error: any) {
+          console.error("Payment setup error:", error);
           toast({
             variant: "destructive",
             title: "Payment Setup Failed",
-            description: error.message,
+            description: error.message || "Failed to setup payment",
           });
         }
       };
