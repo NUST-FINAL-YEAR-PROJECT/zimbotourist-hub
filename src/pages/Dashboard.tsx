@@ -299,7 +299,7 @@ const BookingsList = ({ bookings }: { bookings: BookingWithRelations[] }) => {
   });
 
   const handlePayNow = (bookingId: string) => {
-    navigate(`/dashboard/payment?bookingId=${bookingId}`);
+    navigate(`/dashboard/payment?booking_id=${bookingId}`);
   };
 
   if (isMobile) {
