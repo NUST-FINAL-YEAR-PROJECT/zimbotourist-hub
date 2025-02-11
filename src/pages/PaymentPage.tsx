@@ -74,29 +74,34 @@ export const PaymentPage = () => {
             throw new Error("No active session found");
           }
 
+          console.log("Creating payment intent for booking:", bookingId);
+
           // Create a payment intent
-          const response = await supabase.functions.invoke(
+          const { data, error } = await supabase.functions.invoke(
             'create-payment-intent',
             {
-              body: JSON.stringify({
+              body: {
                 bookingId,
                 amount: booking.total_price,
-              }),
+              },
               headers: {
                 Authorization: `Bearer ${session.access_token}`,
               },
             }
           );
 
-          if (response.error) {
-            throw new Error(response.error.message || 'Failed to create payment intent');
+          console.log("Payment intent response:", data);
+
+          if (error) {
+            console.error("Payment intent error:", error);
+            throw new Error(error.message || 'Failed to create payment intent');
           }
           
-          if (!response.data?.clientSecret) {
+          if (!data?.clientSecret) {
             throw new Error("No client secret returned");
           }
 
-          setClientSecret(response.data.clientSecret);
+          setClientSecret(data.clientSecret);
         } catch (error: any) {
           console.error("Payment setup error:", error);
           toast({
