@@ -68,7 +68,11 @@ export const PaymentPage = () => {
       const setupPayment = async () => {
         try {
           // Get the current session
-          const { data: { session } } = await supabase.auth.getSession();
+          const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+          
+          if (sessionError) {
+            throw new Error(sessionError.message);
+          }
           
           if (!session) {
             throw new Error("No active session found");
@@ -109,6 +113,8 @@ export const PaymentPage = () => {
             title: "Payment Setup Failed",
             description: error.message,
           });
+          // Optionally navigate back to dashboard on error
+          navigate("/dashboard");
         }
       };
 
@@ -163,34 +169,34 @@ export const PaymentPage = () => {
         <CardHeader>
           <CardTitle>Complete Your Payment</CardTitle>
           <CardDescription>
-            Secure payment for your booking at {booking.destinations?.name}
+            Secure payment for your booking at {booking?.destinations?.name}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="rounded-lg border p-4 space-y-3">
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium">Booking Reference</span>
-              <span className="text-sm text-muted-foreground">{booking.id.slice(0, 8)}</span>
+              <span className="text-sm text-muted-foreground">{booking?.id.slice(0, 8)}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium">Travel Date</span>
               <span className="text-sm text-muted-foreground">
-                {new Date(booking.booking_date).toLocaleDateString()}
+                {booking && new Date(booking.booking_date).toLocaleDateString()}
               </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium">Number of People</span>
-              <span className="text-sm text-muted-foreground">{booking.number_of_people}</span>
+              <span className="text-sm text-muted-foreground">{booking?.number_of_people}</span>
             </div>
             <div className="flex justify-between items-center pt-3 border-t">
               <span className="font-semibold">Total Amount</span>
-              <span className="font-semibold text-primary">${booking.total_price}</span>
+              <span className="font-semibold text-primary">${booking?.total_price}</span>
             </div>
           </div>
 
           {clientSecret && (
             <Elements stripe={stripePromise} options={{ clientSecret }}>
-              <PaymentForm bookingId={bookingId} />
+              <PaymentForm bookingId={bookingId as string} />
             </Elements>
           )}
         </CardContent>

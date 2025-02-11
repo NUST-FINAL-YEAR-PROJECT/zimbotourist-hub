@@ -25,13 +25,16 @@ serve(async (req) => {
     console.log('Auth header received:', authHeader ? 'present' : 'missing')
 
     if (!authHeader) {
-      throw new Error('No authorization header')
+      return new Response(
+        JSON.stringify({ error: 'No authorization header' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
 
     // Create Supabase client with auth context
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
       {
         global: {
           headers: { Authorization: authHeader },
@@ -44,7 +47,10 @@ serve(async (req) => {
     console.log('Auth check result:', userError ? 'error' : 'success')
 
     if (userError || !user) {
-      throw new Error('Authentication failed')
+      return new Response(
+        JSON.stringify({ error: 'Authentication failed', details: userError?.message }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
 
     // Parse the request body
@@ -52,7 +58,10 @@ serve(async (req) => {
     console.log('Received booking data:', { bookingId, amount })
 
     if (!bookingId || !amount) {
-      throw new Error('Missing required fields')
+      return new Response(
+        JSON.stringify({ error: 'Missing required fields' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
 
     // Verify that the booking belongs to the user
@@ -64,7 +73,10 @@ serve(async (req) => {
       .single()
 
     if (bookingError || !booking) {
-      throw new Error('Booking not found or unauthorized')
+      return new Response(
+        JSON.stringify({ error: 'Booking not found or unauthorized' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
 
     console.log('Creating payment intent for booking:', bookingId)
@@ -101,7 +113,10 @@ serve(async (req) => {
 
     if (paymentError) {
       console.error('Error creating payment record:', paymentError)
-      throw paymentError
+      return new Response(
+        JSON.stringify({ error: 'Failed to create payment record' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
 
     console.log('Payment record created successfully')
@@ -116,12 +131,12 @@ serve(async (req) => {
       }
     )
   } catch (error) {
-    console.error('Error in create-payment-intent:', error.message)
+    console.error('Error in create-payment-intent:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400,
+        status: 500,
       }
     )
   }
