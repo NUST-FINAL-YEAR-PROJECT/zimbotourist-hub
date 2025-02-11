@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Profile, Booking, AppNotification } from "@/types/models";
 import { Bell, BellDot, CalendarDays, User, Trash2, LayoutDashboard } from "lucide-react";
 import { AppSidebar } from "@/components/AppSidebar";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { SettingsPage } from "@/components/SettingsPage";
 import { EventDetails } from "./EventDetails";
@@ -458,13 +458,11 @@ export const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [profile, setProfile] = useState<Profile | null>(null);
-  const { data: destinations, isLoading: isLoadingDestinations } = useDestinations();
-  const { data: events, isLoading: isLoadingEvents } = useEvents();
   
-  const { data: bookings, isLoading: isLoadingBookings } = useQuery({
-    queryKey: ["bookings"],
+  const { data: bookings = [], isLoading: isLoadingBookings } = useQuery({
+    queryKey: ["bookings", profile?.id],
     queryFn: async () => {
-      if (!profile?.id) throw new Error("No profile ID");
+      if (!profile?.id) return [];
       
       const { data, error } = await supabase
         .from("bookings")
@@ -476,7 +474,7 @@ export const Dashboard = () => {
         .eq('user_id', profile.id);
 
       if (error) throw error;
-      return data as BookingWithRelations[];
+      return (data || []) as BookingWithRelations[];
     },
     enabled: !!profile?.id,
   });
@@ -528,85 +526,60 @@ export const Dashboard = () => {
     };
   }, [navigate, toast]);
 
-  const notifications = [
-    {
-      id: 1,
-      title: "New Booking Confirmed",
-      description: "Your recent booking has been confirmed.",
-      time: "2 minutes ago",
-    },
-    {
-      id: 2,
-      title: "Upcoming Event",
-      description: "Don't forget about your upcoming event tomorrow!",
-      time: "1 hour ago",
-    },
-    {
-      id: 3,
-      title: "Profile Updated",
-      description: "Your profile information has been successfully updated.",
-      time: "2 hours ago",
-    },
-  ];
-
-  if (isLoadingDestinations || isLoadingEvents || isLoadingBookings || !profile) {
+  if (isLoadingBookings || !profile) {
     return (
-      <SidebarProvider>
-        <div className="flex min-h-screen w-full">
-          <AppSidebar />
-          <div className="flex-1 p-8">
-            <div className="container mx-auto space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="space-y-4">
-                    <Skeleton className="h-[300px] w-full" />
-                    <Skeleton className="h-4 w-3/4" />
-                    <Skeleton className="h-4 w-full" />
-                  </div>
-                ))}
-              </div>
+      <div className="flex min-h-screen w-full">
+        <AppSidebar />
+        <div className="flex-1 p-8">
+          <div className="container mx-auto space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="space-y-4">
+                  <Skeleton className="h-[300px] w-full" />
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-full" />
+                </div>
+              ))}
             </div>
           </div>
         </div>
-      </SidebarProvider>
+      </div>
     );
   }
 
+  const { data: destinations, isLoading: isLoadingDestinations } = useDestinations();
+  const { data: events, isLoading: isLoadingEvents } = useEvents();
+
   return (
-    <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-gradient-to-br from-gray-50 to-blue-50/50">
-        <AppSidebar />
-        <div className="flex-1">
-          <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex items-center justify-between mb-6"
-            >
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                Dashboard
-              </h1>
-              <div className="flex items-center gap-4">
-                <SidebarTrigger />
-              </div>
-            </motion.div>
-            
-            <Routes>
-              <Route path="/" element={<DashboardHome profile={profile} bookings={bookings || []} />} />
-              <Route path="/bookings" element={<BookingsList bookings={bookings || []} />} />
-              <Route 
-                path="/destinations" 
-                element={<DestinationExplorer destinations={destinations || []} isLoading={false} />} 
-              />
-              <Route path="/events" element={<EventsList />} />
-              <Route path="/events/:id" element={<EventDetails />} />
-              <Route path="/settings" element={<SettingsPage />} />
-              <Route path="/payment" element={<PaymentPage />} />
-            </Routes>
-          </div>
+    <div className="flex min-h-screen w-full bg-gradient-to-br from-gray-50 to-blue-50/50">
+      <AppSidebar />
+      <div className="flex-1">
+        <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center justify-between mb-6"
+          >
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+              Dashboard
+            </h1>
+            <div className="flex items-center gap-4">
+              <SidebarTrigger />
+            </div>
+          </motion.div>
+          
+          <Routes>
+            <Route path="/" element={<DashboardHome profile={profile} bookings={bookings} />} />
+            <Route path="/bookings" element={<BookingsList bookings={bookings} />} />
+            <Route path="/destinations" element={<DestinationExplorer destinations={destinations || []} isLoading={false} />} />
+            <Route path="/events" element={<EventsList />} />
+            <Route path="/events/:id" element={<EventDetails />} />
+            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/payment" element={<PaymentPage />} />
+          </Routes>
         </div>
-        <ChatAssistant />
       </div>
-    </SidebarProvider>
+      <ChatAssistant />
+    </div>
   );
 };
