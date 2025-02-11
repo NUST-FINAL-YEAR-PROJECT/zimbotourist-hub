@@ -14,11 +14,11 @@ if (!root) {
 }
 
 createRoot(root).render(
-  <QueryClientProvider client={queryClient}>
-    <BrowserRouter>
+  <BrowserRouter>
+    <QueryClientProvider client={queryClient}>
       <SidebarProvider>
         <App />
       </SidebarProvider>
-    </BrowserRouter>
-  </QueryClientProvider>
+    </QueryClientProvider>
+  </BrowserRouter>
 );
