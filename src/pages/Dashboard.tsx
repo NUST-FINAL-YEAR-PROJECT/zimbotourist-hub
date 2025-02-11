@@ -34,9 +34,12 @@ type BookingWithRelations = Booking & {
   events: { title: string; image_url: string | null } | null;
 };
 
-const NotificationItem = ({ notification, onRead }: { 
-  notification: AppNotification;
-  onRead: (id: string) => void;
+const NotificationItem = ({ 
+  notification, 
+  onRead 
+}: { 
+  notification: AppNotification; 
+  onRead: (id: string) => void; 
 }) => {
   const isUnread = !notification.is_read;
   
@@ -578,6 +581,20 @@ export const Dashboard = () => {
             <Route path="/payment" element={<PaymentPage />} />
           </Routes>
         </div>
+      </div>
+      <div className="fixed bottom-4 right-4">
+        <a 
+          href="https://www.paynow.co.zw/Payment/BillPaymentLink/?q=aWQ9MTk4NTcmYW1vdW50PTAuMDAmYW1vdW50X3F1YW50aXR5PTAuMDAmbD0w" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="block hover:opacity-90 transition-opacity"
+        >
+          <img 
+            src="https://www.paynow.co.zw/Content/Buttons/Medium_buttons/button_pay-now_medium.png" 
+            alt="Pay now with Paynow" 
+            className="w-auto h-12"
+          />
+        </a>
       </div>
       <ChatAssistant />
     </div>
