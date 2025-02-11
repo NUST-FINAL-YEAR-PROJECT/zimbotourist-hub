@@ -8,7 +8,7 @@ import { EventsList } from "@/components/EventsList";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import type { Profile, Booking, AppNotification } from "@/types/models";
-import { Bell, BellDot, CalendarDays, User, Trash2, LayoutDashboard, DollarSign, TrendingUp } from "lucide-react";
+import { Bell, BellDot, CalendarDays, User, Trash2, LayoutDashboard } from "lucide-react";
 import { AppSidebar } from "@/components/AppSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -33,31 +33,6 @@ type BookingWithRelations = Booking & {
   destinations: { name: string; image_url: string | null } | null;
   events: { title: string; image_url: string | null } | null;
 };
-
-const StatsCard = ({ title, value, icon: Icon, description }: { 
-  title: string; 
-  value: string | number; 
-  icon: React.ElementType; 
-  description?: string;
-}) => (
-  <motion.div
-    whileHover={{ scale: 1.02 }}
-    transition={{ type: "spring", stiffness: 300 }}
-  >
-    <Card className="bg-white/50 backdrop-blur-sm border border-gray-200/50 hover:border-primary/20 transition-colors">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
-        <Icon className="h-4 w-4 text-primary" />
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold text-foreground">{value}</div>
-        {description && (
-          <p className="text-xs text-muted-foreground mt-1">{description}</p>
-        )}
-      </CardContent>
-    </Card>
-  </motion.div>
-);
 
 const NotificationItem = ({ notification, onRead }: { 
   notification: AppNotification;
@@ -86,35 +61,6 @@ const NotificationItem = ({ notification, onRead }: {
         {notification.description}
       </p>
     </motion.div>
-  );
-};
-
-const DashboardOverview = ({ bookings }: { bookings: BookingWithRelations[] }) => {
-  const totalSpent = bookings.reduce((acc, booking) => acc + Number(booking.total_price), 0);
-  const upcomingBookings = bookings.filter(b => b.status === 'confirmed' && new Date(b.booking_date) > new Date()).length;
-  const completedBookings = bookings.filter(b => b.status === 'completed').length;
-
-  return (
-    <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
-      <StatsCard
-        title="Total Spent"
-        value={`$${totalSpent.toFixed(2)}`}
-        icon={DollarSign}
-        description="All time spending"
-      />
-      <StatsCard
-        title="Upcoming Trips"
-        value={upcomingBookings}
-        icon={CalendarDays}
-        description="Confirmed bookings"
-      />
-      <StatsCard
-        title="Completed Trips"
-        value={completedBookings}
-        icon={TrendingUp}
-        description="Past adventures"
-      />
-    </div>
   );
 };
 
@@ -245,8 +191,6 @@ const DashboardHome = ({ profile, bookings }: { profile: Profile; bookings: Book
           </div>
         </div>
       </div>
-
-      <DashboardOverview bookings={bookings} />
 
       <TravelRecommendations />
 
