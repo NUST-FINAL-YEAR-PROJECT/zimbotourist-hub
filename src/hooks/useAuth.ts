@@ -33,6 +33,7 @@ export const useAuth = () => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      console.log("Auth state changed:", _event, session);
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -45,9 +46,16 @@ export const useAuth = () => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
+      
+      // Clear local state
       setUser(null);
       setSession(null);
+      
+      // Show success message
       toast.success("Successfully signed out");
+      
+      // No need to redirect here - the auth state change will trigger 
+      // the protected route to handle redirection
     } catch (error: any) {
       console.error('Error signing out:', error);
       toast.error(error.message);

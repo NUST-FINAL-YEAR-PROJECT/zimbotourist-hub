@@ -33,6 +33,24 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+const AuthRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <>{children}</>;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -40,9 +58,18 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          {/* Public routes */}
           <Route path="/" element={<Index />} />
-          <Route path="/auth" element={<Auth />} />
           <Route path="/documentation" element={<Documentation />} />
+          
+          {/* Auth route - redirects to dashboard if already authenticated */}
+          <Route path="/auth" element={
+            <AuthRoute>
+              <Auth />
+            </AuthRoute>
+          } />
+          
+          {/* Protected routes - require authentication */}
           <Route
             path="/dashboard/*"
             element={
