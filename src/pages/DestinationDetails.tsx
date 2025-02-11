@@ -8,9 +8,10 @@ import { BookingForm } from "@/components/BookingForm";
 import { ReviewSection } from "@/components/ReviewSection";
 import { SimilarDestinations } from "@/components/SimilarDestinations";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Button } from "@/components/ui/button";
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -213,25 +214,47 @@ export const DestinationDetails = () => {
 
           {/* Sidebar - Right Column (1/3) */}
           <div className="space-y-8">
-            {/* Booking Form */}
+            {/* Booking Dialog */}
             <Card>
               <CardContent className="pt-6">
-                <BookingForm 
-                  destination={destination}
-                  onSuccess={() => {
-                    toast({
-                      title: "Booking successful",
-                      description: "Your booking has been confirmed.",
-                    });
-                    // Navigate to dashboard after successful booking
-                    navigate('/dashboard/bookings');
-                  }}
-                />
+                <div className="space-y-4">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="text-2xl font-bold">${destination?.price}</h3>
+                      <p className="text-sm text-muted-foreground">per person</p>
+                    </div>
+                  </div>
+                  
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button className="w-full" size="lg">
+                        Book Now
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                      <div className="p-6">
+                        <h2 className="text-2xl font-bold mb-6">Book Your Trip</h2>
+                        {destination && (
+                          <BookingForm 
+                            destination={destination}
+                            onSuccess={() => navigate("/dashboard/bookings")}
+                          />
+                        )}
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+
+                  <div className="text-sm text-muted-foreground">
+                    <p>• Free cancellation up to 24 hours before departure</p>
+                    <p>• Instant confirmation</p>
+                    <p>• Expert local guides</p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
             {/* Similar Destinations */}
-            <SimilarDestinations destinationId={destination.id} />
+            <SimilarDestinations destinationId={destination?.id} />
           </div>
         </div>
       </div>
