@@ -461,6 +461,7 @@ export const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [profile, setProfile] = useState<Profile | null>(null);
+  const queryClient = useQueryClient();
   
   const { data: bookings = [], isLoading: isLoadingBookings } = useQuery({
     queryKey: ["bookings", profile?.id],
