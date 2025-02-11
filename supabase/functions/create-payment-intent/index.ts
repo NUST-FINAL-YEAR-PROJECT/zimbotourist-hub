@@ -34,7 +34,7 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
       {
         global: {
-          headers: { Authorization: `Bearer ${authHeader.replace('Bearer ', '')}` },
+          headers: { Authorization: authHeader },
         },
       }
     )
@@ -67,6 +67,8 @@ serve(async (req) => {
       throw new Error('Booking not found or unauthorized')
     }
 
+    console.log('Creating payment intent for booking:', bookingId)
+
     // Create a PaymentIntent
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(amount * 100), // Convert to cents
@@ -79,6 +81,8 @@ serve(async (req) => {
         userId: user.id,
       },
     })
+
+    console.log('Payment intent created:', paymentIntent.id)
 
     // Create payment record in Supabase
     const { error: paymentError } = await supabaseClient
@@ -96,8 +100,11 @@ serve(async (req) => {
       })
 
     if (paymentError) {
+      console.error('Error creating payment record:', paymentError)
       throw paymentError
     }
+
+    console.log('Payment record created successfully')
 
     return new Response(
       JSON.stringify({
