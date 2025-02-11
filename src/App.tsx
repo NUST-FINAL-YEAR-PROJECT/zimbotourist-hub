@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -70,53 +70,51 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
-        <Routes>
-          {/* Public routes */}
-          <Route path="/" element={<Index />} />
-          <Route path="/documentation" element={<Documentation />} />
-          
-          {/* Auth route - redirects to dashboard if already authenticated */}
-          <Route path="/auth" element={
-            <AuthRoute>
-              <Auth />
-            </AuthRoute>
-          } />
-          
-          {/* Protected routes - require authentication */}
-          <Route
-            path="/dashboard/*"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/destinations/:id"
-            element={
-              <ProtectedRoute>
-                <DestinationDetails />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/events/:id"
-            element={
-              <ProtectedRoute>
-                <EventDetails />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Catch all route - redirect to dashboard if authenticated, otherwise to auth */}
-          <Route path="*" element={
+      <Routes>
+        {/* Public routes */}
+        <Route path="/" element={<Index />} />
+        <Route path="/documentation" element={<Documentation />} />
+        
+        {/* Auth route - redirects to dashboard if already authenticated */}
+        <Route path="/auth" element={
+          <AuthRoute>
+            <Auth />
+          </AuthRoute>
+        } />
+        
+        {/* Protected routes - require authentication */}
+        <Route
+          path="/dashboard/*"
+          element={
             <ProtectedRoute>
-              <Navigate to="/dashboard" replace />
+              <Dashboard />
             </ProtectedRoute>
-          } />
-        </Routes>
-      </BrowserRouter>
+          }
+        />
+        <Route
+          path="/destinations/:id"
+          element={
+            <ProtectedRoute>
+              <DestinationDetails />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/events/:id"
+          element={
+            <ProtectedRoute>
+              <EventDetails />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Catch all route - redirect to dashboard if authenticated, otherwise to auth */}
+        <Route path="*" element={
+          <ProtectedRoute>
+            <Navigate to="/dashboard" replace />
+          </ProtectedRoute>
+        } />
+      </Routes>
     </TooltipProvider>
   </QueryClientProvider>
 );
