@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, Routes, Route } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -254,16 +253,18 @@ export const Dashboard = () => {
   if (!profile) return null;
 
   return (
-    <div className="flex min-h-screen">
-      <AppSidebar />
-      <main className="flex-1 p-6">
-        <Routes>
-          <Route path="/" element={<DashboardHome profile={profile} bookings={bookings || []} />} />
-          <Route path="/destinations" element={<DestinationExplorer />} />
-          <Route path="/events" element={<EventsList />} />
-          <Route path="/settings" element={<SettingsPage />} />
-        </Routes>
-      </main>
-    </div>
+    <SidebarProvider defaultOpen={true}>
+      <div className="flex min-h-screen w-full">
+        <AppSidebar />
+        <main className="flex-1 p-6">
+          <Routes>
+            <Route path="/" element={<DashboardHome profile={profile} bookings={bookings || []} />} />
+            <Route path="/destinations" element={<DestinationExplorer />} />
+            <Route path="/events" element={<EventsList />} />
+            <Route path="/settings" element={<SettingsPage />} />
+          </Routes>
+        </main>
+      </div>
+    </SidebarProvider>
   );
 };
