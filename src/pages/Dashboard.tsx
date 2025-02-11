@@ -72,10 +72,11 @@ const DestinationCard = ({ id, image, title, description, price }: {
   price: string;
 }) => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   return (
     <motion.div
-      whileHover={{ scale: 1.05 }}
+      whileHover={{ scale: isMobile ? 1 : 1.05 }}
       transition={{ duration: 0.2 }}
       className="relative rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer"
       onClick={() => navigate(`/destinations/${id}`)}
@@ -83,13 +84,13 @@ const DestinationCard = ({ id, image, title, description, price }: {
       <img
         src={image}
         alt={title}
-        className="w-full h-48 object-cover"
+        className="w-full h-36 sm:h-48 object-cover"
       />
-      <div className="p-4 bg-white">
-        <h3 className="font-semibold text-lg text-gray-800">{title}</h3>
-        <p className="text-sm text-gray-500 mt-2">{description}</p>
-        <div className="mt-3 flex justify-between items-center">
-          <span className="text-gray-700 font-medium">{price}</span>
+      <div className="p-3 sm:p-4 bg-white">
+        <h3 className="font-semibold text-base sm:text-lg text-gray-800">{title}</h3>
+        <p className="text-xs sm:text-sm text-gray-500 mt-1 sm:mt-2 line-clamp-2">{description}</p>
+        <div className="mt-2 sm:mt-3 flex justify-between items-center">
+          <span className="text-sm sm:text-base text-gray-700 font-medium">{price}</span>
         </div>
       </div>
     </motion.div>
@@ -102,6 +103,7 @@ const DashboardHome = ({ profile, bookings }: { profile: Profile; bookings: Book
   const { data: events, isLoading: isLoadingEvents } = useEvents();
   const navigate = useNavigate();
   const unreadCount = notifications?.filter(n => !n.is_read).length || 0;
+  const isMobile = useIsMobile();
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -114,31 +116,31 @@ const DashboardHome = ({ profile, bookings }: { profile: Profile; bookings: Book
   const upcomingEvents = events?.slice(0, 3) || [];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       <div className="flex flex-col space-y-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+          <h1 className="text-xl sm:text-3xl font-bold text-gray-900">
             {getGreeting()}, {profile.username || profile.email.split('@')[0]}!
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground">
             Here's what's happening with your travel plans.
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-4">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-4">
           <Sheet>
             <SheetTrigger asChild>
               <Button
                 variant="outline"
-                size="icon"
+                size={isMobile ? "sm" : "icon"}
                 className="relative"
               >
                 {unreadCount > 0 ? (
-                  <BellDot className="h-5 w-5 text-primary" />
+                  <BellDot className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                 ) : (
-                  <Bell className="h-5 w-5" />
+                  <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
                 )}
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-xs text-white flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 h-4 w-4 sm:h-5 sm:w-5 rounded-full bg-primary text-[10px] sm:text-xs text-white flex items-center justify-center">
                     {unreadCount}
                   </span>
                 )}
@@ -177,14 +179,16 @@ const DashboardHome = ({ profile, bookings }: { profile: Profile; bookings: Book
           <div className="flex-1 flex flex-wrap gap-2">
             <Button 
               onClick={() => navigate('/dashboard/destinations')}
-              className="flex-1 sm:flex-none"
+              size={isMobile ? "sm" : "default"}
+              className="flex-1 sm:flex-none text-xs sm:text-sm"
             >
               Browse Destinations
             </Button>
             <Button 
               onClick={() => navigate('/dashboard/events')}
               variant="outline"
-              className="flex-1 sm:flex-none"
+              size={isMobile ? "sm" : "default"}
+              className="flex-1 sm:flex-none text-xs sm:text-sm"
             >
               View Events
             </Button>
@@ -194,25 +198,25 @@ const DashboardHome = ({ profile, bookings }: { profile: Profile; bookings: Book
 
       <TravelRecommendations />
 
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <section>
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl sm:text-2xl font-bold">Popular Destinations</h2>
+          <div className="flex justify-between items-center mb-3 sm:mb-4">
+            <h2 className="text-lg sm:text-2xl font-bold">Popular Destinations</h2>
             <button 
               onClick={() => navigate('/dashboard/destinations')}
-              className="text-primary hover:underline"
+              className="text-sm sm:text-base text-primary hover:underline"
             >
               View all
             </button>
           </div>
           {isLoadingDestinations ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
               {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-[300px] w-full" />
+                <Skeleton key={i} className="h-[250px] sm:h-[300px] w-full" />
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
               {popularDestinations.map((destination) => (
                 <DestinationCard
                   key={destination.id}
@@ -228,23 +232,23 @@ const DashboardHome = ({ profile, bookings }: { profile: Profile; bookings: Book
         </section>
 
         <section>
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl sm:text-2xl font-bold">Upcoming Events</h2>
+          <div className="flex justify-between items-center mb-3 sm:mb-4">
+            <h2 className="text-lg sm:text-2xl font-bold">Upcoming Events</h2>
             <button 
               onClick={() => navigate('/dashboard/events')}
-              className="text-primary hover:underline"
+              className="text-sm sm:text-base text-primary hover:underline"
             >
               View all
             </button>
           </div>
           {isLoadingEvents ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
               {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-[300px] w-full" />
+                <Skeleton key={i} className="h-[250px] sm:h-[300px] w-full" />
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
               {upcomingEvents.map((event) => (
                 <DestinationCard
                   key={event.id}
