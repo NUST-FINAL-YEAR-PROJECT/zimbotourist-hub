@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -12,11 +12,20 @@ import { DestinationDetails } from "./pages/DestinationDetails";
 import { EventDetails } from "./pages/EventDetails";
 import Documentation from "./pages/Documentation";
 import { Loader2 } from "lucide-react";
+import { useEffect } from "react";
 
 const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      // Store the attempted URL to redirect back after login
+      sessionStorage.setItem('redirectAfterAuth', location.pathname);
+    }
+  }, [loading, user, location]);
 
   if (loading) {
     return (
@@ -27,7 +36,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (!user) {
-    return <Navigate to="/auth" replace />;
+    return <Navigate to="/auth" replace state={{ from: location }} />;
   }
 
   return <>{children}</>;
@@ -35,6 +44,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 const AuthRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -45,7 +55,11 @@ const AuthRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (user) {
-    return <Navigate to="/dashboard" replace />;
+    // Get the stored redirect path or default to dashboard
+    const redirectPath = sessionStorage.getItem('redirectAfterAuth') || '/dashboard';
+    // Clear the stored path
+    sessionStorage.removeItem('redirectAfterAuth');
+    return <Navigate to={redirectPath} replace />;
   }
 
   return <>{children}</>;
@@ -94,6 +108,13 @@ const App = () => (
               </ProtectedRoute>
             }
           />
+
+          {/* Catch all route - redirect to dashboard if authenticated, otherwise to auth */}
+          <Route path="*" element={
+            <ProtectedRoute>
+              <Navigate to="/dashboard" replace />
+            </ProtectedRoute>
+          } />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

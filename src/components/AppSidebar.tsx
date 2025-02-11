@@ -13,27 +13,12 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
 
 export function AppSidebar() {
   const navigate = useNavigate();
-  const { toast } = useToast();
-
-  const handleSignOut = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      navigate('/');
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Error signing out",
-        description: error.message,
-      });
-    }
-  };
+  const { signOut } = useAuth();
 
   const menuItems = [
     {
@@ -99,7 +84,7 @@ export function AppSidebar() {
             <Button
               variant="ghost"
               className="w-full justify-start gap-2 text-red-500 hover:text-red-600 hover:bg-red-50"
-              onClick={handleSignOut}
+              onClick={signOut}
             >
               <LogOut className="h-4 w-4" />
               <span>Sign Out</span>

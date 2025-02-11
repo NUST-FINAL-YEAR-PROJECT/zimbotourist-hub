@@ -3,11 +3,13 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { User, Session } from '@supabase/supabase-js';
 import { toast } from "sonner";
+import { useNavigate } from 'react-router-dom';
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Get initial session
@@ -32,30 +34,29 @@ export const useAuth = () => {
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       console.log("Auth state changed:", _event, session);
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+
+      // Redirect on sign out
+      if (_event === 'SIGNED_OUT') {
+        navigate('/auth');
+        toast.success("Successfully signed out");
+      } else if (_event === 'SIGNED_IN') {
+        navigate('/dashboard');
+        toast.success("Successfully signed in");
+      }
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [navigate]);
 
   const signOut = async () => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-      
-      // Clear local state
-      setUser(null);
-      setSession(null);
-      
-      // Show success message
-      toast.success("Successfully signed out");
-      
-      // No need to redirect here - the auth state change will trigger 
-      // the protected route to handle redirection
     } catch (error: any) {
       console.error('Error signing out:', error);
       toast.error(error.message);
