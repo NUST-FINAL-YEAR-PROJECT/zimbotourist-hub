@@ -25,7 +25,7 @@
   }
 
   .hero-overlay {
-    @apply absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70;
+    @apply absolute inset-0 bg-gradient-to-b from-primary/80 via-primary/50 to-primary/70;
   }
 
   .hero-content {

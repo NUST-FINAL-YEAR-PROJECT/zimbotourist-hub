@@ -26,15 +26,15 @@ export default {
         background: "#FFFFFF",
         foreground: "#1A1F2C",
         primary: {
-          DEFAULT: "#8B5CF6",
+          DEFAULT: "#0EA5E9", // Bright ocean blue
           foreground: "#FFFFFF",
         },
         secondary: {
-          DEFAULT: "#F8FAFC",
+          DEFAULT: "#F0F9FF", // Light blue background
           foreground: "#1A1F2C",
         },
         accent: {
-          DEFAULT: "#D946EF",
+          DEFAULT: "#F97316", // Bright orange
           foreground: "#FFFFFF",
         },
         muted: {
@@ -58,7 +58,7 @@ export default {
           foreground: "#1A1F2C",
           border: "#E2E8F0",
           accent: "#EFF6FF",
-          "accent-foreground": "#8B5CF6",
+          "accent-foreground": "#0EA5E9",
           ring: "#BFDBFE",
         }
       },

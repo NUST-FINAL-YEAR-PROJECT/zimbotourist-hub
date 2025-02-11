@@ -223,11 +223,11 @@ const Index = () => {
           className="absolute inset-0"
         >
           <img
-            src="https://images.unsplash.com/photo-1516026672322-bc52d61a55d5"
-            alt="Victoria Falls"
+            src="https://images.unsplash.com/photo-1500673922987-e212871fec22"
+            alt="Zimbabwe Landscape"
             className="absolute inset-0 w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-black/70" />
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/60 via-primary/40 to-primary/70" />
         </motion.div>
 
         <div className="relative z-10 container mx-auto px-4 h-full">
@@ -261,7 +261,7 @@ const Index = () => {
                   Sign In
                 </Button>
                 <Button
-                  className="bg-primary hover:bg-primary/90 shadow-lg hover:shadow-xl transition-all duration-300"
+                  className="bg-accent hover:bg-accent/90 text-white shadow-lg hover:shadow-xl transition-all duration-300"
                   onClick={() => handleAuthClick('signup')}
                 >
                   Get Started
@@ -278,7 +278,7 @@ const Index = () => {
               className="max-w-4xl mx-auto"
             >
               <h1 className="text-5xl md:text-7xl font-display font-bold text-white mb-6 leading-tight">
-                Discover Zimbabwe's <span className="text-primary">Natural Wonders</span>
+                Discover Zimbabwe's <span className="text-accent">Natural Wonders</span>
               </h1>
               <p className="text-xl md:text-2xl text-white/90 mb-12">
                 Experience the magic of Southern Africa's hidden paradise
@@ -411,7 +411,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Search Results Section */}
+      {/* Search Results Section (if search is active) */}
       {(searchQuery || Object.values(searchFilters).some(Boolean)) && (
         <section className="py-16 bg-gray-50">
           <div className="container mx-auto px-4">
@@ -464,8 +464,8 @@ const Index = () => {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className="p-8 rounded-2xl bg-white shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100"
               >
-                <div className={`inline-flex items-center justify-center w-16 h-16 rounded-xl ${feature.color} bg-opacity-10 mb-6`}>
-                  <feature.icon size={24} className={feature.color.replace('bg-', 'text-')} />
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-primary/10 mb-6">
+                  <feature.icon size={24} className="text-primary" />
                 </div>
                 <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
                 <p className="text-muted-foreground">{feature.description}</p>
@@ -545,7 +545,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Events Section */}
+      {/* Events Section (if events exist) */}
       {!isLoadingEvents && events && events.length > 0 && (
         <section className="py-20 bg-gray-50">
           <div className="container mx-auto px-4">
@@ -646,7 +646,7 @@ const Index = () => {
             </p>
             <Button
               size="lg"
-              className="bg-white text-primary hover:bg-white/90"
+              className="bg-accent hover:bg-accent/90 text-white"
               onClick={() => handleAuthClick('signup')}
             >
               Start Planning Today
