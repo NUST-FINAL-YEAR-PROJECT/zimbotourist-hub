@@ -28,17 +28,13 @@ serve(async (req) => {
       throw new Error('No authorization header')
     }
 
-    // Ensure the header is in the correct format
-    const token = authHeader.replace('Bearer ', '')
-    console.log('Token extracted from header')
-
     // Create Supabase client with auth context
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
       {
         global: {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${authHeader.replace('Bearer ', '')}` },
         },
       }
     )
@@ -47,17 +43,9 @@ serve(async (req) => {
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser()
     console.log('Auth check result:', userError ? 'error' : 'success')
 
-    if (userError) {
-      console.error('User error:', userError)
+    if (userError || !user) {
       throw new Error('Authentication failed')
     }
-
-    if (!user) {
-      console.error('No user found')
-      throw new Error('User not found')
-    }
-
-    console.log('User authenticated:', user.id)
 
     // Parse the request body
     const { bookingId, amount } = await req.json()
@@ -75,20 +63,13 @@ serve(async (req) => {
       .eq('user_id', user.id)
       .single()
 
-    if (bookingError) {
-      console.error('Booking error:', bookingError)
-      throw new Error('Error fetching booking')
-    }
-
-    if (!booking) {
+    if (bookingError || !booking) {
       throw new Error('Booking not found or unauthorized')
     }
 
-    console.log('Booking verified for user')
-
-    // Create a PaymentIntent with the order amount and currency
+    // Create a PaymentIntent
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // Stripe expects amounts in cents
+      amount: Math.round(amount * 100), // Convert to cents
       currency: "usd",
       automatic_payment_methods: {
         enabled: true,
@@ -99,26 +80,24 @@ serve(async (req) => {
       },
     })
 
-    console.log('Payment intent created:', paymentIntent.id)
-
-    // Update the payment record in Supabase
+    // Create payment record in Supabase
     const { error: paymentError } = await supabaseClient
       .from('payments')
-      .update({
+      .insert({
+        booking_id: bookingId,
+        amount,
         payment_intent_id: paymentIntent.id,
         status: 'processing',
+        payment_method: 'card',
+        payment_gateway: 'stripe',
         payment_details: {
           client_secret: paymentIntent.client_secret,
         },
       })
-      .eq('booking_id', bookingId)
 
     if (paymentError) {
-      console.error('Payment record update error:', paymentError)
       throw paymentError
     }
-
-    console.log('Payment record updated successfully')
 
     return new Response(
       JSON.stringify({

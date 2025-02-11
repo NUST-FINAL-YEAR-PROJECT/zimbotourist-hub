@@ -396,6 +396,7 @@ export type Database = {
           payment_details: Json | null
           payment_gateway: string | null
           payment_gateway_reference: string | null
+          payment_intent_id: string | null
           payment_method: string | null
           status: string
           updated_at: string
@@ -408,6 +409,7 @@ export type Database = {
           payment_details?: Json | null
           payment_gateway?: string | null
           payment_gateway_reference?: string | null
+          payment_intent_id?: string | null
           payment_method?: string | null
           status?: string
           updated_at?: string
@@ -420,6 +422,7 @@ export type Database = {
           payment_details?: Json | null
           payment_gateway?: string | null
           payment_gateway_reference?: string | null
+          payment_intent_id?: string | null
           payment_method?: string | null
           status?: string
           updated_at?: string

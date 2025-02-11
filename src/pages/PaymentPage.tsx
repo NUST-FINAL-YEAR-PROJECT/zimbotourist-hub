@@ -7,7 +7,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, AlertCircle } from "lucide-react";
 import type { Booking } from "@/types/models";
@@ -65,24 +65,8 @@ export const PaymentPage = () => {
     }
 
     if (booking) {
-      // Create a payment record and get a payment intent
       const setupPayment = async () => {
         try {
-          // First create a payment record
-          const { data: payment, error: paymentError } = await supabase
-            .from("payments")
-            .insert({
-              booking_id: bookingId,
-              amount: booking.total_price,
-              status: "pending",
-              payment_method: "card",
-              payment_gateway: "stripe",
-            })
-            .select()
-            .single();
-
-          if (paymentError) throw paymentError;
-
           // Get the current session
           const { data: { session } } = await supabase.auth.getSession();
           
@@ -90,7 +74,7 @@ export const PaymentPage = () => {
             throw new Error("No active session found");
           }
 
-          // Then create a payment intent using the edge function
+          // Create a payment intent
           const response = await supabase.functions.invoke(
             'create-payment-intent',
             {
@@ -105,7 +89,6 @@ export const PaymentPage = () => {
           );
 
           if (response.error) {
-            console.error('Payment intent error:', response.error);
             throw new Error(response.error.message || 'Failed to create payment intent');
           }
           
@@ -119,7 +102,7 @@ export const PaymentPage = () => {
           toast({
             variant: "destructive",
             title: "Payment Setup Failed",
-            description: error.message || "Failed to setup payment",
+            description: error.message,
           });
         }
       };
