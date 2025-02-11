@@ -1,4 +1,5 @@
 
+
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@300;400;500;600&display=swap');
 
 @tailwind base;
@@ -33,7 +34,7 @@
   }
 
   .section-title {
-    @apply text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-6 text-foreground;
+    @apply text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-6 text-foreground;
   }
 
   .card {
@@ -49,15 +50,15 @@
   }
 
   .card-content {
-    @apply p-6;
+    @apply p-4 sm:p-6;
   }
 
   .button-primary {
-    @apply bg-primary hover:bg-primary/90 text-white rounded-lg px-6 py-3 transition-colors duration-200 shadow-sm hover:shadow-md;
+    @apply w-full sm:w-auto bg-primary hover:bg-primary/90 text-white rounded-lg px-4 sm:px-6 py-2 sm:py-3 transition-colors duration-200 shadow-sm hover:shadow-md;
   }
 
   .button-secondary {
-    @apply bg-secondary hover:bg-secondary/90 text-foreground rounded-lg px-6 py-3 transition-colors duration-200 shadow-sm hover:shadow-md;
+    @apply w-full sm:w-auto bg-secondary hover:bg-secondary/90 text-foreground rounded-lg px-4 sm:px-6 py-2 sm:py-3 transition-colors duration-200 shadow-sm hover:shadow-md;
   }
 
   .input-search {
@@ -73,10 +74,52 @@
   }
 
   .section-padding {
-    @apply py-16 md:py-24;
+    @apply py-8 sm:py-12 md:py-16 lg:py-24;
   }
 
   .container-padding {
     @apply px-4 sm:px-6 lg:px-8;
   }
 }
+
+#root {
+  @apply w-full max-w-full sm:max-w-7xl mx-auto p-0 sm:p-4 md:p-6;
+  text-align: initial;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
