@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Search, Filter, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -15,14 +16,10 @@ import { Badge } from "@/components/ui/badge";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useDestinations } from "@/hooks/useDestinations";
 import type { Destination } from "@/types/models";
 
-interface DestinationExplorerProps {
-  destinations: Destination[];
-  isLoading: boolean;
-}
-
-export const DestinationExplorer = ({ destinations, isLoading }: DestinationExplorerProps) => {
+export const DestinationExplorer = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("newest");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -30,12 +27,12 @@ export const DestinationExplorer = ({ destinations, isLoading }: DestinationExpl
   const { user } = useAuth();
   const { wishlist, addToWishlist, removeFromWishlist } = useWishlist(user?.id);
   const { toast } = useToast();
+  const { data: destinations = [], isLoading } = useDestinations();
 
   // Get unique categories from all destinations
   const allCategories = Array.from(
     new Set(
-      destinations
-        .flatMap((dest) => dest.categories || [])
+      destinations.flatMap((dest) => dest.categories || [])
         .filter(Boolean)
     )
   );
