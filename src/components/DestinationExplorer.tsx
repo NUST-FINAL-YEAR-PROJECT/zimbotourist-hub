@@ -32,7 +32,7 @@ export const DestinationExplorer = () => {
   // Get unique categories from all destinations
   const allCategories = Array.from(
     new Set(
-      destinations.flatMap((dest) => dest.categories || [])
+      (destinations || []).flatMap((dest) => dest.categories || [])
         .filter(Boolean)
     )
   );
@@ -54,7 +54,7 @@ export const DestinationExplorer = () => {
     }
   };
 
-  const filteredDestinations = destinations?.filter((destination) => {
+  const filteredDestinations = (destinations || []).filter((destination) => {
     const matchesSearch = 
       destination.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       destination.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -69,7 +69,7 @@ export const DestinationExplorer = () => {
     return matchesSearch && matchesCategories;
   });
 
-  const sortedDestinations = [...(filteredDestinations || [])].sort((a, b) => {
+  const sortedDestinations = [...filteredDestinations].sort((a, b) => {
     switch (sortBy) {
       case "price-low":
         return a.price - b.price;
