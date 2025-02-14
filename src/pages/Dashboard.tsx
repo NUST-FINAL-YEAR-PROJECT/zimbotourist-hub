@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Routes, Route } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { useDestinations } from "@/components/DestinationExplorer";
+import { DestinationExplorer } from "@/components/DestinationExplorer";
 import { EventsList } from "@/components/EventsList";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
@@ -27,6 +27,8 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import { motion, AnimatePresence } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { useDestinations } from "@/hooks/useDestinations";
+import { useEvents } from "@/hooks/useEvents";
 
 type BookingWithRelations = Booking & {
   destinations: { name: string; image_url: string | null } | null;
@@ -696,7 +698,7 @@ export const Dashboard = () => {
           <Routes>
             <Route path="/" element={<DashboardHome profile={profile} bookings={bookings} />} />
             <Route path="/bookings" element={<BookingsList bookings={bookings} />} />
-            <Route path="/destinations" element={<DestinationExplorer destinations={destinations || []} isLoading={false} />} />
+            <Route path="/destinations" element={<DestinationExplorer destinations={destinations || []} isLoading={isLoadingDestinations} />} />
             <Route path="/events" element={<EventsList />} />
             <Route path="/events/:id" element={<EventDetails />} />
             <Route path="/settings" element={<SettingsPage />} />
