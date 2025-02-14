@@ -1,14 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Routes, Route } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { useDestinations } from "@/hooks/useDestinations";
-import { useEvents } from "@/hooks/useEvents";
-import { DestinationExplorer } from "@/components/DestinationExplorer";
+import { useDestinations } from "@/components/DestinationExplorer";
 import { EventsList } from "@/components/EventsList";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import type { Profile, Booking, AppNotification } from "@/types/models";
-import { Bell, BellDot, CalendarDays, User, Trash2, LayoutDashboard } from "lucide-react";
+import { Bell, BellDot, CalendarDays, User, Trash2, LayoutDashboard, Activity, MapPin, Calendar, Clock, Users } from "lucide-react";
 import { AppSidebar } from "@/components/AppSidebar";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -18,29 +16,49 @@ import { PaymentPage } from "./PaymentPage";
 import { ChatAssistant } from "@/components/ChatAssistant";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { TravelRecommendations } from "@/components/TravelRecommendations";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useNotifications } from "@/hooks/useNotifications";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 
 type BookingWithRelations = Booking & {
   destinations: { name: string; image_url: string | null } | null;
   events: { title: string; image_url: string | null } | null;
 };
 
-const NotificationItem = ({ 
-  notification, 
-  onRead 
-}: { 
-  notification: AppNotification; 
-  onRead: (id: string) => void; 
-}) => {
+const StatCard = ({ title, value, icon: Icon, description }: { 
+  title: string; 
+  value: string | number; 
+  icon: any;
+  description?: string;
+}) => (
+  <motion.div
+    whileHover={{ y: -5 }}
+    className="bg-white/50 backdrop-blur-sm rounded-xl border border-gray-200/50 p-6"
+  >
+    <div className="flex items-center space-x-4">
+      <div className="p-3 bg-primary/10 rounded-lg">
+        <Icon className="h-6 w-6 text-primary" />
+      </div>
+      <div>
+        <p className="text-sm font-medium text-muted-foreground">{title}</p>
+        <h3 className="text-2xl font-bold">{value}</h3>
+        {description && (
+          <p className="text-sm text-muted-foreground mt-1">{description}</p>
+        )}
+      </div>
+    </div>
+  </motion.div>
+);
+
+const NotificationItem = ({ notification, onRead }: { notification: AppNotification; onRead: (id: string) => void }) => {
   const isUnread = !notification.is_read;
   
   return (
@@ -48,6 +66,7 @@ const NotificationItem = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
+      whileHover={{ scale: 1.02 }}
       className={cn(
         "p-4 hover:bg-accent/50 transition-all cursor-pointer rounded-lg",
         isUnread && "bg-primary/5"
@@ -64,6 +83,278 @@ const NotificationItem = ({
         {notification.description}
       </p>
     </motion.div>
+  );
+};
+
+const DashboardHome = ({ profile, bookings }: { profile: Profile; bookings: BookingWithRelations[] }) => {
+  const { notifications, isLoading: isLoadingNotifications, markAsRead } = useNotifications(profile?.id);
+  const navigate = useNavigate();
+  const unreadCount = notifications?.filter(n => !n.is_read).length || 0;
+  const isMobile = useIsMobile();
+  const [activeTab, setActiveTab] = useState("overview");
+
+  const stats = [
+    {
+      title: "Total Bookings",
+      value: bookings.length,
+      icon: CalendarDays,
+      description: "Across all destinations"
+    },
+    {
+      title: "Upcoming Trips",
+      value: bookings.filter(b => new Date(b.booking_date) > new Date()).length,
+      icon: Clock,
+      description: "Scheduled for the future"
+    },
+    {
+      title: "Destinations Visited",
+      value: new Set(bookings.map(b => b.destination_id)).size,
+      icon: MapPin,
+      description: "Unique places explored"
+    },
+    {
+      title: "Total Travelers",
+      value: bookings.reduce((acc, b) => acc + b.number_of_people, 0),
+      icon: Users,
+      description: "People in your bookings"
+    }
+  ];
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good morning";
+    if (hour < 18) return "Good afternoon";
+    return "Good evening";
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col space-y-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+            {getGreeting()}, {profile.username || profile.email.split('@')[0]}!
+          </h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
+            Here's what's happening with your travel plans
+          </p>
+        </motion.div>
+
+        <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button
+                variant="outline"
+                size={isMobile ? "sm" : "icon"}
+                className="relative"
+              >
+                {unreadCount > 0 ? (
+                  <BellDot className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                ) : (
+                  <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
+                )}
+                {unreadCount > 0 && (
+                  <motion.span 
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="absolute -top-1 -right-1 h-4 w-4 sm:h-5 sm:w-5 rounded-full bg-primary text-[10px] sm:text-xs text-white flex items-center justify-center"
+                  >
+                    {unreadCount}
+                  </motion.span>
+                )}
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right">
+              <SheetHeader>
+                <SheetTitle>Notifications</SheetTitle>
+              </SheetHeader>
+              <ScrollArea className="h-[calc(100vh-8rem)] mt-4">
+                <AnimatePresence mode="popLayout">
+                  {isLoadingNotifications ? (
+                    Array.from({ length: 3 }).map((_, i) => (
+                      <div key={i} className="p-4 space-y-2">
+                        <Skeleton className="h-4 w-3/4" />
+                        <Skeleton className="h-4 w-full" />
+                      </div>
+                    ))
+                  ) : notifications?.length === 0 ? (
+                    <div className="p-4 text-center text-muted-foreground">
+                      No notifications yet
+                    </div>
+                  ) : (
+                    notifications?.map((notification) => (
+                      <NotificationItem
+                        key={notification.id}
+                        notification={notification}
+                        onRead={(id) => markAsRead.mutate(id)}
+                      />
+                    ))
+                  )}
+                </AnimatePresence>
+              </ScrollArea>
+            </SheetContent>
+          </Sheet>
+
+          <div className="flex-1 flex flex-wrap gap-2">
+            <Button 
+              onClick={() => navigate('/dashboard/destinations')}
+              size={isMobile ? "sm" : "default"}
+              className="flex-1 sm:flex-none text-xs sm:text-sm"
+            >
+              Browse Destinations
+            </Button>
+            <Button 
+              onClick={() => navigate('/dashboard/events')}
+              variant="outline"
+              size={isMobile ? "sm" : "default"}
+              className="flex-1 sm:flex-none text-xs sm:text-sm"
+            >
+              View Events
+            </Button>
+          </div>
+        </div>
+
+        <Tabs defaultValue="overview" className="w-full" onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
+            <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
+            <TabsTrigger value="history">History</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview" className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <AnimatePresence>
+                {stats.map((stat, index) => (
+                  <motion.div
+                    key={stat.title}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <StatCard {...stat} />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+
+            {bookings.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recent Bookings</CardTitle>
+                  <CardDescription>Your latest travel arrangements</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {bookings.slice(0, 3).map((booking) => (
+                      <motion.div
+                        key={booking.id}
+                        whileHover={{ scale: 1.02 }}
+                        className="p-4 rounded-lg border bg-card text-card-foreground shadow-sm"
+                      >
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <h3 className="font-semibold">
+                              {booking.destinations?.name || booking.events?.title}
+                            </h3>
+                            <p className="text-sm text-muted-foreground">
+                              {new Date(booking.booking_date).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <Badge variant={booking.status === 'confirmed' ? 'default' : 'secondary'}>
+                            {booking.status}
+                          </Badge>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          <TabsContent value="recommendations">
+            <TravelRecommendations />
+          </TabsContent>
+
+          <TabsContent value="upcoming">
+            <div className="space-y-4">
+              {bookings
+                .filter(b => new Date(b.booking_date) > new Date())
+                .map((booking) => (
+                  <motion.div
+                    key={booking.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-white/50 backdrop-blur-sm rounded-lg shadow-sm p-4 border border-gray-200/50"
+                  >
+                    <div className="flex justify-between items-start">
+                      <h3 className="font-medium">
+                        {booking.destinations?.name || booking.events?.title}
+                      </h3>
+                      <span className={cn(
+                        "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
+                        booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
+                        booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-red-100 text-red-800'
+                      )}>
+                        {booking.status.toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div className="text-muted-foreground">Date</div>
+                      <div>{new Date(booking.booking_date).toLocaleDateString()}</div>
+                      <div className="text-muted-foreground">People</div>
+                      <div>{booking.number_of_people}</div>
+                      <div className="text-muted-foreground">Price</div>
+                      <div>${booking.total_price.toFixed(2)}</div>
+                    </div>
+                  </motion.div>
+                ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="history">
+            <div className="space-y-4">
+              {bookings
+                .filter(b => new Date(b.booking_date) <= new Date())
+                .map((booking) => (
+                  <motion.div
+                    key={booking.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-white/50 backdrop-blur-sm rounded-lg shadow-sm p-4 border border-gray-200/50"
+                  >
+                    <div className="flex justify-between items-start">
+                      <h3 className="font-medium">
+                        {booking.destinations?.name || booking.events?.title}
+                      </h3>
+                      <span className={cn(
+                        "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
+                        booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
+                        booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-red-100 text-red-800'
+                      )}>
+                        {booking.status.toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div className="text-muted-foreground">Date</div>
+                      <div>{new Date(booking.booking_date).toLocaleDateString()}</div>
+                      <div className="text-muted-foreground">People</div>
+                      <div>{booking.number_of_people}</div>
+                      <div className="text-muted-foreground">Price</div>
+                      <div>${booking.total_price.toFixed(2)}</div>
+                    </div>
+                  </motion.div>
+                ))}
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
   );
 };
 
@@ -97,176 +388,6 @@ const DestinationCard = ({ id, image, title, description, price }: {
         </div>
       </div>
     </motion.div>
-  );
-};
-
-const DashboardHome = ({ profile, bookings }: { profile: Profile; bookings: BookingWithRelations[] }) => {
-  const { notifications, isLoading: isLoadingNotifications, markAsRead } = useNotifications(profile?.id);
-  const { data: destinations, isLoading: isLoadingDestinations } = useDestinations();
-  const { data: events, isLoading: isLoadingEvents } = useEvents();
-  const navigate = useNavigate();
-  const unreadCount = notifications?.filter(n => !n.is_read).length || 0;
-  const isMobile = useIsMobile();
-
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Good morning";
-    if (hour < 18) return "Good afternoon";
-    return "Good evening";
-  };
-
-  const popularDestinations = destinations?.slice(0, 3) || [];
-  const upcomingEvents = events?.slice(0, 3) || [];
-
-  return (
-    <div className="space-y-6 sm:space-y-8">
-      <div className="flex flex-col space-y-4">
-        <div>
-          <h1 className="text-xl sm:text-3xl font-bold text-gray-900">
-            {getGreeting()}, {profile.username || profile.email.split('@')[0]}!
-          </h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            Here's what's happening with your travel plans.
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button
-                variant="outline"
-                size={isMobile ? "sm" : "icon"}
-                className="relative"
-              >
-                {unreadCount > 0 ? (
-                  <BellDot className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-                ) : (
-                  <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
-                )}
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 h-4 w-4 sm:h-5 sm:w-5 rounded-full bg-primary text-[10px] sm:text-xs text-white flex items-center justify-center">
-                    {unreadCount}
-                  </span>
-                )}
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-full sm:w-[400px]">
-              <SheetHeader>
-                <SheetTitle>Notifications</SheetTitle>
-              </SheetHeader>
-              <ScrollArea className="h-[calc(100vh-8rem)] mt-4">
-                <div className="divide-y">
-                  {isLoadingNotifications ? (
-                    Array.from({ length: 3 }).map((_, i) => (
-                      <div key={i} className="p-4 space-y-2">
-                        <Skeleton className="h-4 w-3/4" />
-                        <Skeleton className="h-4 w-full" />
-                      </div>
-                    ))
-                  ) : notifications?.length === 0 ? (
-                    <div className="p-4 text-center text-muted-foreground">
-                      No notifications yet
-                    </div>
-                  ) : (
-                    notifications?.map((notification) => (
-                      <NotificationItem
-                        key={notification.id}
-                        notification={notification}
-                        onRead={(id) => markAsRead.mutate(id)}
-                      />
-                    ))
-                  )}
-                </div>
-              </ScrollArea>
-            </SheetContent>
-          </Sheet>
-          <div className="flex-1 flex flex-wrap gap-2">
-            <Button 
-              onClick={() => navigate('/dashboard/destinations')}
-              size={isMobile ? "sm" : "default"}
-              className="flex-1 sm:flex-none text-xs sm:text-sm"
-            >
-              Browse Destinations
-            </Button>
-            <Button 
-              onClick={() => navigate('/dashboard/events')}
-              variant="outline"
-              size={isMobile ? "sm" : "default"}
-              className="flex-1 sm:flex-none text-xs sm:text-sm"
-            >
-              View Events
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      <TravelRecommendations />
-
-      <div className="space-y-4 sm:space-y-6">
-        <section>
-          <div className="flex justify-between items-center mb-3 sm:mb-4">
-            <h2 className="text-lg sm:text-2xl font-bold">Popular Destinations</h2>
-            <button 
-              onClick={() => navigate('/dashboard/destinations')}
-              className="text-sm sm:text-base text-primary hover:underline"
-            >
-              View all
-            </button>
-          </div>
-          {isLoadingDestinations ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
-              {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-[250px] sm:h-[300px] w-full" />
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
-              {popularDestinations.map((destination) => (
-                <DestinationCard
-                  key={destination.id}
-                  id={destination.id}
-                  image={destination.image_url || "https://images.unsplash.com/photo-1501286353178-1ec881214838"}
-                  title={destination.name}
-                  description={destination.description || ""}
-                  price={`$${destination.price}`}
-                />
-              ))}
-            </div>
-          )}
-        </section>
-
-        <section>
-          <div className="flex justify-between items-center mb-3 sm:mb-4">
-            <h2 className="text-lg sm:text-2xl font-bold">Upcoming Events</h2>
-            <button 
-              onClick={() => navigate('/dashboard/events')}
-              className="text-sm sm:text-base text-primary hover:underline"
-            >
-              View all
-            </button>
-          </div>
-          {isLoadingEvents ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
-              {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-[250px] sm:h-[300px] w-full" />
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
-              {upcomingEvents.map((event) => (
-                <DestinationCard
-                  key={event.id}
-                  id={event.id}
-                  image={event.image_url || "https://images.unsplash.com/photo-1472396961693-142e6e269027"}
-                  title={event.title}
-                  description={event.description || ""}
-                  price={event.price ? `$${event.price}` : "Free"}
-                />
-              ))}
-            </div>
-          )}
-        </section>
-      </div>
-    </div>
   );
 };
 
