@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
@@ -230,15 +229,15 @@ const Index = () => {
           <div className="absolute inset-0 bg-gradient-to-b from-primary/60 via-primary/40 to-primary/70" />
         </motion.div>
 
-        <div className="relative z-10 container mx-auto px-4 h-full">
-          <div className="flex justify-end items-center py-6 gap-4">
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 h-full">
+          <div className="flex justify-end items-center py-4 sm:py-6 gap-2 sm:gap-4">
             {isLoadingAuth ? (
               <div className="animate-pulse w-20 h-8 bg-white/20 rounded" />
             ) : user ? (
               <>
                 <Button
-                  variant="outline"
-                  className="text-white hover:text-white/90 border-white/30 hover:border-white/50 hover:bg-white/10 backdrop-blur-sm"
+                  variant="secondary"
+                  className="text-primary-foreground hover:text-primary-foreground/90 bg-white/90 hover:bg-white shadow-lg hover:shadow-xl transition-all duration-300"
                   onClick={() => navigate('/dashboard')}
                 >
                   Dashboard
@@ -255,13 +254,13 @@ const Index = () => {
               <>
                 <Button
                   variant="outline"
-                  className="text-white hover:text-white/90 border-white/30 hover:border-white/50 hover:bg-white/10 backdrop-blur-sm"
+                  className="text-white hover:text-white/90 border-white hover:border-white/80 hover:bg-white/10 backdrop-blur-sm"
                   onClick={() => handleAuthClick('signin')}
                 >
                   Sign In
                 </Button>
                 <Button
-                  className="bg-accent hover:bg-accent/90 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+                  className="bg-accent text-white hover:bg-accent/90 shadow-lg hover:shadow-xl transition-all duration-300"
                   onClick={() => handleAuthClick('signup')}
                 >
                   Get Started
@@ -270,24 +269,24 @@ const Index = () => {
             )}
           </div>
 
-          <div className="flex flex-col items-center justify-center h-[calc(100%-80px)] text-center">
+          <div className="flex flex-col items-center justify-center h-[calc(100%-80px)] text-center px-4 sm:px-6 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              className="max-w-4xl mx-auto"
+              className="max-w-4xl mx-auto w-full"
             >
-              <h1 className="text-5xl md:text-7xl font-display font-bold text-white mb-6 leading-tight">
+              <h1 className="text-4xl sm:text-5xl md:text-7xl font-display font-bold text-white mb-4 sm:mb-6 leading-tight">
                 Discover Zimbabwe's <span className="text-accent">Natural Wonders</span>
               </h1>
-              <p className="text-xl md:text-2xl text-white/90 mb-12">
+              <p className="text-lg sm:text-xl md:text-2xl text-white/90 mb-8 sm:mb-12">
                 Experience the magic of Southern Africa's hidden paradise
               </p>
 
               {/* Search Section */}
-              <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl max-w-3xl mx-auto">
+              <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-4 sm:p-6 shadow-xl max-w-3xl mx-auto">
                 <div className="flex flex-col gap-4">
-                  <div className="flex flex-col md:flex-row gap-4">
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
                     <div className="flex-1 relative">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                       <Input
@@ -295,17 +294,19 @@ const Index = () => {
                         placeholder="Search destinations, activities, or locations..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10 py-6 text-lg"
+                        className="pl-10 py-6 text-base sm:text-lg bg-white border-gray-200"
                       />
                     </div>
                     <Button 
                       variant="outline"
                       onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
-                      className="md:w-auto w-full"
+                      className="sm:w-auto w-full bg-white text-primary hover:text-primary/90 border-gray-200"
                     >
                       {showAdvancedSearch ? "Hide Filters" : "Show Filters"}
                     </Button>
-                    <Button className="bg-primary hover:bg-primary/90 text-lg py-6 px-8">
+                    <Button 
+                      className="bg-primary hover:bg-primary/90 text-white sm:text-lg py-6 px-8 shadow-md hover:shadow-lg transition-all duration-300"
+                    >
                       <Search className="w-5 h-5 mr-2" />
                       Search
                     </Button>
@@ -411,11 +412,11 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Search Results Section (if search is active) */}
+      {/* Search Results Section */}
       {(searchQuery || Object.values(searchFilters).some(Boolean)) && (
-        <section className="py-16 bg-gray-50">
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold mb-8">Search Results</h2>
+        <section className="py-12 sm:py-16 bg-gray-50">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">Search Results</h2>
             {isLoadingDestinations ? (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {[1, 2, 3].map((i) => (
@@ -449,25 +450,25 @@ const Index = () => {
       )}
 
       {/* Features Section */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">Why Choose Zimbabwe?</h2>
-            <p className="text-xl text-muted-foreground">Experience the beauty of Southern Africa</p>
+      <section className="py-16 sm:py-20 bg-white">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4">Why Choose Zimbabwe?</h2>
+            <p className="text-lg sm:text-xl text-muted-foreground">Experience the beauty of Southern Africa</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
             {features.map((feature, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="p-8 rounded-2xl bg-white shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100"
+                className="p-6 sm:p-8 rounded-2xl bg-white shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100"
               >
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-primary/10 mb-6">
-                  <feature.icon size={24} className="text-primary" />
+                <div className={`inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-xl ${feature.color} bg-opacity-10 mb-6`}>
+                  <feature.icon size={24} className={`text-${feature.color.split('-')[1]}-500`} />
                 </div>
-                <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
+                <h3 className="text-lg sm:text-xl font-semibold mb-3">{feature.title}</h3>
                 <p className="text-muted-foreground">{feature.description}</p>
               </motion.div>
             ))}
@@ -476,8 +477,8 @@ const Index = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-primary text-white">
-        <div className="container mx-auto px-4">
+      <section className="py-16 sm:py-20 bg-primary text-white">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
               <motion.div
@@ -499,8 +500,8 @@ const Index = () => {
       </section>
 
       {/* Popular Destinations */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
+      <section className="py-20 sm:py-24 bg-white">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center mb-12">
             <div>
               <h2 className="text-3xl md:text-4xl font-bold mb-2">Popular Destinations</h2>
@@ -547,8 +548,8 @@ const Index = () => {
 
       {/* Events Section (if events exist) */}
       {!isLoadingEvents && events && events.length > 0 && (
-        <section className="py-20 bg-gray-50">
-          <div className="container mx-auto px-4">
+        <section className="py-20 sm:py-24 bg-gray-50">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold mb-4">Upcoming Events</h2>
               <p className="text-muted-foreground">Don't miss out on these amazing experiences</p>
@@ -590,8 +591,8 @@ const Index = () => {
       )}
 
       {/* Testimonials Section */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
+      <section className="py-20 sm:py-24 bg-white">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">What Our Travelers Say</h2>
             <p className="text-muted-foreground">Real experiences from real adventurers</p>
@@ -630,23 +631,23 @@ const Index = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-primary text-white">
-        <div className="container mx-auto px-4 text-center">
+      <section className="py-20 sm:py-24 bg-primary text-white">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             className="max-w-2xl mx-auto"
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6">
               Ready for Your Next Adventure?
             </h2>
-            <p className="text-xl text-white/90 mb-8">
+            <p className="text-lg sm:text-xl text-white/90 mb-8">
               Join us and discover the beauty of Zimbabwe's landscapes and culture
             </p>
             <Button
               size="lg"
-              className="bg-accent hover:bg-accent/90 text-white"
+              className="bg-accent hover:bg-accent/90 text-white shadow-lg hover:shadow-xl transition-all duration-300 text-lg"
               onClick={() => handleAuthClick('signup')}
             >
               Start Planning Today
