@@ -27,8 +27,6 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import { motion, AnimatePresence } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { useDestinations } from "@/hooks/useDestinations";
-import { useEvents } from "@/hooks/useEvents";
 
 type BookingWithRelations = Booking & {
   destinations: { name: string; image_url: string | null } | null;
@@ -653,7 +651,7 @@ export const Dashboard = () => {
     };
   }, [navigate, toast]);
 
-  if (isLoadingBookings || !profile) {
+  if (!profile) {
     return (
       <div className="flex min-h-screen w-full">
         <AppSidebar />
@@ -673,9 +671,6 @@ export const Dashboard = () => {
       </div>
     );
   }
-
-  const { data: destinations, isLoading: isLoadingDestinations } = useDestinations();
-  const { data: events, isLoading: isLoadingEvents } = useEvents();
 
   return (
     <div className="flex min-h-screen w-full bg-gradient-to-br from-gray-50 to-blue-50/50">
@@ -697,28 +692,13 @@ export const Dashboard = () => {
           
           <Routes>
             <Route path="/" element={<DashboardHome profile={profile} bookings={bookings} />} />
-            <Route path="/bookings" element={<BookingsList bookings={bookings} />} />
-            <Route path="/destinations" element={<DestinationExplorer destinations={destinations || []} isLoading={isLoadingDestinations} />} />
+            <Route path="/destinations" element={<DestinationExplorer />} />
             <Route path="/events" element={<EventsList />} />
             <Route path="/events/:id" element={<EventDetails />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/payment" element={<PaymentPage />} />
           </Routes>
         </div>
-      </div>
-      <div className="fixed bottom-4 right-4">
-        <a 
-          href="https://www.paynow.co.zw/Payment/BillPaymentLink/?q=aWQ9MTk4NTcmYW1vdW50PTAuMDAmYW1vdW50X3F1YW50aXR5PTAuMDAmbD0w" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="block hover:opacity-90 transition-opacity"
-        >
-          <img 
-            src="https://www.paynow.co.zw/Content/Buttons/Medium_buttons/button_pay-now_medium.png" 
-            alt="Pay now with Paynow" 
-            className="w-auto h-12"
-          />
-        </a>
       </div>
       <ChatAssistant />
     </div>
