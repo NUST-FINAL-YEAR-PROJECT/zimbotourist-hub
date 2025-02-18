@@ -1,3 +1,4 @@
+
 import { Document, Page, Text, View, StyleSheet, PDFViewer, Font } from "@react-pdf/renderer";
 import { format, addDays } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -181,14 +182,31 @@ export const BookingInvoice = ({
   const totalAmount = destination.price * numberOfPeople;
 
   const sendInvoiceByEmail = async () => {
+    console.log('Sending invoice with data:', {
+      destination,
+      numberOfPeople,
+      date,
+      contactDetails,
+      status,
+      invoiceNumber,
+      paymentDue
+    });
+
     try {
+      const session = await supabase.auth.getSession();
+      if (!session.data.session?.access_token) {
+        throw new Error('No authentication session found');
+      }
+
+      console.log('Making request to:', `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-invoice`);
+      
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-invoice`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+            'Authorization': `Bearer ${session.data.session.access_token}`,
           },
           body: JSON.stringify({
             destination,
@@ -202,8 +220,11 @@ export const BookingInvoice = ({
         }
       );
 
+      const responseData = await response.json();
+      console.log('Response:', responseData);
+
       if (!response.ok) {
-        throw new Error('Failed to send invoice');
+        throw new Error(responseData.error || 'Failed to send invoice');
       }
 
       toast({
@@ -211,12 +232,13 @@ export const BookingInvoice = ({
         description: `The invoice has been sent to ${contactDetails?.email}`,
         duration: 5000,
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error sending invoice:', error);
       toast({
         title: "Error",
-        description: "Failed to send invoice. Please try again.",
+        description: error.message || "Failed to send invoice. Please try again.",
         variant: "destructive",
+        duration: 5000,
       });
     }
   };
