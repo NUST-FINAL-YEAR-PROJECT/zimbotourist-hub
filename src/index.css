@@ -1,5 +1,4 @@
 
-
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@300;400;500;600&display=swap');
 
 @tailwind base;
@@ -7,8 +6,12 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    @apply h-full;
+  }
+  
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply min-h-full bg-background text-foreground font-sans antialiased;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -18,7 +21,7 @@
 
 @layer components {
   .hero-section {
-    @apply relative min-h-[90vh] w-full overflow-hidden;
+    @apply relative min-h-[90vh] w-full overflow-visible;
   }
 
   .hero-image {
@@ -54,15 +57,15 @@
   }
 
   .button-primary {
-    @apply w-full sm:w-auto bg-primary hover:bg-primary/90 text-white rounded-lg px-4 sm:px-6 py-2 sm:py-3 transition-colors duration-200 shadow-sm hover:shadow-md;
+    @apply inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-primary hover:bg-primary/90 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
   }
 
   .button-secondary {
-    @apply w-full sm:w-auto bg-secondary hover:bg-secondary/90 text-foreground rounded-lg px-4 sm:px-6 py-2 sm:py-3 transition-colors duration-200 shadow-sm hover:shadow-md;
+    @apply inline-flex items-center justify-center px-6 py-3 text-base font-medium text-foreground bg-white hover:bg-gray-50 border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-2;
   }
 
   .input-search {
-    @apply w-full px-4 py-3 rounded-full bg-white/95 border-none focus:ring-2 focus:ring-primary shadow-sm;
+    @apply w-full px-4 py-3 rounded-full bg-white shadow-lg focus:ring-2 focus:ring-primary focus:border-transparent;
   }
 
   .nav-link {
@@ -74,7 +77,7 @@
   }
 
   .section-padding {
-    @apply py-8 sm:py-12 md:py-16 lg:py-24;
+    @apply py-12 sm:py-16 md:py-20 lg:py-24;
   }
 
   .container-padding {
@@ -83,7 +86,7 @@
 }
 
 #root {
-  @apply w-full max-w-full sm:max-w-7xl mx-auto p-0 sm:p-4 md:p-6;
+  @apply w-full min-h-screen max-w-full sm:max-w-7xl mx-auto p-0 sm:p-4 md:p-6;
   text-align: initial;
 }
 
@@ -93,9 +96,11 @@
   will-change: filter;
   transition: filter 300ms;
 }
+
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);
 }
+
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
@@ -115,11 +120,6 @@
   }
 }
 
-.card {
-  padding: 2em;
-}
-
 .read-the-docs {
   color: #888;
 }
-
