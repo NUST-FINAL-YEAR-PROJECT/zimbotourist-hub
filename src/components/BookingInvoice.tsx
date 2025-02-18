@@ -1,10 +1,10 @@
-
 import { Document, Page, Text, View, StyleSheet, PDFViewer, Font } from "@react-pdf/renderer";
 import { format, addDays } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import type { Destination } from "@/types/models";
+import { Send } from "lucide-react";
 
 // Register a web-safe font that's more likely to work
 Font.register({
@@ -174,139 +174,196 @@ export const BookingInvoice = ({
   invoiceNumber = `INV-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
   paymentDue = addDays(new Date(), 7)
 }: BookingInvoiceProps) => {
+  const { toast } = useToast();
   const invoiceDate = format(new Date(), "MMMM d, yyyy");
   const bookingDate = format(date, "MMMM d, yyyy");
   const dueDate = format(paymentDue, "MMMM d, yyyy");
   const totalAmount = destination.price * numberOfPeople;
+
+  const sendInvoiceByEmail = async () => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-invoice`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          },
+          body: JSON.stringify({
+            destination,
+            numberOfPeople,
+            date: date.toISOString(),
+            contactDetails,
+            status,
+            invoiceNumber,
+            paymentDue: paymentDue.toISOString(),
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to send invoice');
+      }
+
+      toast({
+        title: "Invoice Sent",
+        description: `The invoice has been sent to ${contactDetails?.email}`,
+        duration: 5000,
+      });
+    } catch (error) {
+      console.error('Error sending invoice:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send invoice. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
   
   return (
-    <PDFViewer className="w-full h-full">
-      <Document
-        title={`Invoice ${invoiceNumber}`}
-        author="TravelApp"
-        subject={`Travel Booking Invoice for ${destination.name}`}
-        keywords="travel, booking, invoice"
-        creator="TravelApp Booking System"
-      >
-        <Page 
-          size="A4" 
-          style={styles.page}
-          wrap={false}
-        >
-          {/* Watermark for pending status */}
-          {status === 'pending' && (
-            <Text style={styles.watermark}>PENDING</Text>
-          )}
+    <div className="flex flex-col space-y-4 h-full">
+      {contactDetails && (
+        <div className="flex justify-end px-4">
+          <Button 
+            onClick={sendInvoiceByEmail}
+            className="gap-2"
+          >
+            <Send className="h-4 w-4" />
+            Send Invoice to {contactDetails.email}
+          </Button>
+        </div>
+      )}
+      <div className="flex-1 min-h-[600px]">
+        <PDFViewer className="w-full h-full">
+          <Document
+            title={`Invoice ${invoiceNumber}`}
+            author="TravelApp"
+            subject={`Travel Booking Invoice for ${destination.name}`}
+            keywords="travel, booking, invoice"
+            creator="TravelApp Booking System"
+          >
+            <Page 
+              size="A4" 
+              style={styles.page}
+              wrap={false}
+            >
+              {/* Watermark for pending status */}
+              {status === 'pending' && (
+                <Text style={styles.watermark}>PENDING</Text>
+              )}
 
-          {/* Header */}
-          <View style={styles.header}>
-            <View style={styles.headerLeft}>
-              <Text style={styles.logo}>TravelApp</Text>
-              <Text style={styles.subtitle}>123 Travel Street</Text>
-              <Text style={styles.subtitle}>City, Country 12345</Text>
-              <Text style={styles.subtitle}>contact@travelapp.com</Text>
-            </View>
-            <View style={styles.headerRight}>
-              <Text style={[
-                styles.status,
-                status === 'confirmed' && { backgroundColor: '#DCFCE7', color: '#166534' },
-                status === 'cancelled' && { backgroundColor: '#FEE2E2', color: '#991B1B' },
-              ]}>
-                {status.toUpperCase()}
-              </Text>
-              <Text>Invoice #{invoiceNumber}</Text>
-              <Text>Date: {invoiceDate}</Text>
-              <Text>Due Date: {dueDate}</Text>
-            </View>
-          </View>
-
-          {/* Customer Details */}
-          {contactDetails && (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Billed To</Text>
-              <View style={styles.row}>
-                <Text style={styles.label}>Name:</Text>
-                <Text style={styles.value}>{contactDetails.name}</Text>
+              {/* Header */}
+              <View style={styles.header}>
+                <View style={styles.headerLeft}>
+                  <Text style={styles.logo}>TravelApp</Text>
+                  <Text style={styles.subtitle}>123 Travel Street</Text>
+                  <Text style={styles.subtitle}>City, Country 12345</Text>
+                  <Text style={styles.subtitle}>contact@travelapp.com</Text>
+                </View>
+                <View style={styles.headerRight}>
+                  <Text style={[
+                    styles.status,
+                    status === 'confirmed' && { backgroundColor: '#DCFCE7', color: '#166534' },
+                    status === 'cancelled' && { backgroundColor: '#FEE2E2', color: '#991B1B' },
+                  ]}>
+                    {status.toUpperCase()}
+                  </Text>
+                  <Text>Invoice #{invoiceNumber}</Text>
+                  <Text>Date: {invoiceDate}</Text>
+                  <Text>Due Date: {dueDate}</Text>
+                </View>
               </View>
-              <View style={styles.row}>
-                <Text style={styles.label}>Email:</Text>
-                <Text style={styles.value}>{contactDetails.email}</Text>
+
+              {/* Customer Details */}
+              {contactDetails && (
+                <View style={styles.section}>
+                  <Text style={styles.sectionTitle}>Billed To</Text>
+                  <View style={styles.row}>
+                    <Text style={styles.label}>Name:</Text>
+                    <Text style={styles.value}>{contactDetails.name}</Text>
+                  </View>
+                  <View style={styles.row}>
+                    <Text style={styles.label}>Email:</Text>
+                    <Text style={styles.value}>{contactDetails.email}</Text>
+                  </View>
+                  <View style={styles.row}>
+                    <Text style={styles.label}>Phone:</Text>
+                    <Text style={styles.value}>{contactDetails.phone}</Text>
+                  </View>
+                </View>
+              )}
+
+              {/* Booking Details */}
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Booking Details</Text>
+                <View style={styles.row}>
+                  <Text style={styles.label}>Destination:</Text>
+                  <Text style={styles.value}>{destination.name}</Text>
+                </View>
+                <View style={styles.row}>
+                  <Text style={styles.label}>Location:</Text>
+                  <Text style={styles.value}>{destination.location}</Text>
+                </View>
+                <View style={styles.row}>
+                  <Text style={styles.label}>Travel Date:</Text>
+                  <Text style={styles.value}>{bookingDate}</Text>
+                </View>
+                <View style={styles.row}>
+                  <Text style={styles.label}>Duration:</Text>
+                  <Text style={styles.value}>{destination.duration_recommended || 'Not specified'}</Text>
+                </View>
               </View>
-              <View style={styles.row}>
-                <Text style={styles.label}>Phone:</Text>
-                <Text style={styles.value}>{contactDetails.phone}</Text>
+
+              {/* Pricing Details */}
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Price Breakdown</Text>
+                <View style={styles.row}>
+                  <Text style={styles.label}>Price per Person:</Text>
+                  <Text style={styles.value}>${destination.price.toFixed(2)}</Text>
+                </View>
+                <View style={styles.row}>
+                  <Text style={styles.label}>Number of People:</Text>
+                  <Text style={styles.value}>{numberOfPeople}</Text>
+                </View>
+                {destination.additional_costs && Object.entries(destination.additional_costs).map(([key, value]) => (
+                  <View key={key} style={styles.row}>
+                    <Text style={styles.label}>{key}:</Text>
+                    <Text style={styles.value}>${Number(value).toFixed(2)}</Text>
+                  </View>
+                ))}
               </View>
-            </View>
-          )}
 
-          {/* Booking Details */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Booking Details</Text>
-            <View style={styles.row}>
-              <Text style={styles.label}>Destination:</Text>
-              <Text style={styles.value}>{destination.name}</Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>Location:</Text>
-              <Text style={styles.value}>{destination.location}</Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>Travel Date:</Text>
-              <Text style={styles.value}>{bookingDate}</Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>Duration:</Text>
-              <Text style={styles.value}>{destination.duration_recommended || 'Not specified'}</Text>
-            </View>
-          </View>
-
-          {/* Pricing Details */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Price Breakdown</Text>
-            <View style={styles.row}>
-              <Text style={styles.label}>Price per Person:</Text>
-              <Text style={styles.value}>${destination.price.toFixed(2)}</Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>Number of People:</Text>
-              <Text style={styles.value}>{numberOfPeople}</Text>
-            </View>
-            {destination.additional_costs && Object.entries(destination.additional_costs).map(([key, value]) => (
-              <View key={key} style={styles.row}>
-                <Text style={styles.label}>{key}:</Text>
-                <Text style={styles.value}>${Number(value).toFixed(2)}</Text>
+              {/* Total */}
+              <View style={styles.total}>
+                <View style={styles.totalRow}>
+                  <Text style={styles.totalLabel}>Total Amount Due</Text>
+                  <Text style={styles.totalValue}>${totalAmount.toFixed(2)}</Text>
+                </View>
               </View>
-            ))}
-          </View>
 
-          {/* Total */}
-          <View style={styles.total}>
-            <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>Total Amount Due</Text>
-              <Text style={styles.totalValue}>${totalAmount.toFixed(2)}</Text>
-            </View>
-          </View>
+              {/* Payment Instructions */}
+              <View style={styles.note}>
+                <Text style={styles.noteText}>
+                  Payment Instructions:{'\n'}
+                  1. Please include the invoice number ({invoiceNumber}) in your payment reference.{'\n'}
+                  2. Payment is due by {dueDate}.{'\n'}
+                  3. Accepted payment methods: Credit Card, Bank Transfer, Mobile Money{'\n'}
+                  4. For bank transfers, please contact us for bank details.
+                </Text>
+              </View>
 
-          {/* Payment Instructions */}
-          <View style={styles.note}>
-            <Text style={styles.noteText}>
-              Payment Instructions:{'\n'}
-              1. Please include the invoice number ({invoiceNumber}) in your payment reference.{'\n'}
-              2. Payment is due by {dueDate}.{'\n'}
-              3. Accepted payment methods: Credit Card, Bank Transfer, Mobile Money{'\n'}
-              4. For bank transfers, please contact us for bank details.
-            </Text>
-          </View>
-
-          {/* Footer */}
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>
-              Thank you for choosing TravelApp. For any queries regarding your booking,
-              please contact our customer support team at support@travelapp.com or +1 234 567 890.
-            </Text>
-          </View>
-        </Page>
-      </Document>
-    </PDFViewer>
+              {/* Footer */}
+              <View style={styles.footer}>
+                <Text style={styles.footerText}>
+                  Thank you for choosing TravelApp. For any queries regarding your booking,
+                  please contact our customer support team at support@travelapp.com or +1 234 567 890.
+                </Text>
+              </View>
+            </Page>
+          </Document>
+        </PDFViewer>
+      </div>
+    </div>
   );
 };
