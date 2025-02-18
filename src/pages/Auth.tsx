@@ -150,23 +150,23 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-accent/50 p-4">
+    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-primary/5 via-primary/10 to-accent/5 px-4 py-8">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         className="w-full max-w-md"
       >
-        <Card className="shadow-lg">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center">
+        <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-sm">
+          <CardHeader className="space-y-1 pb-8">
+            <CardTitle className="text-3xl font-bold text-center tracking-tight">
               {mode === "signin"
                 ? "Welcome Back"
                 : mode === "signup"
                 ? "Create Account"
                 : "Reset Password"}
             </CardTitle>
-            <CardDescription className="text-center">
+            <CardDescription className="text-center text-base">
               {mode === "signin"
                 ? "Sign in to your account to continue"
                 : mode === "signup"
@@ -175,9 +175,9 @@ const Auth = () => {
             </CardDescription>
           </CardHeader>
           <form onSubmit={handleAuth}>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="text-base">Email</Label>
                 <Input
                   id="email"
                   type="email"
@@ -186,11 +186,12 @@ const Auth = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={loading}
+                  className="h-12 text-base"
                 />
               </div>
               {mode !== "forgot-password" && (
                 <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password" className="text-base">Password</Label>
                   <Input
                     id="password"
                     type="password"
@@ -200,17 +201,18 @@ const Auth = () => {
                     required
                     disabled={loading}
                     minLength={6}
+                    className="h-12 text-base"
                   />
                 </div>
               )}
             </CardContent>
-            <CardFooter className="flex flex-col space-y-4">
+            <CardFooter className="flex flex-col space-y-4 pt-4">
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full h-12 text-base font-semibold"
                 disabled={loading}
               >
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {loading && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
                 {loading
                   ? "Please wait..."
                   : mode === "signin"
@@ -219,23 +221,23 @@ const Auth = () => {
                   ? "Sign Up"
                   : "Reset Password"}
               </Button>
-              <div className="flex flex-col items-center space-y-2 text-sm">
+              <div className="flex flex-col items-center space-y-4 text-sm">
                 {mode === "signin" ? (
                   <>
                     <button
                       type="button"
                       onClick={() => setMode("forgot-password")}
-                      className="text-primary hover:underline"
+                      className="text-primary hover:text-primary/80 font-medium hover:underline transition-colors"
                       disabled={loading}
                     >
                       Forgot password?
                     </button>
-                    <div className="flex items-center space-x-1">
-                      <span>Don't have an account?</span>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-muted-foreground">Don't have an account?</span>
                       <button
                         type="button"
                         onClick={() => setMode("signup")}
-                        className="text-primary hover:underline"
+                        className="text-primary hover:text-primary/80 font-medium hover:underline transition-colors"
                         disabled={loading}
                       >
                         Sign up
@@ -243,12 +245,12 @@ const Auth = () => {
                     </div>
                   </>
                 ) : mode === "signup" ? (
-                  <div className="flex items-center space-x-1">
-                    <span>Already have an account?</span>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-muted-foreground">Already have an account?</span>
                     <button
                       type="button"
                       onClick={() => setMode("signin")}
-                      className="text-primary hover:underline"
+                      className="text-primary hover:text-primary/80 font-medium hover:underline transition-colors"
                       disabled={loading}
                     >
                       Sign in
@@ -258,7 +260,7 @@ const Auth = () => {
                   <button
                     type="button"
                     onClick={() => setMode("signin")}
-                    className="text-primary hover:underline"
+                    className="text-primary hover:text-primary/80 font-medium hover:underline transition-colors"
                     disabled={loading}
                   >
                     Back to sign in
