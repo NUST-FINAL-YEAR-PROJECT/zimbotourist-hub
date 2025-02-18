@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { MapPin, Calendar, DollarSign, Heart, ArrowRight } from "lucide-react";
+import { MapPin, DollarSign, Heart, ArrowRight } from "lucide-react";
 import type { Destination } from "@/types/models";
 
 type SimplifiedDestination = Pick<
@@ -68,10 +68,8 @@ export const DestinationCard = ({
     if (onClick) {
       onClick();
     } else if (id) {
-      // Determine if this is a destination or event based on the price format
-      const isEvent = price.startsWith("$");
-      const path = isEvent ? `/events/${id}` : `/destination/${id}`;
-      navigate(path);
+      // Always navigate to destination details since this is a DestinationCard component
+      navigate(`/destination/${id}`);
     }
   };
 
