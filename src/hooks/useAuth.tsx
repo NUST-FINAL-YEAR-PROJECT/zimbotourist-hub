@@ -34,29 +34,36 @@ export const useAuth = () => {
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
       console.log("Auth state changed:", _event, session);
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-
-      // Redirect on sign out
+      
       if (_event === 'SIGNED_OUT') {
+        setSession(null);
+        setUser(null);
         navigate('/auth');
         toast.success("Successfully signed out");
-      } else if (_event === 'SIGNED_IN') {
-        navigate('/dashboard');
-        toast.success("Successfully signed in");
+      } else if (_event === 'SIGNED_IN' || _event === 'TOKEN_REFRESHED') {
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (_event === 'SIGNED_IN') {
+          navigate('/dashboard');
+          toast.success("Successfully signed in");
+        }
       }
+      
+      setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 
   const signOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      await supabase.auth.signOut();
+      localStorage.clear(); // Clear all local storage on sign out
     } catch (error: any) {
       console.error('Error signing out:', error);
       toast.error(error.message);
