@@ -1,6 +1,9 @@
 
 import { Document, Page, Text, View, StyleSheet, PDFViewer, Font } from "@react-pdf/renderer";
 import { format, addDays } from "date-fns";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import type { Destination } from "@/types/models";
 
 // Register a web-safe font that's more likely to work
