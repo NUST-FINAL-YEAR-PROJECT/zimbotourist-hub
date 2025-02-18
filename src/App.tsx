@@ -88,7 +88,7 @@ const App = () => (
         }
       />
       <Route
-        path="/destinations/:id"
+        path="/destination/:id"
         element={
           <ProtectedRoute>
             <DestinationDetails />

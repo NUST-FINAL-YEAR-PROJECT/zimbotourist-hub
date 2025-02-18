@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { MapPin, DollarSign, Heart, ArrowRight } from "lucide-react";
+import { MapPin, DollarSign, Heart } from "lucide-react";
 import type { Destination } from "@/types/models";
 
 type SimplifiedDestination = Pick<
@@ -68,7 +68,7 @@ export const DestinationCard = ({
     if (onClick) {
       onClick();
     } else if (id) {
-      // Always navigate to destination details since this is a DestinationCard component
+      // Navigate to the destination details page
       navigate(`/destination/${id}`);
     }
   };
@@ -175,4 +175,3 @@ export const DestinationCard = ({
     </motion.div>
   );
 };
-
