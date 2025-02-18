@@ -3,16 +3,25 @@ import { Document, Page, Text, View, StyleSheet, PDFViewer, Font } from "@react-
 import { format, addDays } from "date-fns";
 import type { Destination } from "@/types/models";
 
-// Register a fallback font for better Unicode support
+// Register a web-safe font that's more likely to work
 Font.register({
-  family: 'Inter',
-  src: 'https://rsms.me/inter/font-files/Inter-Regular.woff2',
+  family: 'Helvetica',
+  fonts: [
+    {
+      src: 'https://fonts.gstatic.com/s/helveticaneue/v70/1Ptsg8zYS_SKggPNyCg4QIFqPfE.ttf',
+      fontWeight: 'normal',
+    },
+    {
+      src: 'https://fonts.gstatic.com/s/helveticaneue/v70/1Ptsg8zYS_SKggPNyCg4TYFqPfE.ttf',
+      fontWeight: 'bold',
+    },
+  ],
 });
 
 const styles = StyleSheet.create({
   page: {
     padding: 40,
-    fontFamily: 'Inter',
+    fontFamily: 'Helvetica',
     fontSize: 12,
     lineHeight: 1.5,
   },
@@ -169,8 +178,18 @@ export const BookingInvoice = ({
   
   return (
     <PDFViewer className="w-full h-full">
-      <Document>
-        <Page size="A4" style={styles.page}>
+      <Document
+        title={`Invoice ${invoiceNumber}`}
+        author="TravelApp"
+        subject={`Travel Booking Invoice for ${destination.name}`}
+        keywords="travel, booking, invoice"
+        creator="TravelApp Booking System"
+      >
+        <Page 
+          size="A4" 
+          style={styles.page}
+          wrap={false}
+        >
           {/* Watermark for pending status */}
           {status === 'pending' && (
             <Text style={styles.watermark}>PENDING</Text>
