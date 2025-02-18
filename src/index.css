@@ -37,7 +37,7 @@
   }
 
   .section-title {
-    @apply text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-6 text-foreground;
+    @apply text-4xl lg:text-6xl font-display font-bold mb-6 text-foreground;
   }
 
   .card {
@@ -49,19 +49,19 @@
   }
 
   .card-image {
-    @apply w-full h-48 md:h-64 object-cover rounded-t-xl;
+    @apply w-full h-64 object-cover rounded-t-xl;
   }
 
   .card-content {
-    @apply p-4 sm:p-6;
+    @apply p-6;
   }
 
   .button-primary {
-    @apply inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-primary hover:bg-primary/90 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+    @apply inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-primary rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none;
   }
 
   .button-secondary {
-    @apply inline-flex items-center justify-center px-6 py-3 text-base font-medium text-foreground bg-white hover:bg-gray-50 border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-2;
+    @apply inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-accent rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none;
   }
 
   .input-search {
@@ -73,19 +73,19 @@
   }
 
   .badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary;
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary text-white;
   }
 
   .section-padding {
-    @apply py-12 sm:py-16 md:py-20 lg:py-24;
+    @apply py-20 lg:py-24;
   }
 
   .container-padding {
-    @apply px-4 sm:px-6 lg:px-8;
+    @apply px-8;
   }
 }
 
 #root {
-  @apply w-full min-h-screen max-w-full sm:max-w-7xl mx-auto p-0 sm:p-4 md:p-6;
+  @apply w-full min-h-screen max-w-7xl mx-auto p-6;
   text-align: initial;
 }
