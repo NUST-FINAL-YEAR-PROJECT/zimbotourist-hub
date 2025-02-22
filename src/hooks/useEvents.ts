@@ -9,6 +9,12 @@ export const useEvents = () => {
     queryKey: ["events"],
     queryFn: async () => {
       try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!session) {
+          throw new Error("Authentication required");
+        }
+
         const { data, error } = await supabase
           .from("events")
           .select("*")
@@ -21,18 +27,17 @@ export const useEvents = () => {
         }
 
         if (!data) {
-          toast.error("No events found");
           return [];
         }
 
         return data as Event[];
-      } catch (error) {
-        console.error("Fetch error:", error);
-        toast.error("Failed to fetch events");
+      } catch (error: any) {
+        console.error("Fetch error:", error.message);
+        toast.error(error.message);
         throw error;
       }
     },
-    retry: 2,
+    retry: 1,
     retryDelay: 1000,
   });
 };

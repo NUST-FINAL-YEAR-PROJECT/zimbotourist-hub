@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -8,6 +9,12 @@ export const useDestinations = () => {
     queryKey: ["destinations"],
     queryFn: async () => {
       try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!session) {
+          throw new Error("Authentication required");
+        }
+
         const { data, error } = await supabase
           .from("destinations")
           .select("*")
@@ -20,18 +27,17 @@ export const useDestinations = () => {
         }
 
         if (!data) {
-          toast.error("No destinations found");
           return [];
         }
 
         return data as Destination[];
-      } catch (error) {
-        console.error("Fetch error:", error);
-        toast.error("Failed to fetch destinations");
+      } catch (error: any) {
+        console.error("Fetch error:", error.message);
+        toast.error(error.message);
         throw error;
       }
     },
-    retry: 2,
+    retry: 1,
     retryDelay: 1000,
   });
 };
