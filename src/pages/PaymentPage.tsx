@@ -13,8 +13,22 @@ import { ArrowLeft, AlertCircle } from "lucide-react";
 import type { Booking } from "@/types/models";
 import { PaymentForm } from "@/components/PaymentForm";
 
-// Initialize Stripe
+// Initialize Stripe with the publishable key
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+
+// Configure Stripe Appearance
+const appearance = {
+  theme: 'stripe',
+  variables: {
+    colorPrimary: '#0F172A',
+    colorBackground: '#ffffff',
+    colorText: '#1e293b',
+    colorDanger: '#df1b41',
+    fontFamily: 'system-ui, sans-serif',
+    spacingUnit: '4px',
+    borderRadius: '8px',
+  },
+};
 
 type BookingWithDestination = Booking & {
   destinations: {
@@ -78,8 +92,6 @@ export const PaymentPage = () => {
             throw new Error("No active session found");
           }
 
-          console.log("Creating payment intent for booking:", bookingId);
-
           // Create a payment intent
           const { data, error } = await supabase.functions.invoke(
             'create-payment-intent',
@@ -93,8 +105,6 @@ export const PaymentPage = () => {
               },
             }
           );
-
-          console.log("Payment intent response:", data);
 
           if (error) {
             console.error("Payment intent error:", error);
@@ -113,7 +123,6 @@ export const PaymentPage = () => {
             title: "Payment Setup Failed",
             description: error.message,
           });
-          // Optionally navigate back to dashboard on error
           navigate("/dashboard");
         }
       };
@@ -195,7 +204,15 @@ export const PaymentPage = () => {
           </div>
 
           {clientSecret && (
-            <Elements stripe={stripePromise} options={{ clientSecret }}>
+            <Elements 
+              stripe={stripePromise} 
+              options={{ 
+                clientSecret,
+                appearance,
+                paymentMethodCreation: 'manual',
+                payment_method_types: ['card', 'google_pay'],
+              }}
+            >
               <PaymentForm bookingId={bookingId as string} />
             </Elements>
           )}

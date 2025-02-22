@@ -31,6 +31,13 @@ export const PaymentForm = ({ bookingId }: PaymentFormProps) => {
         elements,
         confirmParams: {
           return_url: `${window.location.origin}/dashboard/bookings`,
+          payment_method_data: {
+            billing_details: {
+              address: {
+                country: 'US',
+              },
+            },
+          },
         },
       });
 
@@ -69,7 +76,20 @@ export const PaymentForm = ({ bookingId }: PaymentFormProps) => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <PaymentElement />
+      <PaymentElement 
+        className="payment-element"
+        options={{
+          layout: "tabs",
+          paymentMethodOrder: ['google_pay', 'card'],
+          defaultValues: {
+            billingDetails: {
+              name: '',
+              email: '',
+              phone: '',
+            }
+          }
+        }}
+      />
       <Button 
         type="submit"
         disabled={!stripe || isProcessing}

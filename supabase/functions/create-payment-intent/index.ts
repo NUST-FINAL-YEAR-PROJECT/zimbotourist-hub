@@ -81,13 +81,14 @@ serve(async (req) => {
 
     console.log('Creating payment intent for booking:', bookingId)
 
-    // Create a PaymentIntent
+    // Create a PaymentIntent with the order amount and currency
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(amount * 100), // Convert to cents
       currency: "usd",
       automatic_payment_methods: {
         enabled: true,
       },
+      payment_method_types: ['card', 'google_pay'],
       metadata: {
         bookingId,
         userId: user.id,
