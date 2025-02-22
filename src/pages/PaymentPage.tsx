@@ -17,7 +17,7 @@ import { PaymentForm } from "@/components/PaymentForm";
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 // Configure Stripe Appearance
-const appearance = {
+const appearance: Parameters<typeof Elements>[0]['options']['appearance'] = {
   theme: 'stripe',
   variables: {
     colorPrimary: '#0F172A',

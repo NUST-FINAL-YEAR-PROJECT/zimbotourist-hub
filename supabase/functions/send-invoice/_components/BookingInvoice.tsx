@@ -1,5 +1,6 @@
+
 import { Document, Page, Text, View, StyleSheet, Font } from "@react-pdf/renderer";
-import { format, addDays } from "date-fns";
+import { format, addDays } from "https://esm.sh/date-fns@2.30.0";
 import type { Destination } from "../_types/models";
 
 // Register a web-safe font that's more likely to work
