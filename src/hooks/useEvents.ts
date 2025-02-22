@@ -3,14 +3,15 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { Event } from "@/types/models";
+import { useAuth } from "@/hooks/useAuth";
 
 export const useEvents = () => {
+  const { session } = useAuth();
+
   return useQuery({
     queryKey: ["events"],
     queryFn: async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        
         if (!session) {
           throw new Error("Authentication required");
         }
@@ -37,6 +38,7 @@ export const useEvents = () => {
         throw error;
       }
     },
+    enabled: !!session, // Only run query when session exists
     retry: 1,
     retryDelay: 1000,
   });
