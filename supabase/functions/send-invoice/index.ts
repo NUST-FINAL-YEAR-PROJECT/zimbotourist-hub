@@ -1,9 +1,9 @@
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
-import * as ReactPDF from "npm:@react-pdf/renderer@3.1.14";
+import * as ReactPDF from "https://esm.sh/@react-pdf/renderer@3.1.14";
 import { BookingInvoice } from "./_components/BookingInvoice.tsx";
-import React from "npm:react@18.2.0";
+import React from "https://esm.sh/react@18.2.0";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -76,6 +76,7 @@ serve(async (req) => {
       status: 200,
     });
   } catch (error) {
+    console.error('Error processing request:', error);
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,

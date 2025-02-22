@@ -1,5 +1,5 @@
 
-import { Document, Page, Text, View, StyleSheet, Font } from "@react-pdf/renderer";
+import { Document, Page, Text, View, StyleSheet, Font } from "https://esm.sh/@react-pdf/renderer@3.1.14";
 import { format, addDays } from "https://esm.sh/date-fns@2.30.0";
 import type { Destination } from "../_types/models";
 
