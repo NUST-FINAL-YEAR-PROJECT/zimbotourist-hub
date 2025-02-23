@@ -2,8 +2,8 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { User, Session } from '@supabase/supabase-js';
-import { useNavigate } from 'react-router-dom';
 import { toast } from "sonner";
+import { useNavigate } from 'react-router-dom';
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -15,17 +15,14 @@ export const useAuth = () => {
     // Get initial session
     const getInitialSession = async () => {
       try {
-        const { data: { session: initialSession } } = await supabase.auth.getSession();
-        if (initialSession) {
-          setSession(initialSession);
-          setUser(initialSession.user);
-          navigate('/dashboard');
-          console.log("Initial session loaded:", initialSession);
-        } else {
-          navigate('/auth');
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+          throw error;
         }
+        setSession(session);
+        setUser(session?.user ?? null);
       } catch (error: any) {
-        console.error('Error getting initial session:', error.message);
+        console.error('Error getting session:', error);
         toast.error(error.message);
       } finally {
         setLoading(false);
@@ -34,21 +31,28 @@ export const useAuth = () => {
 
     getInitialSession();
 
+    // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, currentSession) => {
-      console.log("Auth state changed:", event, currentSession);
-      setSession(currentSession);
-      setUser(currentSession?.user ?? null);
-      setLoading(false);
-
-      if (event === 'SIGNED_OUT') {
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      console.log("Auth state changed:", _event, session);
+      
+      if (_event === 'SIGNED_OUT') {
+        setSession(null);
+        setUser(null);
         navigate('/auth');
         toast.success("Successfully signed out");
-      } else if (event === 'SIGNED_IN' && currentSession) {
-        navigate('/dashboard');
-        toast.success("Successfully signed in");
+      } else if (_event === 'SIGNED_IN' || _event === 'TOKEN_REFRESHED') {
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (_event === 'SIGNED_IN') {
+          navigate('/dashboard');
+          toast.success("Successfully signed in");
+        }
       }
+      
+      setLoading(false);
     });
 
     return () => {
@@ -58,14 +62,10 @@ export const useAuth = () => {
 
   const signOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      setSession(null);
-      setUser(null);
-      localStorage.clear();
-      navigate('/auth');
+      await supabase.auth.signOut();
+      localStorage.clear(); // Clear all local storage on sign out
     } catch (error: any) {
-      console.error('Error signing out:', error.message);
+      console.error('Error signing out:', error);
       toast.error(error.message);
     }
   };
