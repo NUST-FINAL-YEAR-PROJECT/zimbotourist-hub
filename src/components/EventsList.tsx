@@ -21,18 +21,22 @@ export const EventsList = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {events.map((event) => (
-        <DestinationCard
-          key={event.id}
-          id={event.id}
-          image={event.image_url || "/placeholder.svg"}
-          title={event.title}
-          description={event.description || ""}
-          price={event.price ? `$${event.price}` : "Free"}
-          onClick={() => navigate(`/dashboard/event/${event.id}`)}
-        />
-      ))}
+    <div className="container py-8">
+      <h1 className="text-3xl font-bold mb-8">Upcoming Events</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {events.map((event) => (
+          <DestinationCard
+            key={event.id}
+            id={event.id}
+            image={event.image_url || "/placeholder.svg"}
+            title={event.title}
+            description={event.description || ""}
+            price={event.price ? `$${event.price}` : "Free"}
+            onClick={() => navigate(`/dashboard/event/${event.id}`)}
+          />
+        ))}
+      </div>
     </div>
   );
 };
+

@@ -8,6 +8,7 @@ import { DestinationDetails } from "@/pages/DestinationDetails";
 import { EventDetails } from "@/pages/EventDetails";
 import { PaymentPage } from "@/pages/PaymentPage";
 import { DestinationsPage } from "@/pages/DestinationsPage";
+import { EventsList } from "@/components/EventsList";
 import { Toaster } from "sonner";
 import "@/App.css";
 
@@ -18,9 +19,11 @@ function App() {
         <Route path="/" element={<Index />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/docs" element={<Documentation />} />
-        <Route path="/dashboard/*" element={<Dashboard />}>
+        <Route path="/dashboard" element={<Dashboard />}>
+          <Route index element={<Navigate to="destinations" replace />} />
           <Route path="destinations" element={<DestinationsPage />} />
           <Route path="destination/:id" element={<DestinationDetails />} />
+          <Route path="events" element={<EventsList />} />
           <Route path="event/:id" element={<EventDetails />} />
           <Route path="payment" element={<PaymentPage />} />
         </Route>
@@ -32,3 +35,4 @@ function App() {
 }
 
 export default App;
+
