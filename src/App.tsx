@@ -1,9 +1,9 @@
 
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { Index } from "@/pages/Index";
-import { Auth } from "@/pages/Auth";
+import Index from "@/pages/Index";
+import Auth from "@/pages/Auth";
 import { Dashboard } from "@/pages/Dashboard";
-import { Documentation } from "@/pages/Documentation";
+import Documentation from "@/pages/Documentation";
 import { DestinationDetails } from "@/pages/DestinationDetails";
 import { EventDetails } from "@/pages/EventDetails";
 import { PaymentPage } from "@/pages/PaymentPage";
