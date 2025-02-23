@@ -2,8 +2,8 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { User, Session } from '@supabase/supabase-js';
-import { toast } from "sonner";
 import { useNavigate } from 'react-router-dom';
+import { toast } from "sonner";
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -15,11 +15,7 @@ export const useAuth = () => {
     // Get initial session
     const getInitialSession = async () => {
       try {
-        const { data: { session: initialSession }, error } = await supabase.auth.getSession();
-        if (error) {
-          throw error;
-        }
-        
+        const { data: { session: initialSession } } = await supabase.auth.getSession();
         if (initialSession) {
           setSession(initialSession);
           setUser(initialSession.user);
@@ -35,32 +31,21 @@ export const useAuth = () => {
 
     getInitialSession();
 
-    // Set up auth state listener
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, currentSession) => {
-      console.log("Auth state changed:", _event, currentSession);
-      
-      if (_event === 'SIGNED_OUT') {
-        setSession(null);
-        setUser(null);
+    } = supabase.auth.onAuthStateChange(async (event, currentSession) => {
+      console.log("Auth state changed:", event, currentSession);
+      setSession(currentSession);
+      setUser(currentSession?.user ?? null);
+      setLoading(false);
+
+      if (event === 'SIGNED_OUT') {
         navigate('/auth');
         toast.success("Successfully signed out");
-      } else if (_event === 'SIGNED_IN') {
-        setSession(currentSession);
-        setUser(currentSession?.user ?? null);
+      } else if (event === 'SIGNED_IN' && currentSession) {
         navigate('/dashboard');
         toast.success("Successfully signed in");
-      } else if (_event === 'TOKEN_REFRESHED') {
-        setSession(currentSession);
-        setUser(currentSession?.user ?? null);
-        console.log("Token refreshed successfully");
-      } else if (_event === 'USER_UPDATED') {
-        setSession(currentSession);
-        setUser(currentSession?.user ?? null);
       }
-      
-      setLoading(false);
     });
 
     return () => {
@@ -71,6 +56,8 @@ export const useAuth = () => {
   const signOut = async () => {
     try {
       await supabase.auth.signOut();
+      setSession(null);
+      setUser(null);
       localStorage.clear();
     } catch (error: any) {
       console.error('Error signing out:', error.message);

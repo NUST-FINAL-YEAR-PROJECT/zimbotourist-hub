@@ -9,37 +9,26 @@ export const useDestinations = () => {
   const { session } = useAuth();
 
   return useQuery({
-    queryKey: ["destinations"],
+    queryKey: ["destinations", session?.user?.id],
     queryFn: async () => {
-      try {
-        if (!session) {
-          throw new Error("Authentication required");
-        }
+      if (!session) {
+        throw new Error("Authentication required");
+      }
 
-        const { data, error } = await supabase
-          .from("destinations")
-          .select("*")
-          .order("created_at", { ascending: false });
+      const { data, error } = await supabase
+        .from("destinations")
+        .select("*")
+        .order("created_at", { ascending: false });
 
-        if (error) {
-          console.error("Supabase error:", error);
-          toast.error("Failed to fetch destinations");
-          throw error;
-        }
-
-        if (!data) {
-          return [];
-        }
-
-        return data as Destination[];
-      } catch (error: any) {
-        console.error("Fetch error:", error.message);
-        toast.error(error.message);
+      if (error) {
+        console.error("Supabase error:", error);
+        toast.error("Failed to fetch destinations");
         throw error;
       }
+
+      return data as Destination[];
     },
-    enabled: !!session, // Only run query when session exists
-    retry: 1,
-    retryDelay: 1000,
+    enabled: !!session,
+    retry: false,
   });
 };
