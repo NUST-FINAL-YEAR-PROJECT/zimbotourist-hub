@@ -16,7 +16,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Index />} />
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/docs" element={<Documentation />} />
         <Route path="/dashboard" element={<Dashboard />}>
@@ -27,7 +27,7 @@ function App() {
           <Route path="event/:id" element={<EventDetails />} />
           <Route path="payment" element={<PaymentPage />} />
         </Route>
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
       <Toaster />
     </BrowserRouter>
@@ -35,4 +35,3 @@ function App() {
 }
 
 export default App;
-

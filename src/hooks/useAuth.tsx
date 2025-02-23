@@ -19,7 +19,10 @@ export const useAuth = () => {
         if (initialSession) {
           setSession(initialSession);
           setUser(initialSession.user);
+          navigate('/dashboard');
           console.log("Initial session loaded:", initialSession);
+        } else {
+          navigate('/auth');
         }
       } catch (error: any) {
         console.error('Error getting initial session:', error.message);
@@ -55,10 +58,12 @@ export const useAuth = () => {
 
   const signOut = async () => {
     try {
-      await supabase.auth.signOut();
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
       setSession(null);
       setUser(null);
       localStorage.clear();
+      navigate('/auth');
     } catch (error: any) {
       console.error('Error signing out:', error.message);
       toast.error(error.message);
