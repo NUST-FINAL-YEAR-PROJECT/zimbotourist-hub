@@ -20,13 +20,6 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 
-const backgroundImages = [
-  "https://images.unsplash.com/photo-1472396961693-142e6e269027",
-  "https://images.unsplash.com/photo-1433086966358-54859d0ed716",
-  "https://images.unsplash.com/photo-1469474968028-56623f02e42e",
-  "https://images.unsplash.com/photo-1482938289607-e9573fc25ebb"
-];
-
 const tourismPhrases = [
   "Discover Zimbabwe's Natural Wonders",
   "Experience Majestic Victoria Falls",
@@ -50,6 +43,14 @@ const Index = () => {
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
+
+  const backgroundImages = useMemo(() => {
+    if (!destinations) return [];
+    return destinations
+      .filter(dest => dest.image_url)
+      .map(dest => dest.image_url)
+      .slice(0, 4); // Limit to 4 images for the slideshow
+  }, [destinations]);
 
   const filteredDestinations = useMemo(() => {
     if (!destinations) return [];
@@ -228,6 +229,8 @@ const Index = () => {
   ];
 
   useEffect(() => {
+    if (backgroundImages.length === 0) return;
+    
     const imageInterval = setInterval(() => {
       setCurrentImageIndex((prev) => (prev + 1) % backgroundImages.length);
     }, 5000);
@@ -240,28 +243,30 @@ const Index = () => {
       clearInterval(imageInterval);
       clearInterval(phraseInterval);
     };
-  }, []);
+  }, [backgroundImages]);
 
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section with Slideshow Background */}
       <section className="relative h-screen overflow-hidden">
         <AnimatePresence mode="wait">
-          <motion.div
-            key={currentImageIndex}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 1 }}
-            className="absolute inset-0"
-          >
-            <img
-              src={backgroundImages[currentImageIndex]}
-              alt="Zimbabwe Landscape"
-              className="absolute inset-0 w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-primary/60 via-primary/40 to-primary/70" />
-          </motion.div>
+          {backgroundImages.length > 0 && (
+            <motion.div
+              key={currentImageIndex}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1 }}
+              className="absolute inset-0"
+            >
+              <img
+                src={backgroundImages[currentImageIndex] || "https://images.unsplash.com/photo-1472396961693-142e6e269027"}
+                alt="Zimbabwe Landscape"
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-primary/60 via-primary/40 to-primary/70" />
+            </motion.div>
+          )}
         </AnimatePresence>
 
         <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 h-full">
