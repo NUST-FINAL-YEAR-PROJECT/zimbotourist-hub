@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { DestinationCard } from "@/components/DestinationCard";
@@ -20,6 +20,20 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 
+const backgroundImages = [
+  "https://images.unsplash.com/photo-1472396961693-142e6e269027",
+  "https://images.unsplash.com/photo-1433086966358-54859d0ed716",
+  "https://images.unsplash.com/photo-1469474968028-56623f02e42e",
+  "https://images.unsplash.com/photo-1482938289607-e9573fc25ebb"
+];
+
+const tourismPhrases = [
+  "Discover Zimbabwe's Natural Wonders",
+  "Experience Majestic Victoria Falls",
+  "Explore Ancient Ruins of Great Zimbabwe",
+  "Safari Adventures Await You"
+];
+
 const Index = () => {
   const { data: destinations, isLoading: isLoadingDestinations } = useDestinations();
   const { data: events, isLoading: isLoadingEvents } = useEvents();
@@ -34,6 +48,8 @@ const Index = () => {
     date: "",
   });
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
 
   const filteredDestinations = useMemo(() => {
     if (!destinations) return [];
@@ -211,23 +227,42 @@ const Index = () => {
     { label: "Years Experience", value: "15+", icon: Clock }
   ];
 
+  useEffect(() => {
+    const imageInterval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % backgroundImages.length);
+    }, 5000);
+
+    const phraseInterval = setInterval(() => {
+      setCurrentPhraseIndex((prev) => (prev + 1) % tourismPhrases.length);
+    }, 3000);
+
+    return () => {
+      clearInterval(imageInterval);
+      clearInterval(phraseInterval);
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section with Video Background */}
-      <section className="relative h-[85vh] overflow-hidden">
-        <motion.div
-          initial={{ scale: 1.1 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 20, repeat: Infinity, repeatType: "reverse" }}
-          className="absolute inset-0"
-        >
-          <img
-            src="https://images.unsplash.com/photo-1500673922987-e212871fec22"
-            alt="Zimbabwe Landscape"
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-primary/60 via-primary/40 to-primary/70" />
-        </motion.div>
+      {/* Hero Section with Slideshow Background */}
+      <section className="relative h-screen overflow-hidden">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentImageIndex}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1 }}
+            className="absolute inset-0"
+          >
+            <img
+              src={backgroundImages[currentImageIndex]}
+              alt="Zimbabwe Landscape"
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-primary/60 via-primary/40 to-primary/70" />
+          </motion.div>
+        </AnimatePresence>
 
         <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 h-full">
           <div className="flex justify-end items-center py-4 sm:py-6 gap-2 sm:gap-4">
@@ -253,8 +288,8 @@ const Index = () => {
             ) : (
               <>
                 <Button
-                  variant="outline"
-                  className="text-white hover:text-white/90 border-white hover:border-white/80 hover:bg-white/10 backdrop-blur-sm"
+                  variant="secondary"
+                  className="bg-accent hover:bg-accent/90 text-white shadow-lg hover:shadow-xl transition-all duration-300"
                   onClick={() => handleAuthClick('signin')}
                 >
                   Sign In
@@ -276,9 +311,18 @@ const Index = () => {
               transition={{ duration: 0.8 }}
               className="max-w-4xl mx-auto w-full"
             >
-              <h1 className="text-4xl sm:text-5xl md:text-7xl font-display font-bold text-white mb-4 sm:mb-6 leading-tight">
-                Discover Zimbabwe's <span className="text-accent">Natural Wonders</span>
-              </h1>
+              <AnimatePresence mode="wait">
+                <motion.h1
+                  key={currentPhraseIndex}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.5 }}
+                  className="text-4xl sm:text-5xl md:text-7xl font-display font-bold text-white mb-4 sm:mb-6 leading-tight"
+                >
+                  {tourismPhrases[currentPhraseIndex]}
+                </motion.h1>
+              </AnimatePresence>
               <p className="text-lg sm:text-xl md:text-2xl text-white/90 mb-8 sm:mb-12">
                 Experience the magic of Southern Africa's hidden paradise
               </p>
