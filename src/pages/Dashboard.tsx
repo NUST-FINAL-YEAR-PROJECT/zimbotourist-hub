@@ -27,6 +27,7 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import { motion, AnimatePresence } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+
 type BookingWithRelations = Booking & {
   destinations: {
     name: string;
@@ -37,6 +38,7 @@ type BookingWithRelations = Booking & {
     image_url: string | null;
   } | null;
 };
+
 const StatCard = ({
   title,
   value,
@@ -61,6 +63,7 @@ const StatCard = ({
       </div>
     </div>
   </motion.div>;
+
 const NotificationItem = ({
   notification,
   onRead
@@ -92,6 +95,7 @@ const NotificationItem = ({
       </p>
     </motion.div>;
 };
+
 const DashboardHome = ({
   profile,
   bookings
@@ -310,6 +314,7 @@ const DashboardHome = ({
       </div>
     </div>;
 };
+
 const DestinationCard = ({
   id,
   image,
@@ -340,6 +345,7 @@ const DestinationCard = ({
       </div>
     </motion.div>;
 };
+
 const BookingsList = ({
   bookings
 }: {
@@ -495,105 +501,117 @@ const BookingsList = ({
       </Table>
     </div>;
 };
+
 export const Dashboard = () => {
   const navigate = useNavigate();
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const queryClient = useQueryClient();
-  const {
-    data: bookings = [],
-    isLoading: isLoadingBookings
-  } = useQuery({
+
+  const { data: bookings = [], isLoading: isLoadingBookings } = useQuery({
     queryKey: ["bookings", profile?.id],
     queryFn: async () => {
       if (!profile?.id) return [];
-      const {
-        data,
-        error
-      } = await supabase.from("bookings").select(`
+      const { data, error } = await supabase
+        .from("bookings")
+        .select(`
           *,
           destinations (name, image_url),
           events (title, image_url)
-        `).eq('user_id', profile.id);
+        `)
+        .eq('user_id', profile.id);
       if (error) throw error;
       return (data || []) as BookingWithRelations[];
     },
     enabled: !!profile?.id
   });
+
   useEffect(() => {
     const checkAuth = async () => {
-      const {
-        data: {
-          session
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          toast({
+            variant: "destructive",
+            title: "Not authenticated",
+            description: "Please sign in to access the dashboard"
+          });
+          navigate("/auth");
+          return;
         }
-      } = await supabase.auth.getSession();
-      if (!session) {
-        toast({
-          variant: "destructive",
-          title: "Not authenticated",
-          description: "Please sign in to access the dashboard"
-        });
+
+        const { data: profileData, error } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", session.user.id)
+          .single();
+
+        if (error) {
+          console.error("Error fetching profile:", error);
+          navigate("/auth");
+          return;
+        }
+
+        setProfile(profileData);
+      } catch (error) {
+        console.error("Auth check error:", error);
         navigate("/auth");
-        return;
+      } finally {
+        setIsLoading(false);
       }
-      const {
-        data: profileData,
-        error
-      } = await supabase.from("profiles").select("*").eq("id", session.user.id).single();
-      if (error) {
-        console.error("Error fetching profile:", error);
-        return;
-      }
-      setProfile(profileData);
     };
+
     checkAuth();
-    const {
-      data: {
-        subscription
-      }
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_OUT') {
         navigate('/auth');
       } else if (session) {
-        const {
-          data: profileData
-        } = await supabase.from("profiles").select("*").eq("id", session.user.id).single();
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", session.user.id)
+          .single();
         setProfile(profileData);
       }
     });
+
     return () => {
       subscription.unsubscribe();
     };
   }, [navigate, toast]);
-  if (!profile) {
-    return <div className="flex min-h-screen w-full">
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen w-full">
         <AppSidebar />
         <div className="flex-1 p-8">
           <div className="container mx-auto space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-              {[1, 2, 3].map(i => <div key={i} className="space-y-4">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="space-y-4">
                   <Skeleton className="h-[300px] w-full" />
                   <Skeleton className="h-4 w-3/4" />
                   <Skeleton className="h-4 w-full" />
-                </div>)}
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </div>;
   }
-  return <div className="flex min-h-screen w-full bg-gradient-to-br from-gray-50 to-blue-50/50">
+
+  return (
+    <div className="flex min-h-screen w-full bg-gradient-to-br from-gray-50 to-blue-50/50">
       <AppSidebar />
       <div className="flex-1">
         <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
-          <motion.div initial={{
-          opacity: 0,
-          y: 20
-        }} animate={{
-          opacity: 1,
-          y: 0
-        }} className="flex items-center justify-between mb-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center justify-between mb-6"
+          >
             <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
               Dashboard
             </h1>
@@ -601,9 +619,12 @@ export const Dashboard = () => {
               <SidebarTrigger />
             </div>
           </motion.div>
-          
+
           <Routes>
-            <Route path="/" element={<DashboardHome profile={profile} bookings={bookings} />} />
+            <Route
+              path="/"
+              element={<DashboardHome profile={profile} bookings={bookings} />}
+            />
             <Route path="/destinations" element={<DestinationExplorer />} />
             <Route path="/events" element={<EventsList />} />
             <Route path="/events/:id" element={<EventDetails />} />
@@ -613,5 +634,6 @@ export const Dashboard = () => {
         </div>
       </div>
       <ChatAssistant />
-    </div>;
+    </div>
+  );
 };
