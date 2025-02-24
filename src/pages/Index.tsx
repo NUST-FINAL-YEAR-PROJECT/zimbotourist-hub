@@ -1,3 +1,4 @@
+
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
@@ -6,7 +7,7 @@ import { useDestinations } from "@/hooks/useDestinations";
 import { useEvents } from "@/hooks/useEvents";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
-import { Search, MapPin, Calendar, Compass, Globe, ArrowRight, Users, Sun, Star, Clock, DollarSign, X } from "lucide-react";
+import { Search, MapPin, Calendar, Compass, Globe, ArrowRight, Users, Sun, Star, Clock, DollarSign, X, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -233,11 +234,11 @@ const Index = () => {
     
     const imageInterval = setInterval(() => {
       setCurrentImageIndex((prev) => (prev + 1) % backgroundImages.length);
-    }, 8000); // Increased from 5000 to 8000ms (8 seconds)
+    }, 12000); // Increased to 12 seconds for slower transitions
 
     const phraseInterval = setInterval(() => {
       setCurrentPhraseIndex((prev) => (prev + 1) % tourismPhrases.length);
-    }, 3000);
+    }, 4000); // Increased to 4 seconds for slower text transitions
 
     return () => {
       clearInterval(imageInterval);
@@ -248,7 +249,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-white w-full">
       {/* Hero Section with Slideshow Background */}
-      <section className="relative h-screen w-full overflow-hidden">
+      <section className="relative h-[100svh] w-full overflow-hidden">
         <AnimatePresence mode="wait">
           {backgroundImages.length > 0 && (
             <motion.div
@@ -256,7 +257,7 @@ const Index = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 2 }} // Increased from 1 to 2 seconds for smoother transitions
+              transition={{ duration: 4 }} // Increased to 4 seconds for very slow transitions
               className="absolute inset-0"
             >
               <img
@@ -270,21 +271,24 @@ const Index = () => {
         </AnimatePresence>
 
         <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 h-full">
-          <div className="flex justify-end items-center py-4 sm:py-6 gap-2 sm:gap-4">
+          <div className="flex justify-end items-center py-4 sm:py-6 gap-2 space-x-2">
+            <div className="block sm:hidden">
+              <Smartphone className="w-5 h-5 text-white" />
+            </div>
             {isLoadingAuth ? (
               <div className="animate-pulse w-20 h-8 bg-white/20 rounded" />
             ) : user ? (
               <>
                 <Button
                   variant="secondary"
-                  className="text-primary-foreground hover:text-primary-foreground/90 bg-white/90 hover:bg-white shadow-lg hover:shadow-xl transition-all duration-300"
+                  className="text-primary-foreground hover:text-primary-foreground/90 bg-white/90 hover:bg-white shadow-lg hover:shadow-xl transition-all duration-300 text-sm sm:text-base"
                   onClick={() => navigate('/dashboard')}
                 >
                   Dashboard
                 </Button>
                 <Button
                   variant="outline"
-                  className="text-white hover:text-white/90 border-white/30 hover:border-white/50 hover:bg-white/10 backdrop-blur-sm"
+                  className="text-white hover:text-white/90 border-white/30 hover:border-white/50 hover:bg-white/10 backdrop-blur-sm text-sm sm:text-base"
                   onClick={handleLogout}
                 >
                   Sign Out
@@ -294,13 +298,13 @@ const Index = () => {
               <>
                 <Button
                   variant="secondary"
-                  className="bg-accent hover:bg-accent/90 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+                  className="bg-accent hover:bg-accent/90 text-white shadow-lg hover:shadow-xl transition-all duration-300 text-sm sm:text-base"
                   onClick={() => handleAuthClick('signin')}
                 >
                   Sign In
                 </Button>
                 <Button
-                  className="bg-accent text-white hover:bg-accent/90 shadow-lg hover:shadow-xl transition-all duration-300"
+                  className="bg-accent text-white hover:bg-accent/90 shadow-lg hover:shadow-xl transition-all duration-300 text-sm sm:text-base"
                   onClick={() => handleAuthClick('signup')}
                 >
                   Get Started
@@ -309,7 +313,7 @@ const Index = () => {
             )}
           </div>
 
-          <div className="flex flex-col items-center justify-center h-[calc(100%-80px)] text-center px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col items-center justify-center h-[calc(100%-80px)] text-center px-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -323,12 +327,12 @@ const Index = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.5 }}
-                  className="text-4xl sm:text-5xl md:text-7xl font-display font-bold text-white mb-4 sm:mb-6 leading-tight"
+                  className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-display font-bold text-white mb-4 sm:mb-6 leading-tight"
                 >
                   {tourismPhrases[currentPhraseIndex]}
                 </motion.h1>
               </AnimatePresence>
-              <p className="text-lg sm:text-xl md:text-2xl text-white/90 mb-8 sm:mb-12">
+              <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/90 mb-6 sm:mb-8 lg:mb-12">
                 Experience the magic of Southern Africa's hidden paradise
               </p>
 
@@ -340,23 +344,23 @@ const Index = () => {
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                       <Input
                         type="text"
-                        placeholder="Search destinations, activities, or locations..."
+                        placeholder="Search destinations..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10 py-6 text-base sm:text-lg bg-white border-gray-200"
+                        className="pl-10 py-4 sm:py-6 text-sm sm:text-base lg:text-lg bg-white border-gray-200"
                       />
                     </div>
                     <Button 
                       variant="outline"
                       onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
-                      className="sm:w-auto w-full bg-white text-primary hover:text-primary/90 border-gray-200"
+                      className="sm:w-auto w-full bg-white text-primary hover:text-primary/90 border-gray-200 text-sm sm:text-base"
                     >
                       {showAdvancedSearch ? "Hide Filters" : "Show Filters"}
                     </Button>
                     <Button 
-                      className="bg-primary hover:bg-primary/90 text-white sm:text-lg py-6 px-8 shadow-md hover:shadow-lg transition-all duration-300"
+                      className="bg-primary hover:bg-primary/90 text-white text-sm sm:text-lg py-4 sm:py-6 px-6 sm:px-8 shadow-md hover:shadow-lg transition-all duration-300"
                     >
-                      <Search className="w-5 h-5 mr-2" />
+                      <Search className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                       Search
                     </Button>
                   </div>
@@ -709,3 +713,4 @@ const Index = () => {
 };
 
 export default Index;
+
