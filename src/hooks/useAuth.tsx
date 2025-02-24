@@ -40,7 +40,7 @@ export const useAuth = () => {
       if (_event === 'SIGNED_OUT') {
         setSession(null);
         setUser(null);
-        navigate('/auth');
+        navigate('/');  // Changed from '/auth' to '/'
         toast.success("Successfully signed out");
       } else if (_event === 'SIGNED_IN' || _event === 'TOKEN_REFRESHED') {
         setSession(session);

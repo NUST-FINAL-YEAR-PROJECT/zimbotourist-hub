@@ -233,7 +233,7 @@ const Index = () => {
     
     const imageInterval = setInterval(() => {
       setCurrentImageIndex((prev) => (prev + 1) % backgroundImages.length);
-    }, 5000);
+    }, 8000); // Increased from 5000 to 8000ms (8 seconds)
 
     const phraseInterval = setInterval(() => {
       setCurrentPhraseIndex((prev) => (prev + 1) % tourismPhrases.length);
@@ -246,9 +246,9 @@ const Index = () => {
   }, [backgroundImages]);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white w-full">
       {/* Hero Section with Slideshow Background */}
-      <section className="relative h-screen overflow-hidden">
+      <section className="relative h-screen w-full overflow-hidden">
         <AnimatePresence mode="wait">
           {backgroundImages.length > 0 && (
             <motion.div
@@ -256,7 +256,7 @@ const Index = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 1 }}
+              transition={{ duration: 2 }} // Increased from 1 to 2 seconds for smoother transitions
               className="absolute inset-0"
             >
               <img
