@@ -92,6 +92,8 @@ export type Database = {
           id: string
           number_of_people: number
           payment_id: string | null
+          payment_proof_uploaded_at: string | null
+          payment_proof_url: string | null
           payment_status: Database["public"]["Enums"]["payment_status"] | null
           preferred_date: string | null
           selected_ticket_type: Json | null
@@ -116,6 +118,8 @@ export type Database = {
           id?: string
           number_of_people: number
           payment_id?: string | null
+          payment_proof_uploaded_at?: string | null
+          payment_proof_url?: string | null
           payment_status?: Database["public"]["Enums"]["payment_status"] | null
           preferred_date?: string | null
           selected_ticket_type?: Json | null
@@ -140,6 +144,8 @@ export type Database = {
           id?: string
           number_of_people?: number
           payment_id?: string | null
+          payment_proof_uploaded_at?: string | null
+          payment_proof_url?: string | null
           payment_status?: Database["public"]["Enums"]["payment_status"] | null
           preferred_date?: string | null
           selected_ticket_type?: Json | null

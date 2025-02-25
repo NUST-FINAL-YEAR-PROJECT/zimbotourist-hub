@@ -1,3 +1,4 @@
+
 export interface Destination {
   id: string;
   name: string;
@@ -47,7 +48,7 @@ export interface Booking {
   user_id: string;
   event_id: string | null;
   destination_id: string | null;
-  status: string;
+  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
   booking_date: string;
   number_of_people: number;
   total_price: number;
@@ -58,6 +59,9 @@ export interface Booking {
   booking_details: Record<string, any> | null;
   created_at: string;
   updated_at: string;
+  payment_status: 'pending' | 'processing' | 'completed' | 'failed' | 'refunded';
+  payment_proof_url: string | null;
+  payment_proof_uploaded_at: string | null;
 }
 
 export interface Profile {

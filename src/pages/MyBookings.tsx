@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -78,7 +79,7 @@ export const MyBookings = () => {
         .update({
           payment_proof_url: filePath,
           payment_proof_uploaded_at: new Date().toISOString(),
-          payment_status: 'proof_submitted'
+          payment_status: 'processing'
         })
         .eq('id', bookingId);
 
@@ -279,7 +280,7 @@ export const MyBookings = () => {
                             <FormField
                               control={form.control}
                               name="proof"
-                              render={({ field: { onChange, ...field } }) => (
+                              render={({ field: { onChange, value, ...field } }) => (
                                 <FormItem>
                                   <FormLabel>Proof of Payment</FormLabel>
                                   <FormControl>
