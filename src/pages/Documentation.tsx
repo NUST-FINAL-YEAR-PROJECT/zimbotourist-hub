@@ -1,9 +1,26 @@
+
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Image } from "lucide-react";
+import { SwaggerUI } from "@/components/ui/swagger-ui";
+import { supabase } from "@/integrations/supabase/client";
 
 const Documentation = () => {
   const [activeTab, setActiveTab] = useState("architecture");
+
+  const { data: apiDocs = [] } = useQuery({
+    queryKey: ["api-docs"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("api_docs")
+        .select("*")
+        .order("endpoint_path");
+
+      if (error) throw error;
+      return data;
+    }
+  });
 
   const DiagramDisplay = ({ src, alt, fallbackText }: { src: string; alt: string; fallbackText: string }) => {
     return (
@@ -31,11 +48,12 @@ const Documentation = () => {
       <h1 className="text-4xl font-bold mb-8">System Documentation</h1>
       
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="architecture">System Architecture</TabsTrigger>
           <TabsTrigger value="sequence">Sequence Diagram</TabsTrigger>
           <TabsTrigger value="er">ER Diagram</TabsTrigger>
           <TabsTrigger value="endpoints">API Endpoints</TabsTrigger>
+          <TabsTrigger value="api-docs">API Documentation</TabsTrigger>
         </TabsList>
 
         <TabsContent value="architecture" className="mt-6">
@@ -152,6 +170,13 @@ const Documentation = () => {
                 <li><code>GET /payments/:id</code> - Get payment status</li>
               </ul>
             </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="api-docs" className="mt-6">
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h2 className="text-2xl font-semibold mb-4">API Documentation</h2>
+            <SwaggerUI endpoints={apiDocs} />
           </div>
         </TabsContent>
       </Tabs>

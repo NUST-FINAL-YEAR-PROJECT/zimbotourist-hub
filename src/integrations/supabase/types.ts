@@ -9,6 +9,42 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      api_docs: {
+        Row: {
+          created_at: string
+          description: string | null
+          endpoint_path: string
+          id: string
+          method: string
+          request_schema: Json | null
+          response_schema: Json | null
+          tags: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          endpoint_path: string
+          id?: string
+          method: string
+          request_schema?: Json | null
+          response_schema?: Json | null
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          endpoint_path?: string
+          id?: string
+          method?: string
+          request_schema?: Json | null
+          response_schema?: Json | null
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
