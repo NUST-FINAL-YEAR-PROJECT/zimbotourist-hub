@@ -139,15 +139,14 @@ const DashboardHome = ({
     if (hour < 18) return "Good afternoon";
     return "Good evening";
   };
-  return <div className="space-y-6">
+
+  return (
+    <div className="space-y-6">
       <div className="flex flex-col space-y-4">
-        <motion.div initial={{
-        opacity: 0,
-        y: 20
-      }} animate={{
-        opacity: 1,
-        y: 0
-      }}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
             {getGreeting()}, {profile.username || profile.email.split('@')[0]}!
           </h1>
@@ -161,13 +160,15 @@ const DashboardHome = ({
             <SheetTrigger asChild>
               <Button variant="outline" size={isMobile ? "sm" : "icon"} className="relative">
                 {unreadCount > 0 ? <BellDot className="h-4 w-4 sm:h-5 sm:w-5 text-primary" /> : <Bell className="h-4 w-4 sm:h-5 sm:w-5" />}
-                {unreadCount > 0 && <motion.span initial={{
-                scale: 0
-              }} animate={{
-                scale: 1
-              }} className="absolute -top-1 -right-1 h-4 w-4 sm:h-5 sm:w-5 rounded-full bg-primary text-[10px] sm:text-xs text-white flex items-center justify-center">
+                {unreadCount > 0 && (
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="absolute -top-1 -right-1 h-4 w-4 sm:h-5 sm:w-5 rounded-full bg-primary text-[10px] sm:text-xs text-white flex items-center justify-center"
+                  >
                     {unreadCount}
-                  </motion.span>}
+                  </motion.span>
+                )}
               </Button>
             </SheetTrigger>
             <SheetContent side="right">
@@ -176,21 +177,32 @@ const DashboardHome = ({
               </SheetHeader>
               <ScrollArea className="h-[calc(100vh-8rem)] mt-4">
                 <AnimatePresence mode="popLayout">
-                  {isLoadingNotifications ? Array.from({
-                  length: 3
-                }).map((_, i) => <div key={i} className="p-4 space-y-2">
+                  {isLoadingNotifications ? (
+                    Array.from({ length: 3 }).map((_, i) => (
+                      <div key={i} className="p-4 space-y-2">
                         <Skeleton className="h-4 w-3/4" />
                         <Skeleton className="h-4 w-full" />
-                      </div>) : notifications?.length === 0 ? <div className="p-4 text-center text-muted-foreground">
+                      </div>
+                    ))
+                  ) : notifications?.length === 0 ? (
+                    <div className="p-4 text-center text-muted-foreground">
                       No notifications yet
-                    </div> : notifications?.map(notification => <NotificationItem key={notification.id} notification={notification} onRead={id => markAsRead.mutate(id)} />)}
+                    </div>
+                  ) : (
+                    notifications?.map(notification => (
+                      <NotificationItem
+                        key={notification.id}
+                        notification={notification}
+                        onRead={id => markAsRead.mutate(id)}
+                      />
+                    ))
+                  )}
                 </AnimatePresence>
               </ScrollArea>
             </SheetContent>
           </Sheet>
 
           <div className="flex-1 flex flex-wrap gap-2">
-            
             
           </div>
         </div>
@@ -199,37 +211,38 @@ const DashboardHome = ({
           <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
-            
-            
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <AnimatePresence>
-                {stats.map((stat, index) => <motion.div key={stat.title} initial={{
-                opacity: 0,
-                y: 20
-              }} animate={{
-                opacity: 1,
-                y: 0
-              }} transition={{
-                delay: index * 0.1
-              }}>
+                {stats.map((stat, index) => (
+                  <motion.div
+                    key={stat.title}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
                     <StatCard {...stat} />
-                  </motion.div>)}
+                  </motion.div>
+                ))}
               </AnimatePresence>
             </div>
 
-            {bookings.length > 0 && <Card>
+            {bookings.length > 0 && (
+              <Card>
                 <CardHeader>
                   <CardTitle>Recent Bookings</CardTitle>
                   <CardDescription>Your latest travel arrangements</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {bookings.slice(0, 3).map(booking => <motion.div key={booking.id} whileHover={{
-                  scale: 1.02
-                }} className="p-4 rounded-lg border bg-card text-card-foreground shadow-sm">
+                    {bookings.slice(0, 3).map(booking => (
+                      <motion.div
+                        key={booking.id}
+                        whileHover={{ scale: 1.02 }}
+                        className="p-4 rounded-lg border bg-card text-card-foreground shadow-sm"
+                      >
                         <div className="flex justify-between items-center">
                           <div>
                             <h3 className="font-semibold">
@@ -243,76 +256,21 @@ const DashboardHome = ({
                             {booking.status}
                           </Badge>
                         </div>
-                      </motion.div>)}
+                      </motion.div>
+                    ))}
                   </div>
                 </CardContent>
-              </Card>}
+              </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="recommendations">
             <TravelRecommendations />
           </TabsContent>
-
-          <TabsContent value="upcoming">
-            <div className="space-y-4">
-              {bookings.filter(b => new Date(b.booking_date) > new Date()).map(booking => <motion.div key={booking.id} initial={{
-              opacity: 0,
-              y: 20
-            }} animate={{
-              opacity: 1,
-              y: 0
-            }} className="bg-white/50 backdrop-blur-sm rounded-lg shadow-sm p-4 border border-gray-200/50">
-                    <div className="flex justify-between items-start">
-                      <h3 className="font-medium">
-                        {booking.destinations?.name || booking.events?.title}
-                      </h3>
-                      <span className={cn("inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium", booking.status === 'confirmed' ? 'bg-green-100 text-green-800' : booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800')}>
-                        {booking.status.toUpperCase()}
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div className="text-muted-foreground">Date</div>
-                      <div>{new Date(booking.booking_date).toLocaleDateString()}</div>
-                      <div className="text-muted-foreground">People</div>
-                      <div>{booking.number_of_people}</div>
-                      <div className="text-muted-foreground">Price</div>
-                      <div>${booking.total_price.toFixed(2)}</div>
-                    </div>
-                  </motion.div>)}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="history">
-            <div className="space-y-4">
-              {bookings.filter(b => new Date(b.booking_date) <= new Date()).map(booking => <motion.div key={booking.id} initial={{
-              opacity: 0,
-              y: 20
-            }} animate={{
-              opacity: 1,
-              y: 0
-            }} className="bg-white/50 backdrop-blur-sm rounded-lg shadow-sm p-4 border border-gray-200/50">
-                    <div className="flex justify-between items-start">
-                      <h3 className="font-medium">
-                        {booking.destinations?.name || booking.events?.title}
-                      </h3>
-                      <span className={cn("inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium", booking.status === 'confirmed' ? 'bg-green-100 text-green-800' : booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800')}>
-                        {booking.status.toUpperCase()}
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div className="text-muted-foreground">Date</div>
-                      <div>{new Date(booking.booking_date).toLocaleDateString()}</div>
-                      <div className="text-muted-foreground">People</div>
-                      <div>{booking.number_of_people}</div>
-                      <div className="text-muted-foreground">Price</div>
-                      <div>${booking.total_price.toFixed(2)}</div>
-                    </div>
-                  </motion.div>)}
-            </div>
-          </TabsContent>
         </Tabs>
       </div>
-    </div>;
+    </div>
+  );
 };
 
 const DestinationCard = ({
@@ -599,7 +557,8 @@ export const Dashboard = () => {
             </div>
           </div>
         </div>
-      </div>;
+      </div>
+    );
   }
 
   return (
