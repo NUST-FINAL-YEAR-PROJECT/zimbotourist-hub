@@ -15,10 +15,16 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export function AppSidebar() {
   const navigate = useNavigate();
   const { signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
 
   const menuItems = [
     {
@@ -51,9 +57,12 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader className="border-b border-sidebar-border p-4">
-        <div className="flex items-center gap-2">
-          <Menu className="h-6 w-6 text-primary" />
-          <h2 className="text-lg font-display font-semibold text-primary">Wanderlust</h2>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Menu className="h-6 w-6 text-primary" />
+            <h2 className="text-lg font-display font-semibold text-primary">Wanderlust</h2>
+          </div>
+          <ThemeToggle />
         </div>
       </SidebarHeader>
       <SidebarContent>
@@ -83,8 +92,8 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <Button
               variant="ghost"
-              className="w-full justify-start gap-2 text-red-500 hover:text-red-600 hover:bg-red-50"
-              onClick={signOut}
+              className="w-full justify-start gap-2 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
+              onClick={handleSignOut}
             >
               <LogOut className="h-4 w-4" />
               <span>Sign Out</span>

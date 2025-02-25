@@ -8,16 +8,7 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
-  
-  if (!openAIApiKey) {
-    console.error('OPENAI_API_KEY is not set');
-    return new Response(JSON.stringify({ error: 'OpenAI API key not configured' }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-  }
-  
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -25,55 +16,33 @@ serve(async (req) => {
   try {
     const { message } = await req.json();
 
-    if (!message) {
-      throw new Error('Message is required');
-    }
-
-    console.log('Sending message to OpenAI:', message);
-
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
+        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini', // Fixed model name
+        model: 'gpt-4o-mini',
         messages: [
           {
             role: 'system',
-            content: 'You are a knowledgeable travel assistant for Zimbabwe tourism. Provide helpful, concise information about destinations, activities, and travel tips in Zimbabwe. Keep responses friendly and informative.'
+            content: 'You are a helpful assistant specializing in Zimbabwe travel advice. Provide accurate, concise information about destinations, activities, and travel tips in Zimbabwe.'
           },
           { role: 'user', content: message }
         ],
-        temperature: 0.7,
-        max_tokens: 500
       }),
     });
 
-    if (!response.ok) {
-      const error = await response.json();
-      console.error('OpenAI API error:', error);
-      throw new Error(error.error?.message || `OpenAI API error: ${response.status}`);
-    }
-
     const data = await response.json();
-    console.log('Received response from OpenAI');
-    
-    if (!data.choices?.[0]?.message?.content) {
-      throw new Error('Invalid response format from OpenAI');
-    }
+    console.log('OpenAI API Response:', data);
 
-    return new Response(JSON.stringify({
-      response: data.choices[0].message.content
-    }), {
+    return new Response(JSON.stringify({ response: data.choices[0].message.content }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
-    console.error('Error in chat completion:', error);
-    return new Response(JSON.stringify({ 
-      error: error instanceof Error ? error.message : 'An unexpected error occurred'
-    }), {
+    console.error('Error in chat-completion function:', error);
+    return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
