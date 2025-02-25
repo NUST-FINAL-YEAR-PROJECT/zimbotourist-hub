@@ -27,6 +27,7 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import { motion, AnimatePresence } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { MyBookings } from "./MyBookings";
 
 type BookingWithRelations = Booking & {
   destinations: {
@@ -589,6 +590,7 @@ export const Dashboard = () => {
             <Route path="/events/:id" element={<EventDetails />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/payment" element={<PaymentPage />} />
+            <Route path="/bookings" element={<MyBookings />} />
           </Routes>
         </div>
       </div>

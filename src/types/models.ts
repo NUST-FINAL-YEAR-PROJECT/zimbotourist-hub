@@ -92,3 +92,14 @@ export interface AppNotification {
   created_at: string;
   updated_at: string;
 }
+
+export interface BookingWithRelations extends Booking {
+  destinations?: {
+    name: string;
+    image_url: string | null;
+  } | null;
+  events?: {
+    title: string;
+    image_url: string | null;
+  } | null;
+}
