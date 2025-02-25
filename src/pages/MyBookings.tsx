@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,9 +7,31 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, BanIcon } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Trash2, BanIcon, Upload } from "lucide-react";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { motion } from "framer-motion";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
+const paymentProofSchema = z.object({
+  proof: z.instanceof(FileList).refine((files) => files.length > 0, "Please select a file")
+    .transform(files => files[0])
+    .refine(
+      (file) => file.size <= 5000000,
+      "File size should be less than 5MB"
+    )
+    .refine(
+      (file) => 
+        ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'].includes(file.type),
+      "File must be an image (JPEG, PNG, WEBP) or PDF"
+    ),
+});
+
+type PaymentProofForm = z.infer<typeof paymentProofSchema>;
 
 export const MyBookings = () => {
   const { toast } = useToast();
@@ -18,6 +39,11 @@ export const MyBookings = () => {
   const isMobile = useIsMobile();
   const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
   const [actionType, setActionType] = useState<"delete" | "cancel" | null>(null);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+
+  const form = useForm<PaymentProofForm>({
+    resolver: zodResolver(paymentProofSchema),
+  });
 
   const { data: bookings = [], isLoading } = useQuery({
     queryKey: ["bookings"],
@@ -35,6 +61,56 @@ export const MyBookings = () => {
       return data as BookingWithRelations[];
     }
   });
+
+  const uploadPaymentProof = useMutation({
+    mutationFn: async ({ bookingId, file }: { bookingId: string; file: File }) => {
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${bookingId}/${crypto.randomUUID()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('payment_proofs')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { error: updateError } = await supabase
+        .from('bookings')
+        .update({
+          payment_proof_url: filePath,
+          payment_proof_uploaded_at: new Date().toISOString(),
+          payment_status: 'proof_submitted'
+        })
+        .eq('id', bookingId);
+
+      if (updateError) throw updateError;
+
+      return filePath;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["bookings"] });
+      toast({
+        title: "Proof of payment uploaded",
+        description: "Your proof of payment has been submitted successfully."
+      });
+      setUploadDialogOpen(false);
+      form.reset();
+    },
+    onError: (error: Error) => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message
+      });
+    }
+  });
+
+  const onSubmitProof = async (data: PaymentProofForm) => {
+    if (!selectedBookingId) return;
+    await uploadPaymentProof.mutate({
+      bookingId: selectedBookingId,
+      file: data.proof
+    });
+  };
 
   const deleteBookingMutation = useMutation({
     mutationFn: async (bookingId: string) => {
@@ -97,6 +173,12 @@ export const MyBookings = () => {
     setActionType(null);
   };
 
+  const showUploadButton = (booking: BookingWithRelations) => {
+    return booking.payment_status === 'pending' || 
+           booking.status === 'pending' || 
+           booking.payment_status === 'failed';
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -151,6 +233,11 @@ export const MyBookings = () => {
                     >
                       {booking.status}
                     </Badge>
+                    {booking.payment_proof_url && (
+                      <Badge variant="outline" className="ml-2">
+                        Proof Submitted
+                      </Badge>
+                    )}
                   </div>
                   <p className="text-sm text-muted-foreground">
                     Booked for: {new Date(booking.booking_date).toLocaleDateString()}
@@ -159,81 +246,154 @@ export const MyBookings = () => {
                     {booking.number_of_people} {booking.number_of_people === 1 ? 'person' : 'people'} • 
                     ${booking.total_price.toFixed(2)}
                   </p>
+                  {booking.payment_proof_uploaded_at && (
+                    <p className="text-sm text-muted-foreground">
+                      Payment proof submitted on: {new Date(booking.payment_proof_uploaded_at).toLocaleDateString()}
+                    </p>
+                  )}
                 </div>
                 
-                {booking.status !== 'cancelled' && (
-                  <div className="flex gap-2 self-start">
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
+                <div className="flex gap-2 self-start">
+                  {showUploadButton(booking) && (
+                    <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
+                      <DialogTrigger asChild>
                         <Button
                           variant="outline"
                           size={isMobile ? "sm" : "default"}
-                          className="text-yellow-600 hover:text-yellow-700"
-                          onClick={() => {
-                            setSelectedBookingId(booking.id);
-                            setActionType('cancel');
-                          }}
+                          className="text-blue-600 hover:text-blue-700"
+                          onClick={() => setSelectedBookingId(booking.id)}
                         >
-                          <BanIcon className="w-4 h-4 mr-2" />
-                          Cancel
+                          <Upload className="w-4 h-4 mr-2" />
+                          Upload Proof
                         </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Cancel Booking</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Are you sure you want to cancel this booking? This action cannot be undone.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel onClick={() => setSelectedBookingId(null)}>
-                            No, keep it
-                          </AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => selectedBookingId && handleAction(selectedBookingId)}
-                          >
-                            Yes, cancel it
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Upload Payment Proof</DialogTitle>
+                          <DialogDescription>
+                            Upload your proof of payment (PDF or image). Maximum file size is 5MB.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <Form {...form}>
+                          <form onSubmit={form.handleSubmit(onSubmitProof)} className="space-y-4">
+                            <FormField
+                              control={form.control}
+                              name="proof"
+                              render={({ field: { onChange, ...field } }) => (
+                                <FormItem>
+                                  <FormLabel>Proof of Payment</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      type="file"
+                                      accept=".pdf,image/*"
+                                      onChange={(e) => {
+                                        onChange(e.target.files);
+                                      }}
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormDescription>
+                                    Accepted formats: PDF, JPEG, PNG, WEBP
+                                  </FormDescription>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <div className="flex justify-end gap-2">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setUploadDialogOpen(false)}
+                              >
+                                Cancel
+                              </Button>
+                              <Button 
+                                type="submit"
+                                disabled={uploadPaymentProof.isPending}
+                              >
+                                {uploadPaymentProof.isPending ? "Uploading..." : "Upload"}
+                              </Button>
+                            </div>
+                          </form>
+                        </Form>
+                      </DialogContent>
+                    </Dialog>
+                  )}
 
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size={isMobile ? "sm" : "default"}
-                          className="text-red-600 hover:text-red-700"
-                          onClick={() => {
-                            setSelectedBookingId(booking.id);
-                            setActionType('delete');
-                          }}
-                        >
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          Delete
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Booking</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Are you sure you want to delete this booking? This action cannot be undone.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel onClick={() => setSelectedBookingId(null)}>
-                            No, keep it
-                          </AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => selectedBookingId && handleAction(selectedBookingId)}
+                  {booking.status !== 'cancelled' && (
+                    <>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size={isMobile ? "sm" : "default"}
+                            className="text-yellow-600 hover:text-yellow-700"
+                            onClick={() => {
+                              setSelectedBookingId(booking.id);
+                              setActionType('cancel');
+                            }}
                           >
-                            Yes, delete it
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
-                )}
+                            <BanIcon className="w-4 h-4 mr-2" />
+                            Cancel
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Cancel Booking</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to cancel this booking? This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel onClick={() => setSelectedBookingId(null)}>
+                              No, keep it
+                            </AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => selectedBookingId && handleAction(selectedBookingId)}
+                            >
+                              Yes, cancel it
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size={isMobile ? "sm" : "default"}
+                            className="text-red-600 hover:text-red-700"
+                            onClick={() => {
+                              setSelectedBookingId(booking.id);
+                              setActionType('delete');
+                            }}
+                          >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Delete
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Booking</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to delete this booking? This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel onClick={() => setSelectedBookingId(null)}>
+                              No, keep it
+                            </AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => selectedBookingId && handleAction(selectedBookingId)}
+                            >
+                              Yes, delete it
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>
