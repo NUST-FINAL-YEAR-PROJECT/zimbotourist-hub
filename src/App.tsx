@@ -1,7 +1,7 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ThemeProvider } from "@/components/theme-provider";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import Index from "./pages/Index";
@@ -19,7 +19,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (!loading && !user) {
-      // Store the attempted URL to redirect back after login
       sessionStorage.setItem('redirectAfterAuth', location.pathname);
     }
   }, [loading, user, location]);
@@ -52,9 +51,7 @@ const AuthRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (user) {
-    // Get the stored redirect path or default to dashboard
     const redirectPath = sessionStorage.getItem('redirectAfterAuth') || '/dashboard';
-    // Clear the stored path
     sessionStorage.removeItem('redirectAfterAuth');
     return <Navigate to={redirectPath} replace />;
   }
@@ -63,55 +60,50 @@ const AuthRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const App = () => (
-  <TooltipProvider>
-    <Toaster />
-    <Sonner />
-    <Routes>
-      {/* Public routes */}
-      <Route path="/" element={<Index />} />
-      <Route path="/documentation" element={<Documentation />} />
-      
-      {/* Auth route - redirects to dashboard if already authenticated */}
-      <Route path="/auth" element={
-        <AuthRoute>
-          <Auth />
-        </AuthRoute>
-      } />
-      
-      {/* Protected routes - require authentication */}
-      <Route
-        path="/dashboard/*"
-        element={
+  <ThemeProvider defaultTheme="system" storageKey="ui-theme">
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/documentation" element={<Documentation />} />
+        <Route path="/auth" element={
+          <AuthRoute>
+            <Auth />
+          </AuthRoute>
+        } />
+        <Route
+          path="/dashboard/*"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/destination/:id"
+          element={
+            <ProtectedRoute>
+              <DestinationDetails />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/events/:id"
+          element={
+            <ProtectedRoute>
+              <EventDetails />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={
           <ProtectedRoute>
-            <Dashboard />
+            <Navigate to="/dashboard" replace />
           </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/destination/:id"
-        element={
-          <ProtectedRoute>
-            <DestinationDetails />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/events/:id"
-        element={
-          <ProtectedRoute>
-            <EventDetails />
-          </ProtectedRoute>
-        }
-      />
-
-      {/* Catch all route - redirect to dashboard if authenticated, otherwise to auth */}
-      <Route path="*" element={
-        <ProtectedRoute>
-          <Navigate to="/dashboard" replace />
-        </ProtectedRoute>
-      } />
-    </Routes>
-  </TooltipProvider>
+        } />
+      </Routes>
+    </TooltipProvider>
+  </ThemeProvider>
 );
 
 export default App;

@@ -1,4 +1,3 @@
-
 import { Document, Page, Text, View, StyleSheet, PDFViewer, Font } from "@react-pdf/renderer";
 import { format, addDays } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -7,7 +6,6 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Destination } from "@/types/models";
 import { Send } from "lucide-react";
 
-// Register a web-safe font that's more likely to work
 Font.register({
   family: 'Helvetica',
   fonts: [
@@ -39,10 +37,12 @@ const styles = StyleSheet.create({
   },
   headerLeft: {
     flex: 1,
+    fontFamily: 'Helvetica',
   },
-  headerRight: {
-    flex: 1,
-    alignItems: 'flex-end',
+  headerInfo: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginBottom: 4,
   },
   logo: {
     fontSize: 24,
@@ -260,28 +260,27 @@ export const BookingInvoice = ({
         <PDFViewer className="w-full h-full">
           <Document
             title={`Invoice ${invoiceNumber}`}
-            author="TravelApp"
+            author="Zimbabwe Travel Hub"
             subject={`Travel Booking Invoice for ${destination.name}`}
-            keywords="travel, booking, invoice"
-            creator="TravelApp Booking System"
+            keywords="travel, booking, invoice, zimbabwe"
+            creator="Zimbabwe Travel Hub Booking System"
           >
             <Page 
               size="A4" 
               style={styles.page}
               wrap={false}
             >
-              {/* Watermark for pending status */}
               {status === 'pending' && (
                 <Text style={styles.watermark}>PENDING</Text>
               )}
 
-              {/* Header */}
               <View style={styles.header}>
                 <View style={styles.headerLeft}>
-                  <Text style={styles.logo}>TravelApp</Text>
-                  <Text style={styles.subtitle}>123 Travel Street</Text>
-                  <Text style={styles.subtitle}>City, Country 12345</Text>
-                  <Text style={styles.subtitle}>contact@travelapp.com</Text>
+                  <Text style={styles.logo}>Zimbabwe Travel Hub</Text>
+                  <Text style={styles.subtitle}>123 Samora Machel Avenue</Text>
+                  <Text style={styles.subtitle}>Harare, Zimbabwe</Text>
+                  <Text style={styles.subtitle}>+263 242 123456</Text>
+                  <Text style={styles.subtitle}>contact@zimbabwetravelhub.com</Text>
                 </View>
                 <View style={styles.headerRight}>
                   <Text style={[
@@ -297,7 +296,6 @@ export const BookingInvoice = ({
                 </View>
               </View>
 
-              {/* Customer Details */}
               {contactDetails && (
                 <View style={styles.section}>
                   <Text style={styles.sectionTitle}>Billed To</Text>
@@ -316,7 +314,6 @@ export const BookingInvoice = ({
                 </View>
               )}
 
-              {/* Booking Details */}
               <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Booking Details</Text>
                 <View style={styles.row}>
@@ -337,7 +334,6 @@ export const BookingInvoice = ({
                 </View>
               </View>
 
-              {/* Pricing Details */}
               <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Price Breakdown</Text>
                 <View style={styles.row}>
@@ -356,7 +352,6 @@ export const BookingInvoice = ({
                 ))}
               </View>
 
-              {/* Total */}
               <View style={styles.total}>
                 <View style={styles.totalRow}>
                   <Text style={styles.totalLabel}>Total Amount Due</Text>
@@ -364,7 +359,6 @@ export const BookingInvoice = ({
                 </View>
               </View>
 
-              {/* Payment Instructions */}
               <View style={styles.note}>
                 <Text style={styles.noteText}>
                   Payment Instructions:{'\n'}
@@ -375,7 +369,6 @@ export const BookingInvoice = ({
                 </Text>
               </View>
 
-              {/* Footer */}
               <View style={styles.footer}>
                 <Text style={styles.footerText}>
                   Thank you for choosing TravelApp. For any queries regarding your booking,
