@@ -1,94 +1,85 @@
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
+import * as ReactPDF from "https://esm.sh/@react-pdf/renderer@3.1.14";
+import { BookingInvoice } from "./_components/BookingInvoice.tsx";
+import React from "https://esm.sh/react@18.2.0";
 
-const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
+const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+interface EmailData {
+  destination: any;
+  numberOfPeople: number;
+  date: string;
+  contactDetails: {
+    name: string;
+    email: string;
+    phone: string;
+  };
+  status: 'pending' | 'confirmed' | 'cancelled';
+  invoiceNumber: string;
+  paymentDue: string;
+}
+
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response('ok', { headers: corsHeaders });
   }
 
   try {
-    const {
-      destination,
-      numberOfPeople,
-      date,
-      contactDetails,
-      status,
-      invoiceNumber,
-      paymentDue,
-    } = await req.json();
+    const data: EmailData = await req.json();
+    
+    // Generate PDF
+    const pdfBuffer = await ReactPDF.renderToBuffer(
+      React.createElement(BookingInvoice, {
+        ...data,
+        date: new Date(data.date),
+        paymentDue: new Date(data.paymentDue),
+      })
+    );
 
-    console.log('Received invoice data:', {
-      destination,
-      numberOfPeople,
-      date,
-      contactDetails,
-      status,
-      invoiceNumber,
-      paymentDue,
-    });
-
-    // Generate simple invoice HTML
-    const invoiceHtml = `
-      <html>
-        <body style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
-          <h1 style="color: #4F46E5;">TravelApp Invoice</h1>
-          <div style="margin: 20px 0; border-bottom: 1px solid #E5E7EB; padding-bottom: 20px;">
-            <p><strong>Zimbabwe Travel Hub</strong><br>
-            123 Samora Machel Avenue<br>
-            Harare, Zimbabwe<br>
-            Phone: +263 242 123456<br>
-            Email: contact@zimbabwetravelhub.com</p>
-          </div>
-          <div style="margin: 20px 0;">
-            <p><strong>Invoice #:</strong> ${invoiceNumber}</p>
-            <p><strong>Status:</strong> ${status}</p>
-            <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
-          </div>
-          <div style="margin: 20px 0;">
-            <h2>Booking Details</h2>
-            <p><strong>Destination:</strong> ${destination.name}</p>
-            <p><strong>Number of People:</strong> ${numberOfPeople}</p>
-            <p><strong>Travel Date:</strong> ${new Date(date).toLocaleDateString()}</p>
-            <p><strong>Amount Due:</strong> $${(destination.price * numberOfPeople).toFixed(2)}</p>
-          </div>
-          <div style="margin: 20px 0; background-color: #F9FAFB; padding: 20px; border-radius: 4px;">
-            <p style="margin: 0; color: #374151;">Payment is due by ${new Date(paymentDue).toLocaleDateString()}</p>
-          </div>
-        </body>
-      </html>
-    `;
-
-    const { data, error } = await resend.emails.send({
-      from: 'Zimbabwe Travel Hub <onboarding@resend.dev>',
-      to: [contactDetails.email],
-      subject: `Invoice #${invoiceNumber} for your Zimbabwe Travel Booking`,
-      html: invoiceHtml,
+    // Send email with PDF attachment
+    const { data: emailData, error } = await resend.emails.send({
+      from: 'TravelApp <onboarding@resend.dev>',
+      to: [data.contactDetails.email],
+      subject: `Your Travel Booking Invoice #${data.invoiceNumber}`,
+      html: `
+        <h1>Thank you for your booking!</h1>
+        <p>Dear ${data.contactDetails.name},</p>
+        <p>Please find attached your booking invoice for ${data.destination.name}.</p>
+        <p>Invoice Number: ${data.invoiceNumber}</p>
+        <p>Total Amount: $${(data.destination.price * data.numberOfPeople).toFixed(2)}</p>
+        <p>Due Date: ${new Date(data.paymentDue).toLocaleDateString()}</p>
+        <br>
+        <p>If you have any questions, please don't hesitate to contact us.</p>
+        <p>Best regards,<br>TravelApp Team</p>
+      `,
+      attachments: [
+        {
+          filename: `invoice-${data.invoiceNumber}.pdf`,
+          content: pdfBuffer,
+        },
+      ],
     });
 
     if (error) {
-      console.error('Error sending email:', error);
       throw error;
     }
 
-    console.log('Email sent successfully:', data);
-
-    return new Response(JSON.stringify({ success: true, data }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    return new Response(JSON.stringify(emailData), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 200,
     });
   } catch (error) {
-    console.error('Error in send-invoice function:', error);
+    console.error('Error processing request:', error);
     return new Response(JSON.stringify({ error: error.message }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 });
