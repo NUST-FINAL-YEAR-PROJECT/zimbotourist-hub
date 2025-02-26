@@ -7,6 +7,7 @@ import { MessageCircle, X, Send, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Message {
   id: string;
@@ -26,30 +27,39 @@ export const ChatAssistant = () => {
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [conversation, setConversation] = useState<Conversation | null>(null);
-  const [user, setUser] = useState<any>(null);
+  const { user } = useAuth();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user || null);
+    const loadConversation = async () => {
+      if (!user) return;
 
-      if (session?.user) {
+      try {
         // Try to find or create a conversation
-        const { data: existingConversations } = await supabase
+        const { data: existingConversations, error: conversationError } = await supabase
           .from('chat_conversations')
           .select('*')
-          .eq('user_id', session.user.id)
+          .eq('user_id', user.id)
           .order('created_at', { ascending: false })
           .limit(1)
           .single();
 
+        if (conversationError && conversationError.code !== 'PGRST116') {
+          console.error('Error fetching conversation:', conversationError);
+          return;
+        }
+
         if (existingConversations) {
-          const { data: messages } = await supabase
+          const { data: messages, error: messagesError } = await supabase
             .from('chat_messages')
             .select('*')
             .eq('conversation_id', existingConversations.id)
             .order('created_at', { ascending: true });
+
+          if (messagesError) {
+            console.error('Error fetching messages:', messagesError);
+            return;
+          }
 
           setConversation({
             ...existingConversations,
@@ -61,16 +71,14 @@ export const ChatAssistant = () => {
             })) || []
           });
         }
+      } catch (error) {
+        console.error('Error loading conversation:', error);
+        toast.error("Failed to load conversation history");
       }
     };
-    checkUser();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+    loadConversation();
+  }, [user]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -128,19 +136,13 @@ export const ChatAssistant = () => {
       if (userMessageError) throw userMessageError;
 
       // Get AI response
-      const response = await fetch(`${window.location.origin}/functions/v1/chat-completion`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ message }),
+      const response = await supabase.functions.invoke('chat-completion', {
+        body: { message },
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to get AI response');
+      if (response.error) {
+        throw new Error(response.error.message || 'Failed to get AI response');
       }
-
-      const data = await response.json();
 
       // Insert AI response
       const { error: aiMessageError } = await supabase
@@ -148,7 +150,7 @@ export const ChatAssistant = () => {
         .insert([{
           conversation_id: currentConversation.id,
           role: 'assistant' as const,
-          content: data.response
+          content: response.data.response
         }]);
 
       if (aiMessageError) throw aiMessageError;
@@ -202,7 +204,7 @@ export const ChatAssistant = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-24 right-6 w-[380px] h-[600px] bg-white rounded-2xl shadow-xl flex flex-col overflow-hidden border border-gray-100"
+            className="fixed bottom-24 right-6 w-[380px] h-[600px] bg-white rounded-2xl shadow-xl flex flex-col overflow-hidden border border-gray-100 dark:bg-gray-950 dark:border-gray-800"
           >
             <div className="p-4 border-b flex justify-between items-center bg-primary text-white">
               <h3 className="font-semibold">Zimbabwe Travel Assistant</h3>
@@ -233,7 +235,7 @@ export const ChatAssistant = () => {
                       className={`max-w-[80%] rounded-2xl px-4 py-2 ${
                         msg.role === 'user'
                           ? 'bg-primary text-white'
-                          : 'bg-gray-100 text-gray-800'
+                          : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100'
                       }`}
                     >
                       {msg.content}
@@ -243,7 +245,7 @@ export const ChatAssistant = () => {
               </div>
             </ScrollArea>
 
-            <div className="p-4 border-t bg-gray-50">
+            <div className="p-4 border-t bg-gray-50 dark:bg-gray-900 dark:border-gray-800">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();

@@ -15,6 +15,7 @@ serve(async (req) => {
 
   try {
     const { message } = await req.json();
+    console.log('Received message:', message);
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -27,12 +28,20 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: 'You are a helpful assistant specializing in Zimbabwe travel advice. Provide accurate, concise information about destinations, activities, and travel tips in Zimbabwe.'
+            content: 'You are a helpful travel assistant specializing in Zimbabwe tourism. Provide accurate, friendly, and concise information about destinations, activities, accommodations, and travel tips in Zimbabwe. Focus on creating engaging and informative responses that help travelers plan their visits.'
           },
           { role: 'user', content: message }
         ],
+        temperature: 0.7,
+        max_tokens: 500
       }),
     });
+
+    if (!response.ok) {
+      const error = await response.json();
+      console.error('OpenAI API Error:', error);
+      throw new Error(error.error?.message || 'Failed to get AI response');
+    }
 
     const data = await response.json();
     console.log('OpenAI API Response:', data);
