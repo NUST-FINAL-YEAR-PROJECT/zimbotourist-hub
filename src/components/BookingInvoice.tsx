@@ -39,6 +39,10 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: 'Helvetica',
   },
+  headerRight: {
+    flex: 1,
+    alignItems: 'flex-end',
+  },
   headerInfo: {
     fontSize: 12,
     color: '#6B7280',
