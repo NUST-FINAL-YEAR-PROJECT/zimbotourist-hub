@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
@@ -9,7 +10,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { BookingInvoice } from "./BookingInvoice";
-import { ArrowLeft, ArrowRight, Calendar as CalendarIcon, Users, Mail, Phone, Receipt, AlertCircle, Check, Info } from "lucide-react";
+import { ArrowLeft, ArrowRight, Calendar as CalendarIcon, Users, Mail, Phone, Receipt } from "lucide-react";
 import type { Destination } from "@/types/models";
 
 interface BookingFormProps {
@@ -94,8 +95,13 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
         className: "bg-green-50 border-green-200"
       });
       
-      // Redirect to payment page instead of calling onSuccess
-      window.location.href = `/dashboard/payment?booking_id=${booking.id}`;
+      // Construct PayNow URL with booking details
+      const amount = (destination.price * numberOfPeople).toFixed(2);
+      const merchantId = "19883"; // Replace with your actual merchant ID
+      const paymentLink = `https://www.paynow.co.zw/Payment/BillPaymentLink/?q=aWQ9${merchantId}&amount=${amount}&reference=${booking.id}&l=0&return_url=${encodeURIComponent(window.location.origin + "/dashboard/bookings")}`;
+      
+      // Redirect to PayNow
+      window.location.href = paymentLink;
     } catch (error: any) {
       toast({
         title: "Booking Creation Failed",
