@@ -60,7 +60,7 @@ export function AppSidebar() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Menu className="h-6 w-6 text-primary" />
-            <h2 className="text-lg font-display font-semibold text-primary">Wanderlust</h2>
+            <h2 className="text-lg font-display font-semibold text-primary">Reserve.zw</h2>
           </div>
           <ThemeToggle />
         </div>

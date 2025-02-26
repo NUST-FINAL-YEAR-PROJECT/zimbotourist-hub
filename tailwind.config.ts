@@ -23,35 +23,39 @@ export default {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
-        background: "#FFFFFF",
-        foreground: "#1A1F2C",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#0EA5E9", // Bright ocean blue
+          DEFAULT: "#0EA5E9",
           foreground: "#FFFFFF",
+          dark: "#0284C7",
         },
         secondary: {
-          DEFAULT: "#F0F9FF", // Light blue background
+          DEFAULT: "#F0F9FF",
           foreground: "#1A1F2C",
+          dark: "#0F172A",
         },
-        accent: {
-          DEFAULT: "#F97316", // Bright orange
-          foreground: "#FFFFFF",
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
         },
         muted: {
           DEFAULT: "#F1F5F9",
           foreground: "#64748B",
+          dark: "#1E293B",
+        },
+        accent: {
+          DEFAULT: "#F97316",
+          foreground: "#FFFFFF",
+          dark: "#EA580C",
         },
         popover: {
-          DEFAULT: "#FFFFFF",
-          foreground: "#1A1F2C",
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
         },
         card: {
-          DEFAULT: "#FFFFFF",
-          foreground: "#1A1F2C",
-        },
-        dialog: {
-          DEFAULT: "#FFFFFF",
-          foreground: "#1A1F2C",
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
         },
         sidebar: {
           DEFAULT: "#F8FAFC",
@@ -60,11 +64,22 @@ export default {
           accent: "#EFF6FF",
           "accent-foreground": "#0EA5E9",
           ring: "#BFDBFE",
+          dark: {
+            DEFAULT: "#0F172A",
+            border: "#1E293B",
+            accent: "#1E293B",
+            "accent-foreground": "#E2E8F0",
+          },
         }
       },
       fontFamily: {
         display: ["Montserrat", "sans-serif"],
         sans: ["Open Sans", "sans-serif"],
+      },
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
       },
       keyframes: {
         "accordion-down": {
@@ -93,29 +108,12 @@ export default {
             opacity: "1",
           },
         },
-        "scale-up": {
-          "0%": {
-            transform: "scale(0.95)",
-          },
-          "100%": {
-            transform: "scale(1)",
-          },
-        }
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-up": "fade-up 0.5s ease-out",
         "fade-in": "fade-in 0.3s ease-out",
-        "scale-up": "scale-up 0.3s ease-out",
-      },
-      boxShadow: {
-        'glass': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-      },
-      borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
       },
     },
   },
