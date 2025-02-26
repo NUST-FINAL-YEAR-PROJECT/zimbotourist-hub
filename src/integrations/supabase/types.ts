@@ -9,6 +9,127 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      accommodation_bookings: {
+        Row: {
+          accommodation_id: string | null
+          check_in_date: string
+          check_out_date: string
+          contact_email: string
+          contact_name: string
+          contact_phone: string
+          created_at: string
+          id: string
+          number_of_guests: number
+          payment_status: string | null
+          special_requests: string | null
+          status: string | null
+          total_price: number
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          accommodation_id?: string | null
+          check_in_date: string
+          check_out_date: string
+          contact_email: string
+          contact_name: string
+          contact_phone: string
+          created_at?: string
+          id?: string
+          number_of_guests: number
+          payment_status?: string | null
+          special_requests?: string | null
+          status?: string | null
+          total_price: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          accommodation_id?: string | null
+          check_in_date?: string
+          check_out_date?: string
+          contact_email?: string
+          contact_name?: string
+          contact_phone?: string
+          created_at?: string
+          id?: string
+          number_of_guests?: number
+          payment_status?: string | null
+          special_requests?: string | null
+          status?: string | null
+          total_price?: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accommodation_bookings_accommodation_id_fkey"
+            columns: ["accommodation_id"]
+            isOneToOne: false
+            referencedRelation: "accommodations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      accommodations: {
+        Row: {
+          amenities: string[] | null
+          bathrooms: number
+          bedrooms: number
+          created_at: string
+          description: string | null
+          destination_id: string | null
+          id: string
+          image_url: string | null
+          is_available: boolean | null
+          max_guests: number
+          name: string
+          price_per_night: number
+          room_types: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          amenities?: string[] | null
+          bathrooms: number
+          bedrooms: number
+          created_at?: string
+          description?: string | null
+          destination_id?: string | null
+          id?: string
+          image_url?: string | null
+          is_available?: boolean | null
+          max_guests: number
+          name: string
+          price_per_night: number
+          room_types?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          amenities?: string[] | null
+          bathrooms?: number
+          bedrooms?: number
+          created_at?: string
+          description?: string | null
+          destination_id?: string | null
+          id?: string
+          image_url?: string | null
+          is_available?: boolean | null
+          max_guests?: number
+          name?: string
+          price_per_night?: number
+          room_types?: string[] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accommodations_destination_id_fkey"
+            columns: ["destination_id"]
+            isOneToOne: false
+            referencedRelation: "destinations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       api_docs: {
         Row: {
           created_at: string
