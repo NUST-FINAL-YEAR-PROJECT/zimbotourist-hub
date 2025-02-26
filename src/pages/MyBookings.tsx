@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Trash2, BanIcon, Upload } from "lucide-react";
+import { Trash2, BanIcon, Upload, CreditCard } from "lucide-react";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
@@ -174,6 +173,16 @@ export const MyBookings = () => {
     setActionType(null);
   };
 
+  const handlePayNow = (booking: BookingWithRelations) => {
+    const baseUrl = 'https://www.paynow.co.zw/Payment/BillPaymentLink/?q=aWQ9MTk4ODMmYW1vdW50PTAuMDAmYW1vdW50X3F1YW50aXR5PTAuMDAmbD0w';
+    window.open(baseUrl, '_blank');
+  };
+
+  const showPaymentButton = (booking: BookingWithRelations) => {
+    return booking.payment_status === 'pending' || 
+           booking.payment_status === 'failed';
+  };
+
   const showUploadButton = (booking: BookingWithRelations) => {
     return booking.payment_status === 'pending' || 
            booking.status === 'pending' || 
@@ -255,6 +264,18 @@ export const MyBookings = () => {
                 </div>
                 
                 <div className="flex gap-2 self-start">
+                  {showPaymentButton(booking) && (
+                    <Button
+                      variant="default"
+                      size={isMobile ? "sm" : "default"}
+                      className="bg-[#008CBA] hover:bg-[#005f7f] text-white"
+                      onClick={() => handlePayNow(booking)}
+                    >
+                      <CreditCard className="w-4 h-4 mr-2" />
+                      Pay Now
+                    </Button>
+                  )}
+
                   {showUploadButton(booking) && (
                     <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
                       <DialogTrigger asChild>
