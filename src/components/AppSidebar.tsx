@@ -1,6 +1,6 @@
 
 import { useNavigate } from "react-router-dom";
-import { LogOut, MapPin, Settings, Ticket, Home, Calendar, Menu } from "lucide-react";
+import { LogOut, MapPin, Settings, Ticket, Home, Calendar, Menu, Building2 } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -41,6 +41,11 @@ export function AppSidebar() {
       title: "Destinations",
       icon: MapPin,
       onClick: () => navigate("/dashboard/destinations"),
+    },
+    {
+      title: "Accommodations",
+      icon: Building2,
+      onClick: () => navigate("/dashboard/accommodations"),
     },
     {
       title: "Events",
