@@ -8,7 +8,7 @@ interface AccommodationListProps {
 }
 
 export const AccommodationList = ({ destinationId }: AccommodationListProps) => {
-  const { data: accommodations, isLoading, error } = useAccommodations(destinationId);
+  const { data: accommodations, isLoading } = useAccommodations(destinationId);
 
   if (isLoading) {
     return (
@@ -18,18 +18,10 @@ export const AccommodationList = ({ destinationId }: AccommodationListProps) => 
     );
   }
 
-  if (error) {
+  if (!accommodations || accommodations.length === 0) {
     return (
-      <div className="text-center py-8 text-muted-foreground">
-        Failed to load accommodations
-      </div>
-    );
-  }
-
-  if (!accommodations?.length) {
-    return (
-      <div className="text-center py-8 text-muted-foreground">
-        No accommodations found
+      <div className="text-center py-8">
+        <p className="text-muted-foreground">No accommodations found.</p>
       </div>
     );
   }
@@ -37,10 +29,7 @@ export const AccommodationList = ({ destinationId }: AccommodationListProps) => 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {accommodations.map((accommodation) => (
-        <AccommodationCard
-          key={accommodation.id}
-          {...accommodation}
-        />
+        <AccommodationCard key={accommodation.id} accommodation={accommodation} />
       ))}
     </div>
   );
