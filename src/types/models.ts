@@ -20,6 +20,28 @@ export interface Destination {
   updated_at: string;
   categories: string[] | null;
   is_featured: boolean | null;
+  accommodations?: Accommodation[];
+}
+
+export interface Accommodation {
+  id: string;
+  name: string;
+  description: string | null;
+  price_per_night: number;
+  max_guests: number;
+  bedrooms: number;
+  bathrooms: number;
+  image_url: string | null;
+  room_types: string[] | null;
+  amenities: string[] | null;
+  is_available: boolean | null;
+  created_at: string;
+  updated_at: string;
+  destination_id: string | null;
+  destinations?: {
+    name: string;
+    location: string;
+  } | null;
 }
 
 export interface Event {
