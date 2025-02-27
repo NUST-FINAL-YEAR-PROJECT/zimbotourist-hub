@@ -1,29 +1,26 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import type { Accommodation } from "@/types/models";
 import { toast } from "sonner";
+import type { Accommodation } from "@/types/models";
 
 export const useAccommodations = (destinationId?: string) => {
   return useQuery({
     queryKey: ["accommodations", destinationId],
     queryFn: async () => {
-      let query = supabase
-        .from("accommodations")
-        .select(`
-          *,
-          destinations (
-            name,
-            location
-          )
-        `)
-        .order("created_at", { ascending: false });
+      let query = supabase.from("accommodations").select(`
+        *,
+        destinations (
+          name,
+          location
+        )
+      `);
 
       if (destinationId) {
         query = query.eq("destination_id", destinationId);
       }
 
-      const { data, error } = await query;
+      const { data, error } = await query.order("created_at", { ascending: false });
 
       if (error) {
         console.error("Error fetching accommodations:", error);
@@ -31,12 +28,7 @@ export const useAccommodations = (destinationId?: string) => {
         throw error;
       }
 
-      return data as (Accommodation & {
-        destinations?: {
-          name: string;
-          location: string;
-        } | null;
-      })[];
+      return data as Accommodation[];
     },
   });
 };

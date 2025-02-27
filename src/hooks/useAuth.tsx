@@ -12,6 +12,7 @@ export const useAuth = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Get initial session
     const getInitialSession = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
@@ -30,6 +31,7 @@ export const useAuth = () => {
 
     getInitialSession();
 
+    // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
@@ -38,7 +40,7 @@ export const useAuth = () => {
       if (_event === 'SIGNED_OUT') {
         setSession(null);
         setUser(null);
-        navigate('/');
+        navigate('/');  // Changed from '/auth' to '/'
         toast.success("Successfully signed out");
       } else if (_event === 'SIGNED_IN' || _event === 'TOKEN_REFRESHED') {
         setSession(session);
@@ -61,18 +63,12 @@ export const useAuth = () => {
   const signOut = async () => {
     try {
       await supabase.auth.signOut();
-      localStorage.clear();
+      localStorage.clear(); // Clear all local storage on sign out
     } catch (error: any) {
       console.error('Error signing out:', error);
       toast.error(error.message);
     }
   };
 
-  return {
-    user,
-    session,
-    loading,
-    signOut,
-    isAuthenticated: !!session
-  };
+  return { user, session, loading, signOut };
 };
