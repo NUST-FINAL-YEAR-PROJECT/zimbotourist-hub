@@ -1,7 +1,7 @@
 
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { MapPin, Calendar, Clock, Star, Activity, ArrowLeft, Home, Hotel } from "lucide-react";
+import { MapPin, Calendar, Clock, Star, Activity, ArrowLeft, Home } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { BookingForm } from "@/components/BookingForm";
 import { ReviewSection } from "@/components/ReviewSection";
@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useAccommodations } from "@/hooks/useAccommodations";
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -49,8 +48,6 @@ export const DestinationDetails = () => {
       return data as Destination;
     },
   });
-
-  const { data: accommodations = [] } = useAccommodations(id);
 
   const handleBack = () => {
     navigate(-1);
@@ -185,57 +182,6 @@ export const DestinationDetails = () => {
                         >
                           <Activity className="h-5 w-5 text-primary" />
                           <span className="font-medium">{activity}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Accommodations Section */}
-              {accommodations.length > 0 && (
-                <Card className="overflow-hidden border-none shadow-md hover:shadow-lg transition-shadow">
-                  <CardContent className="pt-6">
-                    <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                      <Hotel className="h-5 w-5 text-primary" />
-                      Available Accommodations
-                    </h2>
-                    <div className="grid grid-cols-1 gap-4">
-                      {accommodations.map((accommodation) => (
-                        <div
-                          key={accommodation.id}
-                          className="p-4 rounded-xl bg-secondary/30 hover:bg-secondary/50 transition-colors cursor-pointer"
-                          onClick={() => navigate(`/accommodation/${accommodation.id}`)}
-                        >
-                          <div className="flex flex-col md:flex-row gap-4">
-                            <div className="w-full md:w-1/3 aspect-[4/3] rounded-lg overflow-hidden">
-                              <img
-                                src={accommodation.image_url || "/placeholder.svg"}
-                                alt={accommodation.name}
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-                            <div className="flex-1 space-y-2">
-                              <h3 className="text-lg font-semibold">{accommodation.name}</h3>
-                              <p className="text-sm text-muted-foreground line-clamp-2">
-                                {accommodation.description}
-                              </p>
-                              <div className="flex flex-wrap gap-3">
-                                <span className="text-sm flex items-center gap-1">
-                                  <Star className="h-4 w-4 text-primary" />
-                                  ${accommodation.price_per_night}/night
-                                </span>
-                                <span className="text-sm flex items-center gap-1">
-                                  <Home className="h-4 w-4 text-primary" />
-                                  {accommodation.bedrooms} bedrooms
-                                </span>
-                                <span className="text-sm flex items-center gap-1">
-                                  <MapPin className="h-4 w-4 text-primary" />
-                                  Max {accommodation.max_guests} guests
-                                </span>
-                              </div>
-                            </div>
-                          </div>
                         </div>
                       ))}
                     </div>
