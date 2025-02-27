@@ -1,9 +1,5 @@
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
+
+import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -28,32 +24,30 @@ function App() {
     >
       <AuthProvider>
         <AppNotificationProvider>
-          <Router>
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/sign-in" element={<SignIn />} />
-              <Route path="/sign-up" element={<SignUp />} />
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/sign-in" element={<SignIn />} />
+            <Route path="/sign-up" element={<SignUp />} />
 
-              <Route
-                path="/dashboard"
-                element={
-                  <RequireAuth>
-                    <DashboardLayout />
-                  </RequireAuth>
-                }
-              >
-                <Route index element={<Navigate to="destinations" />} />
-                <Route path="destinations" element={<DestinationsPage />} />
-                <Route path="destinations/:id" element={<DestinationDetails />} />
-                <Route path="accommodations" element={<AccommodationsPage />} />
-                <Route path="events" element={<EventsPage />} />
-                <Route path="bookings" element={<BookingsPage />} />
-                <Route path="settings" element={<SettingsPage />} />
-              </Route>
+            <Route
+              path="/dashboard"
+              element={
+                <RequireAuth>
+                  <DashboardLayout />
+                </RequireAuth>
+              }
+            >
+              <Route index element={<Navigate to="destinations" />} />
+              <Route path="destinations" element={<DestinationsPage />} />
+              <Route path="destinations/:id" element={<DestinationDetails />} />
+              <Route path="accommodations" element={<AccommodationsPage />} />
+              <Route path="events" element={<EventsPage />} />
+              <Route path="bookings" element={<BookingsPage />} />
+              <Route path="settings" element={<SettingsPage />} />
+            </Route>
 
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
-          </Router>
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
         </AppNotificationProvider>
       </AuthProvider>
     </ThemeProvider>
