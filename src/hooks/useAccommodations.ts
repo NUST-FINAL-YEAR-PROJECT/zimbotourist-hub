@@ -13,7 +13,6 @@ export const useAccommodations = (destinationId?: string) => {
       
       if (destinationId) {
         // If we're using this in a destination context, filter by destinationId
-        // This assumes you've added a destination_id column to link accommodations to destinations
         query = query.eq("destination_id", destinationId);
       }
       

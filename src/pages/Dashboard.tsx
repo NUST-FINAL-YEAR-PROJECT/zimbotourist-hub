@@ -3,6 +3,7 @@ import { useNavigate, Routes, Route } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { DestinationExplorer } from "@/components/DestinationExplorer";
 import { EventsList } from "@/components/EventsList";
+import { AccommodationsList } from "@/components/AccommodationsList";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import type { Profile, Booking, AppNotification } from "@/types/models";
@@ -586,6 +587,7 @@ export const Dashboard = () => {
               element={<DashboardHome profile={profile} bookings={bookings} />}
             />
             <Route path="/destinations" element={<DestinationExplorer />} />
+            <Route path="/accommodations" element={<AccommodationsList />} />
             <Route path="/events" element={<EventsList />} />
             <Route path="/events/:id" element={<EventDetails />} />
             <Route path="/settings" element={<SettingsPage />} />

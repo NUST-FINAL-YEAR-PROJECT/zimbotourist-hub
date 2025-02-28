@@ -14,6 +14,7 @@ import { AccommodationDetails } from "./pages/AccommodationDetails";
 import Documentation from "./pages/Documentation";
 import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
+import { InitializeData } from "./components/InitializeData";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
@@ -64,6 +65,7 @@ const AuthRoute = ({ children }: { children: React.ReactNode }) => {
 const App = () => (
   <ThemeProvider defaultTheme="system" storageKey="ui-theme">
     <TooltipProvider>
+      <InitializeData />
       <Toaster />
       <Sonner />
       <Routes>
