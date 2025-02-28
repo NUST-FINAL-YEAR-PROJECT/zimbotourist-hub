@@ -184,6 +184,8 @@ export const DestinationExplorer = () => {
               isInWishlist={wishlist.includes(destination.id)}
               onWishlistToggle={handleWishlistToggle}
               categories={destination.categories || []}
+              duration={destination.duration_recommended || undefined}
+              bestTimeToVisit={destination.best_time_to_visit || undefined}
             />
           ))}
         </div>

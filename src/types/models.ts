@@ -1,4 +1,5 @@
 
+
 export interface Destination {
   id: string;
   name: string;
@@ -6,6 +7,7 @@ export interface Destination {
   location: string;
   price: number;
   image_url: string | null;
+  additional_images: string[] | null;
   activities: string[] | null;
   best_time_to_visit: string | null;
   duration_recommended: string | null;
@@ -60,6 +62,7 @@ export interface Accommodation {
   host_response_time: string | null;
   created_at: string;
   updated_at: string;
+  destination_id?: string | null;
 }
 
 export interface AccommodationBooking {
@@ -174,3 +177,4 @@ export interface BookingWithRelations extends Booking {
     image_url: string | null;
   } | null;
 }
+

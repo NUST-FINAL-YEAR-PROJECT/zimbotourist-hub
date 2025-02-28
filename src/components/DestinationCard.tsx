@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { MapPin, DollarSign, Heart } from "lucide-react";
+import { MapPin, DollarSign, Heart, Calendar, Clock, Star } from "lucide-react";
 import type { Destination } from "@/types/models";
 
 type SimplifiedDestination = Pick<
@@ -23,6 +23,8 @@ interface DestinationCardProps {
   isInWishlist?: boolean;
   onWishlistToggle?: (id: string) => void;
   categories?: string[];
+  duration?: string;
+  bestTimeToVisit?: string;
 }
 
 export const DestinationCard = ({
@@ -36,6 +38,8 @@ export const DestinationCard = ({
   isInWishlist = false,
   onWishlistToggle,
   categories = [],
+  duration,
+  bestTimeToVisit,
 }: DestinationCardProps) => {
   const navigate = useNavigate();
   const [similarDestinations, setSimilarDestinations] = useState<SimplifiedDestination[]>([]);
@@ -105,7 +109,7 @@ export const DestinationCard = ({
           </span>
           {categories.length > 0 && (
             <div className="flex gap-2">
-              {categories.map((category, index) => (
+              {categories.slice(0, 2).map((category, index) => (
                 <span
                   key={index}
                   className="bg-black/50 text-white text-xs px-2 py-1 rounded-full backdrop-blur-sm"
@@ -113,6 +117,11 @@ export const DestinationCard = ({
                   {category}
                 </span>
               ))}
+              {categories.length > 2 && (
+                <span className="bg-black/50 text-white text-xs px-2 py-1 rounded-full backdrop-blur-sm">
+                  +{categories.length - 2}
+                </span>
+              )}
             </div>
           )}
         </div>
@@ -125,6 +134,23 @@ export const DestinationCard = ({
           </h3>
           <p className="text-muted-foreground line-clamp-2 text-sm">{description}</p>
         </div>
+        
+        {(duration || bestTimeToVisit) && (
+          <div className="flex flex-wrap gap-2 mt-2">
+            {duration && (
+              <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                <Clock className="h-3 w-3 text-primary" />
+                {duration}
+              </span>
+            )}
+            {bestTimeToVisit && (
+              <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                <Calendar className="h-3 w-3 text-primary" />
+                {bestTimeToVisit}
+              </span>
+            )}
+          </div>
+        )}
 
         <div className="flex gap-4">
           {showSimilar && (
