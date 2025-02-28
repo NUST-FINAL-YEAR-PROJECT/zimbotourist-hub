@@ -20,7 +20,6 @@ export interface Destination {
   updated_at: string;
   categories: string[] | null;
   is_featured: boolean | null;
-  accommodations?: Accommodation[];
 }
 
 export interface Accommodation {

@@ -10,7 +10,6 @@ import Auth from "./pages/Auth";
 import { Dashboard } from "./pages/Dashboard";
 import { DestinationDetails } from "./pages/DestinationDetails";
 import { EventDetails } from "./pages/EventDetails";
-import { AccommodationDetails } from "./pages/AccommodationDetails";
 import Documentation from "./pages/Documentation";
 import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
@@ -87,14 +86,6 @@ const App = () => (
           element={
             <ProtectedRoute>
               <DestinationDetails />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/accommodation/:id"
-          element={
-            <ProtectedRoute>
-              <AccommodationDetails />
             </ProtectedRoute>
           }
         />
