@@ -79,11 +79,146 @@ export const ChatAssistant = () => {
       };
     }
     
-    if (normalizedMessage.includes("bookings") || normalizedMessage.includes("my trips")) {
+    // Enhanced booking-related responses
+    if (normalizedMessage.includes("bookings") || normalizedMessage.includes("my trips") || normalizedMessage.includes("my reservations")) {
+      // Try to fetch some of the user's bookings
+      try {
+        const { data: userBookings, error: bookingsError } = await supabase
+          .from("bookings")
+          .select(`
+            id, 
+            booking_date, 
+            status, 
+            payment_status,
+            destinations (name),
+            events (title)
+          `)
+          .limit(3)
+          .order('created_at', { ascending: false });
+        
+        if (bookingsError) throw bookingsError;
+        
+        if (userBookings && userBookings.length > 0) {
+          const bookingDetails = userBookings.map(booking => {
+            const destinationOrEvent = booking.destinations?.name || booking.events?.title || "Unknown";
+            const date = new Date(booking.booking_date).toLocaleDateString();
+            return `- ${destinationOrEvent} (${date}): ${booking.status}`;
+          }).join("\n");
+          
+          return {
+            content: `Here are your recent bookings:\n\n${bookingDetails}\n\nYou can view all your bookings here:`,
+            links: [{ text: "View All Bookings", url: "/dashboard/bookings" }]
+          };
+        } else {
+          return {
+            content: "You can view your bookings and manage reservations here:",
+            links: [{ text: "View My Bookings", url: "/dashboard/bookings" }]
+          };
+        }
+      } catch (error) {
+        console.error("Error fetching bookings:", error);
+        return {
+          content: "You can view your bookings here:",
+          links: [{ text: "View My Bookings", url: "/dashboard/bookings" }]
+        };
+      }
+    }
+
+    // Handle booking status inquiries
+    if (normalizedMessage.includes("booking status") || 
+        normalizedMessage.includes("reservation status") || 
+        normalizedMessage.match(/status of (my|the) booking/)) {
+      try {
+        const { data: latestBooking, error: bookingError } = await supabase
+          .from("bookings")
+          .select(`
+            id, 
+            booking_date, 
+            status, 
+            payment_status,
+            destinations (name),
+            events (title)
+          `)
+          .order('created_at', { ascending: false })
+          .limit(1);
+        
+        if (bookingError) throw bookingError;
+        
+        if (latestBooking && latestBooking.length > 0) {
+          const booking = latestBooking[0];
+          const destinationOrEvent = booking.destinations?.name || booking.events?.title || "Unknown";
+          
+          return {
+            content: `Your latest booking for ${destinationOrEvent} is currently ${booking.status}. Payment status: ${booking.payment_status}.`,
+            links: [{ text: "View Booking Details", url: "/dashboard/bookings" }]
+          };
+        } else {
+          return {
+            content: "I couldn't find any bookings associated with your account. Would you like to make a new booking?",
+            links: [
+              { text: "Browse Destinations", url: "/dashboard/destinations" },
+              { text: "View Events", url: "/dashboard/events" }
+            ]
+          };
+        }
+      } catch (error) {
+        console.error("Error fetching booking status:", error);
+        return {
+          content: "I'm having trouble retrieving your booking status. You can check your bookings directly here:",
+          links: [{ text: "View My Bookings", url: "/dashboard/bookings" }]
+        };
+      }
+    }
+    
+    // Handle cancellation queries
+    if (normalizedMessage.includes("cancel") && 
+        (normalizedMessage.includes("booking") || normalizedMessage.includes("reservation"))) {
       return {
-        content: "You can view your bookings here:",
-        links: [{ text: "View My Bookings", url: "/dashboard/bookings" }]
+        content: "You can cancel your bookings from the bookings page. Please note our cancellation policy: cancellations made at least 48 hours before the booking date are eligible for a full refund.",
+        links: [{ text: "Manage Bookings", url: "/dashboard/bookings" }]
       };
+    }
+    
+    // Handle payment queries
+    if (normalizedMessage.includes("payment") || normalizedMessage.includes("pay for")) {
+      try {
+        const { data: pendingBookings, error: paymentError } = await supabase
+          .from("bookings")
+          .select(`
+            id, 
+            total_price,
+            destinations (name),
+            events (title)
+          `)
+          .eq('payment_status', 'pending')
+          .order('created_at', { ascending: false })
+          .limit(3);
+        
+        if (paymentError) throw paymentError;
+        
+        if (pendingBookings && pendingBookings.length > 0) {
+          const pendingPayments = pendingBookings.map(booking => {
+            const destinationOrEvent = booking.destinations?.name || booking.events?.title || "Unknown";
+            return `- ${destinationOrEvent}: $${booking.total_price.toFixed(2)}`;
+          }).join("\n");
+          
+          return {
+            content: `You have the following pending payments:\n\n${pendingPayments}\n\nYou can complete your payments here:`,
+            links: [{ text: "Complete Payments", url: "/dashboard/bookings" }]
+          };
+        } else {
+          return {
+            content: "You don't have any pending payments at the moment. You can view your booking payment history here:",
+            links: [{ text: "View Bookings", url: "/dashboard/bookings" }]
+          };
+        }
+      } catch (error) {
+        console.error("Error fetching payment information:", error);
+        return {
+          content: "You can complete payments for your bookings here:",
+          links: [{ text: "Manage Payments", url: "/dashboard/bookings" }]
+        };
+      }
     }
     
     // Check for specific destination or attraction queries
@@ -212,9 +347,39 @@ export const ChatAssistant = () => {
       };
     }
     
+    // Search for general keywords in destinations
+    const searchTerms = normalizedMessage.split(' ').filter(word => word.length > 3);
+    if (searchTerms.length > 0) {
+      for (const term of searchTerms) {
+        const { data: matchingDestinations } = await supabase
+          .from("destinations")
+          .select("id, name, description, image_url")
+          .or(`name.ilike.%${term}%, description.ilike.%${term}%`)
+          .limit(2);
+          
+        if (matchingDestinations && matchingDestinations.length > 0) {
+          const destination = matchingDestinations[0];
+          const shortDescription = destination.description 
+            ? destination.description.substring(0, 150) + (destination.description.length > 150 ? '...' : '')
+            : 'No description available.';
+            
+          return {
+            content: `I found information about ${destination.name}: ${shortDescription}`,
+            links: [{ text: `Learn more about ${destination.name}`, url: `/destinations/${destination.id}` }],
+            image: destination.image_url
+          };
+        }
+      }
+    }
+    
     // Default response if no keywords match
     return {
-      content: "I don't have specific information about that. As your travel assistant, I can provide information about Zimbabwe's major attractions, accommodations, travel tips, and recommendations. Would you like to know about popular destinations, best time to visit, or travel requirements?"
+      content: "I don't have specific information about that. As your travel assistant, I can provide information about Zimbabwe's major attractions, accommodations, travel tips, and recommendations. Would you like to know about popular destinations, best time to visit, or travel requirements?",
+      links: [
+        { text: "Browse Destinations", url: "/dashboard/destinations" },
+        { text: "View Accommodations", url: "/dashboard/accommodations" },
+        { text: "Explore Events", url: "/dashboard/events" }
+      ]
     };
   };
 
