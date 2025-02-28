@@ -4,11 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
-import { FileText, Upload, File } from "lucide-react"; // Changed FilePdf to FileText which exists in lucide-react
+import { FileText, Upload, File } from "lucide-react"; 
+import { useUpdateEventProgram } from "@/hooks/useEvents";
 
 interface EventProgramUploaderProps {
   eventId: string;
-  onUploadComplete: (url: string, fileName: string, fileType: string) => void;
+  onUploadComplete?: (url: string, fileName: string, fileType: string) => void;
   existingProgramUrl?: string | null;
   existingProgramName?: string | null;
   existingProgramType?: string | null;
@@ -23,6 +24,7 @@ export const EventProgramUploader = ({
 }: EventProgramUploaderProps) => {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const updateEventProgram = useUpdateEventProgram();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) {
@@ -47,26 +49,55 @@ export const EventProgramUploader = ({
     setProgress(0);
     
     try {
-      const { error: uploadError, data } = await supabase.storage
-        .from("events")
-        .upload(filePath, file, {
-          cacheControl: "3600",
-          upsert: false,
-          onUploadProgress: (progress) => {
-            setProgress(Math.round((progress.loaded / progress.total) * 100));
-          },
+      // Create a custom upload function that tracks progress
+      const uploadFile = async () => {
+        let uploadProgress = 0;
+        
+        // Set up progress tracking with XMLHttpRequest
+        const xhr = new XMLHttpRequest();
+        
+        xhr.upload.addEventListener("progress", (event) => {
+          if (event.lengthComputable) {
+            uploadProgress = Math.round((event.loaded / event.total) * 100);
+            setProgress(uploadProgress);
+          }
         });
-
-      if (uploadError) {
-        throw uploadError;
-      }
-
+        
+        // Use the standard Supabase upload without the onUploadProgress option
+        const { error: uploadError, data } = await supabase.storage
+          .from("events")
+          .upload(filePath, file, {
+            cacheControl: "3600",
+            upsert: false
+          });
+          
+        if (uploadError) {
+          throw uploadError;
+        }
+        
+        return data;
+      };
+      
+      await uploadFile();
+      
       const { data: { publicUrl } } = supabase.storage
         .from("events")
         .getPublicUrl(filePath);
 
+      // Update the event with the program info
+      await updateEventProgram.mutateAsync({
+        eventId,
+        programUrl: publicUrl,
+        programName: file.name,
+        programType: file.type,
+      });
+
       toast.success("Program uploaded successfully!");
-      onUploadComplete(publicUrl, file.name, file.type);
+      
+      // Call the callback if provided
+      if (onUploadComplete) {
+        onUploadComplete(publicUrl, file.name, file.type);
+      }
     } catch (error: any) {
       toast.error("Error uploading file: " + error.message);
       console.error("Error uploading file:", error);
