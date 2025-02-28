@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { DuplicateBookingAlert } from "./DuplicateBookingAlert";
 import type { Event } from "@/types/models";
 
 interface EventBookingFormProps {
@@ -26,12 +27,35 @@ export const EventBookingForm = ({ event, onSuccess }: EventBookingFormProps) =>
   const [contactEmail, setContactEmail] = useState("");
   const [contactPhone, setContactPhone] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showDuplicateAlert, setShowDuplicateAlert] = useState(false);
+  const [hasCheckedDuplicate, setHasCheckedDuplicate] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
   const progress = (step / 3) * 100;
   const totalPrice = (selectedTicketType.price || event.price || 0) * numberOfTickets;
+
+  const checkForDuplicateBookings = async () => {
+    if (!user) return false;
+    
+    try {
+      const { data, error } = await supabase
+        .from("bookings")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("event_id", event.id)
+        .in("status", ["pending", "confirmed"])
+        .in("payment_status", ["pending", "processing"]);
+
+      if (error) throw error;
+      
+      return data && data.length > 0;
+    } catch (error) {
+      console.error("Error checking for duplicate bookings:", error);
+      return false;
+    }
+  };
 
   const handleSubmit = async () => {
     if (!user) {
@@ -50,6 +74,17 @@ export const EventBookingForm = ({ event, onSuccess }: EventBookingFormProps) =>
         variant: "destructive"
       });
       return;
+    }
+
+    // Check for duplicate bookings if we haven't already
+    if (!hasCheckedDuplicate) {
+      setHasCheckedDuplicate(true);
+      const hasDuplicate = await checkForDuplicateBookings();
+      
+      if (hasDuplicate) {
+        setShowDuplicateAlert(true);
+        return;
+      }
     }
 
     setIsSubmitting(true);
@@ -91,6 +126,12 @@ export const EventBookingForm = ({ event, onSuccess }: EventBookingFormProps) =>
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleContinueAnyway = () => {
+    setShowDuplicateAlert(false);
+    // Continue with the booking submission
+    handleSubmit();
   };
 
   return (
@@ -288,6 +329,13 @@ export const EventBookingForm = ({ event, onSuccess }: EventBookingFormProps) =>
           </Button>
         )}
       </div>
+
+      <DuplicateBookingAlert
+        open={showDuplicateAlert}
+        onOpenChange={setShowDuplicateAlert}
+        onContinue={handleContinueAnyway}
+        destinationName={event.title}
+      />
     </div>
   );
 };
