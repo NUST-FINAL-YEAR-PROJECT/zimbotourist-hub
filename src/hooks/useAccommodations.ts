@@ -23,7 +23,7 @@ export const useAccommodations = (destinationId?: string) => {
         throw error;
       }
       
-      return data as unknown as Accommodation[];
+      return data as Accommodation[];
     },
   });
 };
@@ -43,7 +43,7 @@ export const useAccommodation = (id: string) => {
         throw error;
       }
       
-      return data as unknown as Accommodation;
+      return data as Accommodation;
     },
     enabled: !!id,
   });
