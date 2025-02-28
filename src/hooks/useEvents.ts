@@ -1,5 +1,5 @@
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { Event } from "@/types/models";
@@ -61,5 +61,49 @@ export const useEvent = (id: string | undefined) => {
       return data as Event;
     },
     enabled: !!id,
+  });
+};
+
+export const useUpdateEventProgram = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({
+      eventId,
+      programUrl,
+      programName,
+      programType,
+    }: {
+      eventId: string;
+      programUrl: string;
+      programName: string;
+      programType: string;
+    }) => {
+      const { data, error } = await supabase
+        .from("events")
+        .update({
+          program_url: programUrl,
+          program_name: programName,
+          program_type: programType,
+        })
+        .eq("id", eventId)
+        .select()
+        .single();
+
+      if (error) {
+        console.error("Error updating event program:", error);
+        throw error;
+      }
+
+      return data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["event", variables.eventId] });
+      toast.success("Event program updated successfully");
+    },
+    onError: (error) => {
+      console.error("Mutation error:", error);
+      toast.error("Failed to update event program");
+    },
   });
 };

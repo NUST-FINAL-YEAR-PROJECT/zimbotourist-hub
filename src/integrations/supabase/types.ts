@@ -581,6 +581,9 @@ export type Database = {
           image_url: string | null
           location: string | null
           price: number | null
+          program_name: string | null
+          program_type: string | null
+          program_url: string | null
           start_date: string | null
           ticket_types: Json | null
           title: string
@@ -595,6 +598,9 @@ export type Database = {
           image_url?: string | null
           location?: string | null
           price?: number | null
+          program_name?: string | null
+          program_type?: string | null
+          program_url?: string | null
           start_date?: string | null
           ticket_types?: Json | null
           title: string
@@ -609,6 +615,9 @@ export type Database = {
           image_url?: string | null
           location?: string | null
           price?: number | null
+          program_name?: string | null
+          program_type?: string | null
+          program_url?: string | null
           start_date?: string | null
           ticket_types?: Json | null
           title?: string
