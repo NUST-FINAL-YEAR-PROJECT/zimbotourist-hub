@@ -52,8 +52,7 @@ export const ReviewSection = ({ destinationId, accommodationId, userId }: Review
           created_at,
           updated_at
         `)
-        .eq(destinationId ? "destination_id" : "destination_id", destinationId || accommodationId)
-        .order("created_at", { ascending: false });
+        .eq("destination_id", destinationId || accommodationId);
 
       if (reviewsError) throw reviewsError;
       
