@@ -9,25 +9,60 @@ export const useReviews = (destinationId: string) => {
     queryKey: ["reviews", destinationId],
     queryFn: async () => {
       try {
-        const { data, error } = await supabase
+        // First fetch reviews
+        const { data: reviewsData, error: reviewsError } = await supabase
           .from("reviews")
           .select(`
-            *,
-            profiles (
-              username,
-              avatar_url
-            )
+            id,
+            user_id,
+            destination_id,
+            rating,
+            comment,
+            created_at,
+            updated_at
           `)
           .eq("destination_id", destinationId)
           .order("created_at", { ascending: false });
 
-        if (error) {
-          console.error("Error fetching reviews:", error);
+        if (reviewsError) {
+          console.error("Error fetching reviews:", reviewsError);
           toast.error("Failed to fetch reviews");
-          throw error;
+          throw reviewsError;
         }
 
-        return data as Review[];
+        // Then fetch profiles for the user_ids in the reviews
+        const userIds = reviewsData.map(review => review.user_id);
+        
+        if (userIds.length > 0) {
+          const { data: profilesData, error: profilesError } = await supabase
+            .from("profiles")
+            .select("id, username, avatar_url")
+            .in("id", userIds);
+
+          if (profilesError) {
+            console.error("Error fetching profiles:", profilesError);
+            // Don't throw here, we can still return reviews without profiles
+          }
+
+          // Merge the profiles data with the reviews
+          if (profilesData) {
+            const reviewsWithProfiles = reviewsData.map(review => ({
+              ...review,
+              profiles: profilesData.find(profile => profile.id === review.user_id) || { 
+                username: "Anonymous", 
+                avatar_url: null 
+              }
+            }));
+            
+            return reviewsWithProfiles as Review[];
+          }
+        }
+        
+        // If no profiles were fetched, return reviews with default profile data
+        return reviewsData.map(review => ({
+          ...review,
+          profiles: { username: "Anonymous", avatar_url: null }
+        })) as Review[];
       } catch (error) {
         console.error("Error fetching reviews:", error);
         toast.error("Failed to fetch reviews");
@@ -42,7 +77,7 @@ export const useCreateReview = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (review: Omit<Review, "id" | "created_at" | "updated_at">) => {
+    mutationFn: async (review: Omit<Review, "id" | "created_at" | "updated_at" | "profiles">) => {
       const { data, error } = await supabase
         .from("reviews")
         .insert(review)

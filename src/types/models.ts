@@ -1,5 +1,4 @@
 
-
 export interface Destination {
   id: string;
   name: string;
@@ -177,4 +176,3 @@ export interface BookingWithRelations extends Booking {
     image_url: string | null;
   } | null;
 }
-
