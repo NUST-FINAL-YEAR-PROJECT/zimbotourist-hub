@@ -1,4 +1,3 @@
-
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
@@ -599,6 +598,24 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Accommodations Section */}
+      <section className="py-20 sm:py-24 bg-gray-50">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center mb-12">
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold mb-2">Featured Accommodations</h2>
+              <p className="text-muted-foreground">Find the perfect place to stay</p>
+            </div>
+            <Button variant="ghost" className="text-primary group hidden md:flex" onClick={() => navigate('/accommodations')}>
+              View all 
+              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </Button>
+          </div>
+          
+          <AccommodationsList limit={3} showViewAll={true} />
+        </div>
+      </section>
+
       {/* Events Section (if events exist) */}
       {!isLoadingEvents && events && events.length > 0 && (
         <section className="py-20 sm:py-24 bg-gray-50">
@@ -713,4 +730,3 @@ const Index = () => {
 };
 
 export default Index;
-

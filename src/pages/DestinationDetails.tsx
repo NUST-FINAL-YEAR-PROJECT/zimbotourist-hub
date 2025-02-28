@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { MapPin, Calendar, Clock, Star, Activity, ArrowLeft, Home, Hotel } from "lucide-react";
@@ -12,6 +11,9 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAccommodations } from "@/hooks/useAccommodations";
+import { useState } from "react";
+import { AuthRequiredDialog } from "@/components/AuthRequiredDialog";
+import { useAuth } from "@/hooks/useAuth";
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -27,6 +29,8 @@ export const DestinationDetails = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { user } = useAuth();
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
 
   const { data: destination, isLoading, error } = useQuery({
     queryKey: ["destination", id],
@@ -54,6 +58,14 @@ export const DestinationDetails = () => {
 
   const handleBack = () => {
     navigate(-1);
+  };
+
+  const handleBookNowClick = () => {
+    if (!user) {
+      setShowAuthDialog(true);
+      return;
+    }
+    // Existing booking flow for authenticated users
   };
 
   if (isLoading) {
@@ -284,24 +296,36 @@ export const DestinationDetails = () => {
                     </div>
                   </div>
                   
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button className="w-full" size="lg">
+                  {user ? (
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button className="w-full" size="lg">
+                          Book Now
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                        <div className="p-6">
+                          <h2 className="text-2xl font-bold mb-6">Book Your Trip</h2>
+                          {destination && (
+                            <BookingForm 
+                              destination={destination}
+                              onSuccess={() => navigate("/dashboard/bookings")}
+                            />
+                          )}
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  ) : (
+                    <>
+                      <Button className="w-full" size="lg" onClick={handleBookNowClick}>
                         Book Now
                       </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                      <div className="p-6">
-                        <h2 className="text-2xl font-bold mb-6">Book Your Trip</h2>
-                        {destination && (
-                          <BookingForm 
-                            destination={destination}
-                            onSuccess={() => navigate("/dashboard/bookings")}
-                          />
-                        )}
-                      </div>
-                    </DialogContent>
-                  </Dialog>
+                      <AuthRequiredDialog 
+                        isOpen={showAuthDialog} 
+                        onClose={() => setShowAuthDialog(false)} 
+                      />
+                    </>
+                  )}
 
                   <div className="text-sm text-muted-foreground space-y-2 bg-secondary/30 p-4 rounded-lg">
                     <p className="flex items-center gap-2">

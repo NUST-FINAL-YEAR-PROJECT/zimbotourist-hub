@@ -1,46 +1,35 @@
-
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { MapPin, Calendar, Clock, Star, Activity, ArrowLeft, Home, DollarSign } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { format } from "date-fns";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { 
-  CalendarDays, 
-  MapPin, 
-  Users, 
-  ChevronLeft, 
-  Home, 
-  Ticket,
-  Clock,
-  Share2,
-  Tag,
-  Info,
-  ExternalLink,
-  Calendar
-} from "lucide-react";
-import { EventBookingForm } from "@/components/EventBookingForm";
-import { EventProgramUploader } from "@/components/EventProgramUploader";
-import { toast } from "sonner";
+import { ReviewSection } from "@/components/ReviewSection";
 import { Card, CardContent } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { 
-  Carousel, 
-  CarouselContent, 
-  CarouselItem, 
-  CarouselNext, 
-  CarouselPrevious 
-} from "@/components/ui/carousel";
-import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import type { Event } from "@/types/models";
+import { Badge } from "@/components/ui/badge";
+import { AuthRequiredDialog } from "@/components/AuthRequiredDialog";
+import { useAuth } from "@/hooks/useAuth";
+import { EventBookingForm } from "@/components/EventBookingForm";
 
 export const EventDetails = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
+  const { toast } = useToast();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const { user } = useAuth();
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
 
-  const { data: event, isLoading } = useQuery({
+  const { data: event, isLoading, error } = useQuery({
     queryKey: ["event", id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -60,65 +49,46 @@ export const EventDetails = () => {
 
       return data as Event;
     },
-    enabled: !!id,
   });
 
-  // Sample image array - in a real app, this would come from the database
-  const eventImages = event?.image_url 
-    ? [
-        event.image_url,
-        "https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-        "https://images.unsplash.com/photo-1518770660439-4636190af475?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-        "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2074&q=80"
-      ] 
-    : [];
-
-  const handleShare = () => {
-    if (navigator.share && event) {
-      navigator
-        .share({
-          title: event.title,
-          text: `Check out this event: ${event.title}`,
-          url: window.location.href,
-        })
-        .then(() => {
-          toast.success("Shared successfully");
-        })
-        .catch((error) => {
-          console.error("Error sharing:", error);
-          // Fallback for desktop
-          navigator.clipboard.writeText(window.location.href);
-          toast.success("Link copied to clipboard!");
-        });
-    } else if (event) {
-      // Fallback for browsers that don't support sharing
-      navigator.clipboard.writeText(window.location.href);
-      toast.success("Link copied to clipboard!");
-    }
+  const handleBack = () => {
+    navigate(-1);
   };
 
-  const isAdmin = user && user.email === "admin@example.com";
+  const handleBookNowClick = () => {
+    if (!user) {
+      setShowAuthDialog(true);
+      return;
+    }
+    // Continue with existing booking flow
+  };
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6 space-y-6">
-        <Skeleton className="h-8 w-1/3" />
-        <Skeleton className="h-64 w-full" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Skeleton className="h-24" />
-          <Skeleton className="h-24" />
-          <Skeleton className="h-24" />
-        </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+        <h2 className="text-xl font-semibold">Event not found</h2>
+        <Button onClick={handleBack} variant="outline">
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Go Back
+        </Button>
       </div>
     );
   }
 
   if (!event) {
     return (
-      <div className="container mx-auto p-6">
-        <h1 className="text-2xl font-bold">Event not found</h1>
-        <Button onClick={() => navigate(-1)} className="mt-4">
-          <ChevronLeft className="w-4 h-4 mr-2" />
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+        <h2 className="text-xl font-semibold">Event not found</h2>
+        <Button onClick={handleBack} variant="outline">
+          <ArrowLeft className="mr-2 h-4 w-4" />
           Go Back
         </Button>
       </div>
@@ -126,236 +96,163 @@ export const EventDetails = () => {
   }
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            onClick={() => navigate(-1)}
+    <div className="min-h-screen bg-background">
+      {/* Mobile Navigation Header */}
+      {isMobile && (
+        <div className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200 px-4 py-2 flex items-center">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="mr-2"
+            onClick={handleBack}
           >
-            <ChevronLeft className="w-4 h-4 mr-2" />
-            Back
+            <ArrowLeft className="h-5 w-5" />
           </Button>
-          <Button 
-            variant="outline" 
-            onClick={() => navigate("/")}
-          >
-            <Home className="w-4 h-4 mr-2" />
-            Home
-          </Button>
+          <span className="font-semibold truncate">{event.title}</span>
         </div>
-        <Button 
-          variant="outline" 
-          onClick={handleShare}
-        >
-          <Share2 className="w-4 h-4 mr-2" />
-          Share
-        </Button>
-      </div>
+      )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-8">
-          {/* Event Header */}
-          <div className="space-y-4">
-            <h1 className="text-4xl font-bold">{event.title}</h1>
-            
-            <div className="flex flex-wrap items-center gap-4 text-gray-600">
-              {event.event_type && (
-                <div className="flex items-center">
-                  <Tag className="w-5 h-5 mr-2 text-blue-500" />
-                  <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm font-medium">
-                    {event.event_type}
-                  </span>
-                </div>
-              )}
-              
-              {event.start_date && event.end_date && (
-                <div className="flex items-center">
-                  <CalendarDays className="w-5 h-5 mr-2 text-green-500" />
-                  <span>
-                    {format(new Date(event.start_date), "PPP")} -{" "}
-                    {format(new Date(event.end_date), "PPP")}
-                  </span>
-                </div>
-              )}
-              
-              {event.start_date && (
-                <div className="flex items-center">
-                  <Clock className="w-5 h-5 mr-2 text-purple-500" />
-                  <span>
-                    {format(new Date(event.start_date), "h:mm a")} -{" "}
-                    {event.end_date && format(new Date(event.end_date), "h:mm a")}
-                  </span>
-                </div>
-              )}
-              
-              {event.location && (
-                <div className="flex items-center">
-                  <MapPin className="w-5 h-5 mr-2 text-red-500" />
-                  <span>{event.location}</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Event Image Carousel */}
-          {eventImages.length > 0 && (
-            <div className="rounded-xl overflow-hidden">
-              <Carousel className="w-full">
-                <CarouselContent>
-                  {eventImages.map((image, index) => (
-                    <CarouselItem key={index}>
-                      <div className="p-1">
-                        <img
-                          src={image}
-                          alt={`${event.title} - image ${index + 1}`}
-                          className="w-full h-[400px] object-cover rounded-lg"
-                        />
-                      </div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious className="left-2" />
-                <CarouselNext className="right-2" />
-              </Carousel>
-            </div>
-          )}
-
-          {/* Event Description */}
-          <div className="space-y-4">
-            <h2 className="text-2xl font-semibold flex items-center">
-              <Info className="w-5 h-5 mr-2 text-blue-500" />
-              About This Event
-            </h2>
-            <div className="prose max-w-none">
-              <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                {event.description || "No description available for this event."}
-              </p>
-            </div>
-          </div>
-
-          {/* Event Program */}
-          <EventProgramUploader 
-            eventId={event.id} 
-            existingProgramUrl={event.program_url}
-            existingProgramName={event.program_name}
-            existingProgramType={event.program_type}
-            isAdmin={isAdmin}
-            onUploadComplete={(url, fileName, fileType) => {
-              console.log("Program uploaded:", url, fileName, fileType);
-              // The actual update is handled within the uploader component
-            }}
-          />
-
-          {/* Venue Information */}
-          {event.venue_details && (
-            <div className="space-y-4">
-              <h2 className="text-2xl font-semibold flex items-center">
-                <MapPin className="w-5 h-5 mr-2 text-blue-500" />
-                Venue Details
-              </h2>
-              <Card>
-                <CardContent className="p-6">
-                  <div className="space-y-2">
-                    {typeof event.venue_details === 'object' && event.venue_details.name && (
-                      <p className="font-medium text-lg">{event.venue_details.name}</p>
-                    )}
-                    {typeof event.venue_details === 'object' && event.venue_details.address && (
-                      <p className="text-gray-600">{event.venue_details.address}</p>
-                    )}
-                    {typeof event.venue_details === 'object' && event.venue_details.notes && (
-                      <p className="text-sm text-gray-500 mt-2">{event.venue_details.notes}</p>
-                    )}
-                    {event.location && (
-                      <a 
-                        href={`https://maps.google.com/?q=${encodeURIComponent(event.location)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline inline-flex items-center mt-2"
-                      >
-                        View on map
-                        <ExternalLink className="w-4 h-4 ml-1" />
-                      </a>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
+      <div className="container mx-auto px-4 py-8 mt-14 md:mt-8 max-w-7xl">
+        {/* Breadcrumb Navigation - Hidden on Mobile */}
+        <div className="mb-6 hidden md:block">
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink href="/" className="hover:text-primary transition-colors">
+                  <Home className="h-4 w-4 mr-2" />
+                  Home
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink href="/events" className="hover:text-primary transition-colors">
+                  Events
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>
+                  {event.title}
+                </BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
         </div>
 
-        {/* Booking Section (Right Column) */}
-        <div className="space-y-6">
-          <Card className="sticky top-6">
-            <CardContent className="p-6 space-y-6">
-              <div className="space-y-4">
-                <h3 className="font-semibold text-xl flex items-center">
-                  <Ticket className="w-5 h-5 mr-2 text-green-600" />
-                  Booking Information
-                </h3>
-                
-                <div className="border-b pb-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Price:</span>
-                    <span className="text-2xl font-bold">{event.price ? `$${event.price}` : "Free"}</span>
-                  </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Content - Left Column (2/3) */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Hero Image */}
+            <div className="relative aspect-[16/9] rounded-2xl overflow-hidden shadow-lg">
+              <img
+                src={event.image_url || "/placeholder.svg"}
+                alt={event.title}
+                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+
+            {/* Event Info */}
+            <div className="space-y-6 animate-fade-in">
+              <h1 className="text-3xl md:text-4xl font-bold text-foreground">{event.title}</h1>
+              
+              <div className="flex flex-wrap gap-4">
+                <div className="flex items-center gap-2 bg-secondary/50 px-3 py-1.5 rounded-full">
+                  <MapPin className="h-5 w-5 text-primary" />
+                  <span className="text-sm font-medium">{event.location}</span>
                 </div>
-                
                 {event.start_date && (
-                  <div className="flex items-center">
-                    <Calendar className="w-5 h-5 mr-2 text-gray-600" />
-                    <div className="text-sm">
-                      <p className="font-medium">Event Date:</p>
-                      <p>{format(new Date(event.start_date), "EEEE, MMMM d, yyyy")}</p>
-                    </div>
+                  <div className="flex items-center gap-2 bg-secondary/50 px-3 py-1.5 rounded-full">
+                    <Calendar className="h-5 w-5 text-primary" />
+                    <span className="text-sm font-medium">{new Date(event.start_date).toLocaleDateString()}</span>
                   </div>
                 )}
-                
-                {event.ticket_types && event.ticket_types.length > 0 && (
-                  <div className="space-y-3">
-                    <h4 className="font-medium">Available Ticket Types:</h4>
-                    <ScrollArea className="h-[120px]">
-                      <div className="space-y-2">
-                        {event.ticket_types.map((type: any, index: number) => (
-                          <div key={index} className="flex justify-between py-2 border-b last:border-0">
-                            <div>
-                              <p className="font-medium">{type.name}</p>
-                              {type.description && <p className="text-xs text-gray-500">{type.description}</p>}
-                            </div>
-                            <span className="font-semibold">${type.price}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </ScrollArea>
+                {event.duration && (
+                  <div className="flex items-center gap-2 bg-secondary/50 px-3 py-1.5 rounded-full">
+                    <Clock className="h-5 w-5 text-primary" />
+                    <span className="text-sm font-medium">{event.duration}</span>
                   </div>
                 )}
-                
-                {event.cancellation_policy && (
-                  <div className="text-sm text-gray-600">
-                    <p className="font-medium">Cancellation Policy:</p>
-                    <p>{event.cancellation_policy}</p>
+                {event.price && (
+                  <div className="flex items-center gap-2 bg-secondary/50 px-3 py-1.5 rounded-full">
+                    <DollarSign className="h-5 w-5 text-primary" />
+                    <span className="text-sm font-medium">{event.price}</span>
                   </div>
                 )}
-                
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button size="lg" className="w-full">
-                      Book Now
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                    <div className="p-6">
-                      <h2 className="text-2xl font-bold mb-6">Book Event</h2>
-                      <EventBookingForm 
-                        event={event}
-                        onSuccess={() => navigate("/dashboard/bookings")}
-                      />
-                    </div>
-                  </DialogContent>
-                </Dialog>
               </div>
-            </CardContent>
-          </Card>
+
+              <p className="text-gray-600 leading-relaxed">{event.description}</p>
+
+              {/* Activities */}
+              {event.activities && event.activities.length > 0 && (
+                <Card className="overflow-hidden border-none shadow-md hover:shadow-lg transition-shadow">
+                  <CardContent className="pt-6">
+                    <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                      <Activity className="h-5 w-5 text-primary" />
+                      Activities
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {event.activities.map((activity, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center gap-3 p-4 rounded-xl bg-secondary/30 hover:bg-secondary/50 transition-colors"
+                        >
+                          <Activity className="h-5 w-5 text-primary" />
+                          <span className="font-medium">{activity}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Program Details */}
+              {event.program_name && event.program_url && (
+                <Card className="overflow-hidden border-none shadow-md hover:shadow-lg transition-shadow">
+                  <CardContent className="pt-6">
+                    <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                      <Activity className="h-5 w-5 text-primary" />
+                      Program Details
+                    </h2>
+                    <div className="flex flex-col gap-4">
+                      <div className="flex items-center justify-between p-4 rounded-xl bg-secondary/30 hover:bg-secondary/50 transition-colors">
+                        <span className="font-medium">{event.program_name}</span>
+                        <a href={event.program_url} target="_blank" rel="noopener noreferrer">
+                          <Button variant="outline" size="sm">
+                            View Program
+                          </Button>
+                        </a>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Reviews Section */}
+              <ReviewSection destinationId={event.id} />
+            </div>
+          </div>
+
+          {/* Sidebar - Right Column (1/3) */}
+          <div className="space-y-8">
+            {/* Replace the booking section with conditional rendering */}
+            {user ? (
+              <EventBookingForm event={event} />
+            ) : (
+              <>
+                <Button 
+                  size="lg" 
+                  className="w-full" 
+                  onClick={handleBookNowClick}
+                >
+                  Book Now
+                </Button>
+                <AuthRequiredDialog 
+                  isOpen={showAuthDialog} 
+                  onClose={() => setShowAuthDialog(false)} 
+                />
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>
