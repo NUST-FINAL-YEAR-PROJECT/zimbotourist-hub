@@ -20,8 +20,9 @@ serve(async (req) => {
       throw new Error('OpenAI API key not configured');
     }
 
-    const { message } = await req.json();
+    const { message, conversationId } = await req.json();
     console.log('Received message:', message);
+    console.log('Conversation ID:', conversationId);
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -34,19 +35,21 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: 'You are a helpful travel assistant for Zimbabwe tourism. Provide concise, informative responses about tourist destinations, activities, and travel tips in Zimbabwe.'
+            content: 'You are a helpful travel assistant for Zimbabwe tourism. Provide concise, informative responses about tourist destinations, activities, accommodation options, travel tips, local customs, safety information, and other helpful advice for travelers in Zimbabwe. Your responses should be friendly, accurate, and tailored to help tourists make the most of their visit to Zimbabwe.'
           },
           {
             role: 'user',
             content: message
           }
         ],
+        max_tokens: 500,
       }),
     });
 
     const data = await response.json();
     
     if (!response.ok) {
+      console.error('OpenAI API error:', data);
       throw new Error(data.error?.message || 'Failed to get response from OpenAI');
     }
 

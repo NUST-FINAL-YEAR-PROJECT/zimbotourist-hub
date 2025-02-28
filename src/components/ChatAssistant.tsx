@@ -35,25 +35,24 @@ export const ChatAssistant = () => {
       if (!user) return;
 
       try {
-        // Try to find or create a conversation
+        // Try to find an existing conversation
         const { data: existingConversations, error: conversationError } = await supabase
           .from('chat_conversations')
           .select('*')
           .eq('user_id', user.id)
           .order('created_at', { ascending: false })
-          .limit(1)
-          .single();
+          .limit(1);
 
-        if (conversationError && conversationError.code !== 'PGRST116') {
+        if (conversationError) {
           console.error('Error fetching conversation:', conversationError);
           return;
         }
 
-        if (existingConversations) {
+        if (existingConversations && existingConversations.length > 0) {
           const { data: messages, error: messagesError } = await supabase
             .from('chat_messages')
             .select('*')
-            .eq('conversation_id', existingConversations.id)
+            .eq('conversation_id', existingConversations[0].id)
             .order('created_at', { ascending: true });
 
           if (messagesError) {
@@ -62,7 +61,7 @@ export const ChatAssistant = () => {
           }
 
           setConversation({
-            ...existingConversations,
+            ...existingConversations[0],
             messages: messages?.map(msg => ({
               id: msg.id,
               role: msg.role as 'user' | 'assistant',
@@ -124,34 +123,53 @@ export const ChatAssistant = () => {
         setConversation(currentConversation);
       }
 
-      // Insert user message
-      const { error: userMessageError } = await supabase
+      // Add user message to the UI immediately for better UX
+      const userMessageObj = {
+        id: `temp-${Date.now()}`,
+        role: 'user' as const,
+        content: message,
+        created_at: new Date().toISOString()
+      };
+      
+      setConversation(prev => 
+        prev ? { 
+          ...prev, 
+          messages: [...prev.messages, userMessageObj]
+        } : null
+      );
+
+      // Insert user message to the database
+      const { data: userMessageData, error: userMessageError } = await supabase
         .from('chat_messages')
         .insert([{
           conversation_id: currentConversation.id,
           role: 'user' as const,
           content: message
-        }]);
+        }])
+        .select()
+        .single();
 
       if (userMessageError) throw userMessageError;
 
       // Get AI response
-      const response = await supabase.functions.invoke('chat-completion', {
-        body: { message },
+      const { data, error: functionError } = await supabase.functions.invoke('chat-completion', {
+        body: { message, conversationId: currentConversation.id }
       });
 
-      if (response.error) {
-        throw new Error(response.error.message || 'Failed to get AI response');
+      if (functionError) {
+        throw new Error(functionError.message || 'Failed to get AI response');
       }
 
-      // Insert AI response
-      const { error: aiMessageError } = await supabase
+      // Insert AI response to the database
+      const { data: aiMessageData, error: aiMessageError } = await supabase
         .from('chat_messages')
         .insert([{
           conversation_id: currentConversation.id,
           role: 'assistant' as const,
-          content: response.data.response
-        }]);
+          content: data.response
+        }])
+        .select()
+        .single();
 
       if (aiMessageError) throw aiMessageError;
 
@@ -218,7 +236,7 @@ export const ChatAssistant = () => {
               </Button>
             </div>
 
-            <ScrollArea ref={scrollRef} className="flex-1 p-4">
+            <ScrollArea className="flex-1 p-4">
               <div className="space-y-4">
                 {!conversation?.messages?.length && (
                   <div className="text-center text-muted-foreground py-8">
