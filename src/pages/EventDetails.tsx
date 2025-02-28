@@ -1,3 +1,4 @@
+
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -66,7 +67,11 @@ export const EventDetails = () => {
 
   // Define onSuccess handler
   const handleBookingSuccess = () => {
-    toast.success("Booking created successfully!");
+    toast({
+      title: "Success",
+      description: "Booking created successfully!",
+      variant: "default",
+    });
     navigate("/dashboard/bookings");
   };
 

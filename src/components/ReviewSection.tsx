@@ -43,20 +43,26 @@ export const ReviewSection = ({ destinationId, accommodationId, userId }: Review
 
       // Then fetch profiles for the user_ids in the reviews
       const userIds = reviewsData.map(review => review.user_id);
-      const { data: profilesData, error: profilesError } = await supabase
-        .from("profiles")
-        .select("id, username, avatar_url")
-        .in("id", userIds);
+      
+      // Only fetch profiles if there are reviews
+      if (userIds.length > 0) {
+        const { data: profilesData, error: profilesError } = await supabase
+          .from("profiles")
+          .select("id, username, avatar_url")
+          .in("id", userIds);
 
-      if (profilesError) throw profilesError;
+        if (profilesError) throw profilesError;
 
-      // Merge the profiles data with the reviews
-      const reviewsWithProfiles = reviewsData.map(review => ({
-        ...review,
-        profiles: profilesData.find(profile => profile.id === review.user_id)
-      }));
+        // Merge the profiles data with the reviews
+        const reviewsWithProfiles = reviewsData.map(review => ({
+          ...review,
+          profiles: profilesData.find(profile => profile.id === review.user_id)
+        }));
 
-      return reviewsWithProfiles as Review[];
+        return reviewsWithProfiles as Review[];
+      }
+      
+      return reviewsData as Review[];
     },
   });
 
