@@ -110,6 +110,9 @@ export interface Event {
   cancellation_policy: string | null;
   created_at: string;
   updated_at: string;
+  program_url: string | null;
+  program_name: string | null;
+  program_type: string | null;
 }
 
 export interface Booking {

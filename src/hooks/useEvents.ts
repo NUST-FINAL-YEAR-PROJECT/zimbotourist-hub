@@ -36,3 +36,30 @@ export const useEvents = () => {
     retryDelay: 1000,
   });
 };
+
+export const useEvent = (id: string | undefined) => {
+  return useQuery({
+    queryKey: ["event", id],
+    queryFn: async () => {
+      if (!id) throw new Error("Event ID is required");
+      
+      const { data, error } = await supabase
+        .from("events")
+        .select("*")
+        .eq("id", id)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error fetching event:", error);
+        throw error;
+      }
+
+      if (!data) {
+        throw new Error("Event not found");
+      }
+
+      return data as Event;
+    },
+    enabled: !!id,
+  });
+};

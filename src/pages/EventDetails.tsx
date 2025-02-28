@@ -21,6 +21,7 @@ import {
   Calendar
 } from "lucide-react";
 import { EventBookingForm } from "@/components/EventBookingForm";
+import { EventProgramUploader } from "@/components/EventProgramUploader";
 import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -31,11 +32,13 @@ import {
   CarouselNext, 
   CarouselPrevious 
 } from "@/components/ui/carousel";
+import { useAuth } from "@/hooks/useAuth";
 import type { Event } from "@/types/models";
 
 export const EventDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const { data: event, isLoading } = useQuery({
     queryKey: ["event", id],
@@ -93,6 +96,8 @@ export const EventDetails = () => {
       toast.success("Link copied to clipboard!");
     }
   };
+
+  const isAdmin = user && user.email === "admin@example.com";
 
   if (isLoading) {
     return (
@@ -228,6 +233,9 @@ export const EventDetails = () => {
               </p>
             </div>
           </div>
+
+          {/* Event Program */}
+          <EventProgramUploader event={event} isAdmin={isAdmin} />
 
           {/* Venue Information */}
           {event.venue_details && (
