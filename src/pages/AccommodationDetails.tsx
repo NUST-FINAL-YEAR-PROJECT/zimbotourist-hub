@@ -5,7 +5,7 @@ import { useAccommodation } from "@/hooks/useAccommodations";
 import { 
   MapPin, Calendar, Clock, User, Home, Bed, Bath, Star, 
   Check, ArrowLeft, Coffee, Wifi, Tv, ChefHat, Car, Wind,
-  UtensilsCrossed, Martini, Dumbbell, SwimmingPool, ArrowRight
+  UtensilsCrossed, Martini, Dumbbell, Pool, ArrowRight
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -49,7 +49,7 @@ export const AccommodationDetails = () => {
     if (amenityLower.includes("restaurant") || amenityLower.includes("dining")) return <UtensilsCrossed className="h-4 w-4" />;
     if (amenityLower.includes("bar") || amenityLower.includes("lounge")) return <Martini className="h-4 w-4" />;
     if (amenityLower.includes("gym") || amenityLower.includes("fitness")) return <Dumbbell className="h-4 w-4" />;
-    if (amenityLower.includes("pool") || amenityLower.includes("swimming")) return <SwimmingPool className="h-4 w-4" />;
+    if (amenityLower.includes("pool") || amenityLower.includes("swimming")) return <Pool className="h-4 w-4" />;
     return <Check className="h-4 w-4" />;
   };
 
