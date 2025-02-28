@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { Star, Edit, Trash2 } from "lucide-react";
@@ -21,9 +22,16 @@ export const ReviewSection = ({ destinationId, accommodationId, userId }: Review
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  interface ReviewWithProfile extends Review {
+    profiles?: {
+      username: string | null;
+      avatar_url: string | null;
+    };
+  }
+
   const { data: reviews, isLoading } = useQuery({
     queryKey: ["reviews", destinationId || accommodationId],
-    queryFn: async () => {
+    queryFn: async (): Promise<ReviewWithProfile[]> => {
       // First fetch reviews
       const { data: reviewsData, error: reviewsError } = await supabase
         .from("reviews")
@@ -42,7 +50,7 @@ export const ReviewSection = ({ destinationId, accommodationId, userId }: Review
       if (reviewsError) throw reviewsError;
       
       if (!reviewsData || reviewsData.length === 0) {
-        return [] as Review[];
+        return [];
       }
 
       // Then fetch profiles for the user_ids in the reviews
@@ -63,10 +71,10 @@ export const ReviewSection = ({ destinationId, accommodationId, userId }: Review
           profiles: profilesData?.find((profile) => profile.id === review.user_id)
         }));
 
-        return reviewsWithProfiles as Review[];
+        return reviewsWithProfiles;
       }
       
-      return reviewsData as Review[];
+      return reviewsData;
     },
   });
 
@@ -163,7 +171,7 @@ export const ReviewSection = ({ destinationId, accommodationId, userId }: Review
     }
   };
 
-  const handleEdit = (review: Review) => {
+  const handleEdit = (review: ReviewWithProfile) => {
     setEditingReviewId(review.id);
     setRating(review.rating);
     setComment(review.comment || "");
