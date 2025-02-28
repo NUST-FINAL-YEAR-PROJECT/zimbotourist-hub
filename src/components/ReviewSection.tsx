@@ -15,19 +15,28 @@ interface ReviewSectionProps {
   userId?: string;
 }
 
+// Define a separate type for reviews with profile information
+interface ReviewWithProfile {
+  id: string;
+  user_id: string;
+  destination_id?: string;
+  accommodation_id?: string;
+  rating: number;
+  comment: string | null;
+  created_at: string;
+  updated_at: string;
+  profiles?: {
+    username: string | null;
+    avatar_url: string | null;
+  } | null;
+}
+
 export const ReviewSection = ({ destinationId, accommodationId, userId }: ReviewSectionProps) => {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
   const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
-
-  interface ReviewWithProfile extends Review {
-    profiles?: {
-      username: string | null;
-      avatar_url: string | null;
-    };
-  }
 
   const { data: reviews, isLoading } = useQuery({
     queryKey: ["reviews", destinationId || accommodationId],
@@ -39,6 +48,7 @@ export const ReviewSection = ({ destinationId, accommodationId, userId }: Review
           id,
           user_id,
           destination_id,
+          accommodation_id,
           rating,
           comment,
           created_at,
@@ -66,12 +76,10 @@ export const ReviewSection = ({ destinationId, accommodationId, userId }: Review
         if (profilesError) throw profilesError;
 
         // Merge the profiles data with the reviews
-        const reviewsWithProfiles = reviewsData.map((review) => ({
+        return reviewsData.map((review) => ({
           ...review,
-          profiles: profilesData?.find((profile) => profile.id === review.user_id)
+          profiles: profilesData?.find((profile) => profile.id === review.user_id) || null
         }));
-
-        return reviewsWithProfiles;
       }
       
       return reviewsData;
