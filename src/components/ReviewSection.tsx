@@ -40,9 +40,13 @@ export const ReviewSection = ({ destinationId, accommodationId, userId }: Review
         .order("created_at", { ascending: false });
 
       if (reviewsError) throw reviewsError;
+      
+      if (!reviewsData || reviewsData.length === 0) {
+        return [] as Review[];
+      }
 
       // Then fetch profiles for the user_ids in the reviews
-      const userIds = reviewsData.map(review => review.user_id);
+      const userIds = reviewsData.map((review) => review.user_id);
       
       // Only fetch profiles if there are reviews
       if (userIds.length > 0) {
@@ -54,9 +58,9 @@ export const ReviewSection = ({ destinationId, accommodationId, userId }: Review
         if (profilesError) throw profilesError;
 
         // Merge the profiles data with the reviews
-        const reviewsWithProfiles = reviewsData.map(review => ({
+        const reviewsWithProfiles = reviewsData.map((review) => ({
           ...review,
-          profiles: profilesData.find(profile => profile.id === review.user_id)
+          profiles: profilesData?.find((profile) => profile.id === review.user_id)
         }));
 
         return reviewsWithProfiles as Review[];
