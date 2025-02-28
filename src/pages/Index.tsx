@@ -1,9 +1,11 @@
+
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { DestinationCard } from "@/components/DestinationCard";
 import { useDestinations } from "@/hooks/useDestinations";
 import { useEvents } from "@/hooks/useEvents";
+import { AccommodationsList } from "@/components/AccommodationsList";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Search, MapPin, Calendar, Compass, Globe, ArrowRight, Users, Sun, Star, Clock, DollarSign, X, Smartphone } from "lucide-react";

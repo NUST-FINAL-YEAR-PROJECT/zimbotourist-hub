@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { Star, Edit, Trash2 } from "lucide-react";
@@ -10,11 +9,12 @@ import { useToast } from "@/hooks/use-toast";
 import type { Review } from "@/types/models";
 
 interface ReviewSectionProps {
-  destinationId: string;
+  destinationId?: string;
+  accommodationId?: string;
   userId?: string;
 }
 
-export const ReviewSection = ({ destinationId, userId }: ReviewSectionProps) => {
+export const ReviewSection = ({ destinationId, accommodationId, userId }: ReviewSectionProps) => {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
   const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
@@ -22,7 +22,7 @@ export const ReviewSection = ({ destinationId, userId }: ReviewSectionProps) => 
   const queryClient = useQueryClient();
 
   const { data: reviews, isLoading } = useQuery({
-    queryKey: ["reviews", destinationId],
+    queryKey: ["reviews", destinationId || accommodationId],
     queryFn: async () => {
       // First fetch reviews
       const { data: reviewsData, error: reviewsError } = await supabase
@@ -36,7 +36,7 @@ export const ReviewSection = ({ destinationId, userId }: ReviewSectionProps) => 
           created_at,
           updated_at
         `)
-        .eq("destination_id", destinationId)
+        .eq(destinationId ? "destination_id" : "accommodation_id", destinationId || accommodationId)
         .order("created_at", { ascending: false });
 
       if (reviewsError) throw reviewsError;

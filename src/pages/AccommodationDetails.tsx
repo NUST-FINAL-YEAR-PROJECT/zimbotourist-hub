@@ -1,5 +1,7 @@
+
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { MapPin, Calendar, Clock, Star, Activity, ArrowLeft, Home, Hotel } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { BookingForm } from "@/components/BookingForm";

@@ -1,4 +1,3 @@
-
 export interface Destination {
   id: string;
   name: string;
@@ -113,6 +112,8 @@ export interface Event {
   program_url: string | null;
   program_name: string | null;
   program_type: string | null;
+  duration: string | null;
+  activities: string[] | null;
 }
 
 export interface Booking {

@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { MapPin, Calendar, Clock, Star, Activity, ArrowLeft, Home, DollarSign } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ReviewSection } from "@/components/ReviewSection";
@@ -61,6 +62,12 @@ export const EventDetails = () => {
       return;
     }
     // Continue with existing booking flow
+  };
+
+  // Define onSuccess handler
+  const handleBookingSuccess = () => {
+    toast.success("Booking created successfully!");
+    navigate("/dashboard/bookings");
   };
 
   if (isLoading) {
@@ -236,7 +243,10 @@ export const EventDetails = () => {
           <div className="space-y-8">
             {/* Replace the booking section with conditional rendering */}
             {user ? (
-              <EventBookingForm event={event} />
+              <EventBookingForm 
+                event={event} 
+                onSuccess={handleBookingSuccess} 
+              />
             ) : (
               <>
                 <Button 
