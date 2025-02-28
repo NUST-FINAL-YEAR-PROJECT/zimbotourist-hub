@@ -22,6 +22,73 @@ export interface Destination {
   is_featured: boolean | null;
 }
 
+export interface Accommodation {
+  id: string;
+  name: string;
+  description: string | null;
+  accommodation_type: 'hotel' | 'bnb' | 'villa' | 'apartment' | 'resort' | 'cabin' | 'hostel';
+  room_type: string | null;
+  location: string;
+  image_url: string | null;
+  additional_images: string[] | null;
+  address: string;
+  city: string;
+  state: string | null;
+  country: string;
+  postal_code: string | null;
+  price_per_night: number;
+  cleaning_fee: number | null;
+  service_fee: number | null;
+  tax_rate: number | null;
+  min_nights: number | null;
+  max_nights: number | null;
+  max_guests: number;
+  bedrooms: number;
+  beds: number;
+  bathrooms: number;
+  amenities: string[] | null;
+  policies: Record<string, any> | null;
+  check_in_time: string | null;
+  check_out_time: string | null;
+  available_dates: string[] | null;
+  blocked_dates: string[] | null;
+  is_available: boolean | null;
+  rating: number | null;
+  host_id: string | null;
+  host_name: string | null;
+  host_response_rate: number | null;
+  host_response_time: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AccommodationBooking {
+  id: string;
+  accommodation_id: string | null;
+  user_id: string | null;
+  booking_number: string;
+  check_in_date: string;
+  check_out_date: string;
+  number_of_guests: number;
+  total_price: number;
+  base_price: number;
+  cleaning_fee: number | null;
+  service_fee: number | null;
+  taxes: number | null;
+  contact_name: string;
+  contact_email: string;
+  contact_phone: string;
+  special_requests: string | null;
+  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+  payment_status: 'pending' | 'processing' | 'completed' | 'failed' | 'refunded';
+  payment_method: string | null;
+  cancellation_date: string | null;
+  cancellation_reason: string | null;
+  created_at: string;
+  updated_at: string;
+  accommodation?: Accommodation;
+}
+
 export interface Event {
   id: string;
   title: string;
