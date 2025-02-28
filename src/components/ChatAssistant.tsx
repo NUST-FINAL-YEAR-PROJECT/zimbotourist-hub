@@ -8,6 +8,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import { useUpcomingEvents } from "@/hooks/useEvents";
 
 interface Message {
   id: string;
@@ -25,6 +27,8 @@ export const ChatAssistant = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const location = useLocation();
+  const { data: upcomingEvents } = useUpcomingEvents(3);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -49,6 +53,69 @@ export const ChatAssistant = () => {
   const generateResponse = async (userMessage: string) => {
     // Convert message to lowercase and trim for better matching
     const normalizedMessage = userMessage.toLowerCase().trim();
+    
+    // Handle greetings
+    const greetings = ["hi", "hello", "hey", "greetings", "howdy"];
+    if (greetings.some(greeting => normalizedMessage === greeting || normalizedMessage.startsWith(`${greeting} `))) {
+      return {
+        content: "Hello there! How can I assist with your Zimbabwe travel plans today? Are you interested in destinations, accommodations, or current events?",
+        links: [
+          { text: "Browse Destinations", url: "/dashboard/destinations" },
+          { text: "View Accommodations", url: "/dashboard/accommodations" },
+          { text: "Explore Events", url: "/dashboard/events" }
+        ]
+      };
+    }
+    
+    // Handle affirmative responses
+    const affirmativeResponses = ["yes", "yeah", "sure", "okay", "ok", "yep", "yup"];
+    if (affirmativeResponses.includes(normalizedMessage)) {
+      // Check current page to provide contextual response
+      if (location.pathname.includes("/events")) {
+        // User is on events page, show upcoming events
+        if (upcomingEvents && upcomingEvents.length > 0) {
+          const eventsList = upcomingEvents.map(event => 
+            `- ${event.title} (${new Date(event.start_date).toLocaleDateString()})`
+          ).join("\n");
+          
+          return {
+            content: `Great! Here are some upcoming events in Zimbabwe:\n\n${eventsList}\n\nWould you like more details about any of these events?`,
+            links: upcomingEvents.map(event => ({ 
+              text: `View ${event.title}`, 
+              url: `/events/${event.id}` 
+            })),
+            image: upcomingEvents[0]?.image_url
+          };
+        } else {
+          return {
+            content: "Great! Here are some popular events and activities in Zimbabwe. Would you like information about specific types of events such as cultural festivals, wildlife safaris, or adventure activities?",
+            links: [{ text: "Browse All Events", url: "/dashboard/events" }]
+          };
+        }
+      } else if (location.pathname.includes("/destinations")) {
+        // User is on destinations page
+        return {
+          content: "Excellent! Zimbabwe has many amazing destinations to explore. Would you like to know about Victoria Falls, Hwange National Park, Great Zimbabwe, or other popular attractions?",
+          links: [{ text: "Browse All Destinations", url: "/dashboard/destinations" }]
+        };
+      } else if (location.pathname.includes("/accommodations")) {
+        // User is on accommodations page
+        return {
+          content: "Wonderful! There are various types of accommodations in Zimbabwe ranging from luxury lodges to budget-friendly options. Are you looking for something specific like safari lodges, hotels in cities, or accommodations near certain attractions?",
+          links: [{ text: "Browse All Accommodations", url: "/dashboard/accommodations" }]
+        };
+      } else {
+        // Generic response
+        return {
+          content: "Great! What specific aspect of Zimbabwe would you like to know more about? I can provide information on popular destinations, accommodations, upcoming events, or travel requirements.",
+          links: [
+            { text: "Popular Destinations", url: "/dashboard/destinations" },
+            { text: "Upcoming Events", url: "/dashboard/events" },
+            { text: "Accommodation Options", url: "/dashboard/accommodations" }
+          ]
+        };
+      }
+    }
     
     // Check for navigation requests
     if (normalizedMessage.includes("dashboard") || normalizedMessage.includes("home")) {

@@ -107,3 +107,30 @@ export const useUpdateEventProgram = () => {
     },
   });
 };
+
+export const useUpcomingEvents = (limit: number = 3) => {
+  return useQuery({
+    queryKey: ["upcomingEvents", limit],
+    queryFn: async () => {
+      try {
+        const now = new Date().toISOString();
+        const { data, error } = await supabase
+          .from("events")
+          .select("*")
+          .gte("start_date", now)
+          .order("start_date", { ascending: true })
+          .limit(limit);
+
+        if (error) {
+          console.error("Supabase error:", error);
+          throw error;
+        }
+
+        return data as Event[];
+      } catch (error) {
+        console.error("Fetch error for upcoming events:", error);
+        throw error;
+      }
+    },
+  });
+};
