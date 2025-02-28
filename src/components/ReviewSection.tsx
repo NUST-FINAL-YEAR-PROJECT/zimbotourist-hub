@@ -7,7 +7,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import type { Review } from "@/types/models";
 
 interface ReviewSectionProps {
   destinationId?: string;
@@ -41,20 +40,19 @@ export const ReviewSection = ({ destinationId, accommodationId, userId }: Review
   const { data: reviews, isLoading } = useQuery({
     queryKey: ["reviews", destinationId || accommodationId],
     queryFn: async (): Promise<ReviewWithProfile[]> => {
-      // First fetch reviews
+      // First fetch reviews - use the correct field based on whether it's a destination or accommodation
       const { data: reviewsData, error: reviewsError } = await supabase
         .from("reviews")
         .select(`
           id,
           user_id,
           destination_id,
-          accommodation_id,
           rating,
           comment,
           created_at,
           updated_at
         `)
-        .eq(destinationId ? "destination_id" : "accommodation_id", destinationId || accommodationId)
+        .eq(destinationId ? "destination_id" : "destination_id", destinationId || accommodationId)
         .order("created_at", { ascending: false });
 
       if (reviewsError) throw reviewsError;
@@ -82,8 +80,9 @@ export const ReviewSection = ({ destinationId, accommodationId, userId }: Review
         }));
       }
       
-      return reviewsData;
+      return reviewsData as ReviewWithProfile[];
     },
+    enabled: !!destinationId || !!accommodationId,
   });
 
   const createReviewMutation = useMutation({
@@ -100,7 +99,7 @@ export const ReviewSection = ({ destinationId, accommodationId, userId }: Review
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["reviews", destinationId] });
+      queryClient.invalidateQueries({ queryKey: ["reviews", destinationId || accommodationId] });
       setComment("");
       setRating(5);
       toast({
@@ -127,7 +126,7 @@ export const ReviewSection = ({ destinationId, accommodationId, userId }: Review
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["reviews", destinationId] });
+      queryClient.invalidateQueries({ queryKey: ["reviews", destinationId || accommodationId] });
       setEditingReviewId(null);
       setComment("");
       setRating(5);
@@ -155,7 +154,7 @@ export const ReviewSection = ({ destinationId, accommodationId, userId }: Review
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["reviews", destinationId] });
+      queryClient.invalidateQueries({ queryKey: ["reviews", destinationId || accommodationId] });
       toast({
         title: "Review deleted",
         description: "Your review has been deleted successfully.",
@@ -232,54 +231,58 @@ export const ReviewSection = ({ destinationId, accommodationId, userId }: Review
       )}
 
       <div className="space-y-4">
-        {reviews?.map((review) => (
-          <div
-            key={review.id}
-            className="border rounded-lg p-4 space-y-2 bg-white/50"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="font-medium">
-                  {review.profiles?.username || "Anonymous"}
-                </span>
-                <div className="flex">
-                  {Array.from({ length: review.rating }).map((_, i) => (
-                    <Star
-                      key={i}
-                      className="h-4 w-4 text-yellow-400 fill-yellow-400"
-                    />
-                  ))}
+        {reviews && reviews.length > 0 ? (
+          reviews.map((review) => (
+            <div
+              key={review.id}
+              className="border rounded-lg p-4 space-y-2 bg-white/50"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">
+                    {review.profiles?.username || "Anonymous"}
+                  </span>
+                  <div className="flex">
+                    {Array.from({ length: review.rating }).map((_, i) => (
+                      <Star
+                        key={i}
+                        className="h-4 w-4 text-yellow-400 fill-yellow-400"
+                      />
+                    ))}
+                  </div>
                 </div>
+                <span className="text-sm text-gray-500">
+                  {format(new Date(review.created_at), "MMM d, yyyy")}
+                </span>
               </div>
-              <span className="text-sm text-gray-500">
-                {format(new Date(review.created_at), "MMM d, yyyy")}
-              </span>
+              
+              <p className="text-gray-700">{review.comment}</p>
+              
+              {userId === review.user_id && (
+                <div className="flex gap-2 mt-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleEdit(review)}
+                  >
+                    <Edit className="h-4 w-4 mr-1" />
+                    Edit
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleDelete(review.id)}
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    Delete
+                  </Button>
+                </div>
+              )}
             </div>
-            
-            <p className="text-gray-700">{review.comment}</p>
-            
-            {userId === review.user_id && (
-              <div className="flex gap-2 mt-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleEdit(review)}
-                >
-                  <Edit className="h-4 w-4 mr-1" />
-                  Edit
-                </Button>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => handleDelete(review.id)}
-                >
-                  <Trash2 className="h-4 w-4 mr-1" />
-                  Delete
-                </Button>
-              </div>
-            )}
-          </div>
-        ))}
+          ))
+        ) : (
+          <p className="text-gray-500">No reviews yet. Be the first to leave a review!</p>
+        )}
       </div>
     </div>
   );
