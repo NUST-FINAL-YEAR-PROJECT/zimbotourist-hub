@@ -240,6 +240,7 @@ export const EventDetails = () => {
             existingProgramUrl={event.program_url}
             existingProgramName={event.program_name}
             existingProgramType={event.program_type}
+            isAdmin={isAdmin}
             onUploadComplete={(url, fileName, fileType) => {
               console.log("Program uploaded:", url, fileName, fileType);
               // The actual update is handled within the uploader component

@@ -13,6 +13,7 @@ interface EventProgramUploaderProps {
   existingProgramUrl?: string | null;
   existingProgramName?: string | null;
   existingProgramType?: string | null;
+  isAdmin?: boolean;
 }
 
 export const EventProgramUploader = ({
@@ -21,6 +22,7 @@ export const EventProgramUploader = ({
   existingProgramUrl,
   existingProgramName,
   existingProgramType,
+  isAdmin = false,
 }: EventProgramUploaderProps) => {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -132,42 +134,49 @@ export const EventProgramUploader = ({
                 View
               </a>
             </Button>
-            <Button size="sm" variant="outline" asChild>
-              <label htmlFor="program-upload" className="cursor-pointer">
-                Replace
-                <input
-                  id="program-upload"
-                  type="file"
-                  className="hidden"
-                  accept=".pdf,.doc,.docx,.ppt,.pptx,.txt"
-                  onChange={handleFileChange}
-                  disabled={uploading}
-                />
-              </label>
-            </Button>
+            {isAdmin && (
+              <Button size="sm" variant="outline" asChild>
+                <label htmlFor="program-upload" className="cursor-pointer">
+                  Replace
+                  <input
+                    id="program-upload"
+                    type="file"
+                    className="hidden"
+                    accept=".pdf,.doc,.docx,.ppt,.pptx,.txt"
+                    onChange={handleFileChange}
+                    disabled={uploading}
+                  />
+                </label>
+              </Button>
+            )}
           </div>
         </div>
       ) : (
         <div>
           <p className="text-sm text-gray-500 mb-2">
-            Upload event program or schedule (PDF, Word, PowerPoint, or text files)
+            {isAdmin 
+              ? "Upload event program or schedule (PDF, Word, PowerPoint, or text files)"
+              : "No program has been uploaded for this event yet."
+            }
           </p>
-          <div className="flex items-center gap-2">
-            <Button asChild variant="outline" disabled={uploading}>
-              <label htmlFor="program-upload" className="cursor-pointer flex items-center">
-                <Upload className="h-4 w-4 mr-2" />
-                Upload Program
-                <input
-                  id="program-upload"
-                  type="file"
-                  className="hidden"
-                  accept=".pdf,.doc,.docx,.ppt,.pptx,.txt"
-                  onChange={handleFileChange}
-                  disabled={uploading}
-                />
-              </label>
-            </Button>
-          </div>
+          {isAdmin && (
+            <div className="flex items-center gap-2">
+              <Button asChild variant="outline" disabled={uploading}>
+                <label htmlFor="program-upload" className="cursor-pointer flex items-center">
+                  <Upload className="h-4 w-4 mr-2" />
+                  Upload Program
+                  <input
+                    id="program-upload"
+                    type="file"
+                    className="hidden"
+                    accept=".pdf,.doc,.docx,.ppt,.pptx,.txt"
+                    onChange={handleFileChange}
+                    disabled={uploading}
+                  />
+                </label>
+              </Button>
+            </div>
+          )}
         </div>
       )}
       
