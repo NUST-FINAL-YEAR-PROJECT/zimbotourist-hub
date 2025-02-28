@@ -113,6 +113,7 @@ export type Database = {
           country: string
           created_at: string
           description: string | null
+          destination_id: string | null
           host_id: string | null
           host_name: string | null
           host_response_rate: number | null
@@ -152,6 +153,7 @@ export type Database = {
           country: string
           created_at?: string
           description?: string | null
+          destination_id?: string | null
           host_id?: string | null
           host_name?: string | null
           host_response_rate?: number | null
@@ -191,6 +193,7 @@ export type Database = {
           country?: string
           created_at?: string
           description?: string | null
+          destination_id?: string | null
           host_id?: string | null
           host_name?: string | null
           host_response_rate?: number | null
@@ -213,7 +216,15 @@ export type Database = {
           tax_rate?: number | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "accommodations_destination_id_fkey"
+            columns: ["destination_id"]
+            isOneToOne: false
+            referencedRelation: "destinations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       api_docs: {
         Row: {
@@ -492,6 +503,7 @@ export type Database = {
         Row: {
           activities: string[] | null
           additional_costs: Json | null
+          additional_images: string[] | null
           amenities: string[] | null
           best_time_to_visit: string | null
           categories: string[] | null
@@ -514,6 +526,7 @@ export type Database = {
         Insert: {
           activities?: string[] | null
           additional_costs?: Json | null
+          additional_images?: string[] | null
           amenities?: string[] | null
           best_time_to_visit?: string | null
           categories?: string[] | null
@@ -536,6 +549,7 @@ export type Database = {
         Update: {
           activities?: string[] | null
           additional_costs?: Json | null
+          additional_images?: string[] | null
           amenities?: string[] | null
           best_time_to_visit?: string | null
           categories?: string[] | null
