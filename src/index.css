@@ -1,5 +1,5 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:wght@300;400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -62,7 +62,7 @@
 
 @layer components {
   .hero-section {
-    @apply relative min-h-[90vh] w-full overflow-visible;
+    @apply relative min-h-screen w-full overflow-hidden;
   }
 
   .hero-image {
@@ -124,9 +124,17 @@
   .container-padding {
     @apply px-8;
   }
+  
+  .animate-enter {
+    @apply opacity-0 translate-y-4;
+  }
+  
+  .animate-enter-active {
+    @apply opacity-100 translate-y-0 transition-all duration-1000 ease-smooth;
+  }
 }
 
 #root {
-  @apply w-full min-h-screen max-w-7xl mx-auto p-6;
+  @apply w-full min-h-screen;
   text-align: initial;
 }
