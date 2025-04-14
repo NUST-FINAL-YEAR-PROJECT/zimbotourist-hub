@@ -1,6 +1,6 @@
 
 import { useNavigate } from "react-router-dom";
-import { LogOut, MapPin, Settings, Ticket, Home, Calendar, Menu, Hotel } from "lucide-react";
+import { LogOut, MapPin, Settings, Ticket, Home, Calendar, Hotel, Sparkles } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -16,10 +16,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
+import { useSidebar } from "@/components/ui/sidebar";
 
 export function AppSidebar() {
   const navigate = useNavigate();
   const { signOut } = useAuth();
+  const { state } = useSidebar();
 
   const handleSignOut = async () => {
     await signOut();
@@ -64,8 +68,15 @@ export function AppSidebar() {
       <SidebarHeader className="border-b border-sidebar-border p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Menu className="h-6 w-6 text-primary" />
-            <h2 className="text-lg font-display font-semibold text-primary">Reserve.zw</h2>
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-r from-primary to-accent flex items-center justify-center">
+              <Sparkles className="h-5 w-5 text-white" />
+            </div>
+            <h2 className={cn(
+              "text-lg font-display font-semibold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent transition-opacity duration-300",
+              state === "collapsed" && "opacity-0"
+            )}>
+              Reserve.zw
+            </h2>
           </div>
           <ThemeToggle />
         </div>
@@ -77,16 +88,24 @@ export function AppSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    onClick={item.onClick}
-                    className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                  >
-                    <item.icon className="h-4 w-4" />
-                    <span className="font-medium">{item.title}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+              {menuItems.map((item, index) => (
+                <motion.div
+                  key={item.title}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.05, duration: 0.3 }}
+                >
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      onClick={item.onClick}
+                      className="hover:bg-primary/10 hover:text-primary data-[active=true]:bg-primary/15 data-[active=true]:text-primary"
+                      isActive={window.location.pathname === "/dashboard" + (index === 0 ? "" : "/" + item.title.toLowerCase().replace(/\s+/g, ''))}
+                    >
+                      <item.icon className="h-5 w-5" />
+                      <span className="font-medium">{item.title}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </motion.div>
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
