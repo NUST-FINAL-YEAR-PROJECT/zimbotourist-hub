@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { useUpcomingEvents } from "@/hooks/useEvents";
+import type { Database } from "@/integrations/supabase/types";
 
 interface Message {
   id: string;
@@ -194,7 +195,7 @@ export const ChatAssistant = () => {
     // Handle booking status inquiries
     if (normalizedMessage.includes("booking status") || 
         normalizedMessage.includes("reservation status") || 
-        normalizedMessage.match(/status of (my|the) booking/)) {
+        (normalizedMessage.match(/status of (my|the) booking/) !== null)) {
       try {
         const { data: latestBooking, error: bookingError } = await supabase
           .from("bookings")
@@ -327,7 +328,7 @@ export const ChatAssistant = () => {
     
     // Generic destination search
     if (normalizedMessage.includes("where can i visit") || 
-        normalizedMessage.match(/show me .*(places|destinations|attractions)/)) {
+        (normalizedMessage.match(/show me .*(places|destinations|attractions)/) !== null)) {
       const { data: topDestinations } = await supabase
         .from("destinations")
         .select("id, name, image_url")
@@ -349,7 +350,7 @@ export const ChatAssistant = () => {
     }
     
     // Handle accommodation queries
-    if (normalizedMessage.match(/best (hotels|accommodations|places to stay)/)) {
+    if ((normalizedMessage.match(/best (hotels|accommodations|places to stay)/) !== null)) {
       const { data: accommodations } = await supabase
         .from("accommodations")
         .select("id, name, image_url, price_per_night")

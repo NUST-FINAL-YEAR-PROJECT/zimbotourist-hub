@@ -13,6 +13,7 @@ import { BookingInvoice } from "./BookingInvoice";
 import { DuplicateBookingAlert } from "./DuplicateBookingAlert";
 import { ArrowLeft, ArrowRight, Calendar as CalendarIcon, Users, Mail, Phone, Receipt } from "lucide-react";
 import type { Destination } from "@/types/models";
+import type { Database } from "@/integrations/supabase/types";
 
 interface BookingFormProps {
   destination: Destination;
@@ -118,7 +119,7 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
           contact_phone: contactPhone,
           status: "pending",
           payment_status: "pending"
-        })
+        } as Database['public']['Tables']['bookings']['Insert'])
         .select()
         .single();
 
@@ -133,7 +134,7 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
       // Construct PayNow URL with booking details
       const amount = (destination.price * numberOfPeople).toFixed(2);
       const merchantId = "19883"; // Replace with your actual merchant ID
-      const paymentLink = `https://www.paynow.co.zw/Payment/BillPaymentLink/?q=aWQ9${merchantId}&amount=${amount}&reference=${booking.id}&l=0&return_url=${encodeURIComponent(window.location.origin + "/dashboard/bookings")}`;
+      const paymentLink = `https://www.paynow.co.zw/Payment/BillPaymentLink/?q=aWQ9${merchantId}&amount=${amount}&reference=${booking?.id || 'BOOKING'}&l=0&return_url=${encodeURIComponent(window.location.origin + "/dashboard/bookings")}`;
       
       // Redirect to PayNow
       window.location.href = paymentLink;

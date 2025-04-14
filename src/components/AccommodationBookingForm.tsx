@@ -10,6 +10,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import type { Database } from "@/integrations/supabase/types";
 
 import {
   Form,
@@ -121,7 +122,7 @@ export const AccommodationBookingForm = ({
           special_requests: formData.special_requests,
           status: "pending",
           payment_status: "pending",
-        })
+        } as Database['public']['Tables']['accommodation_bookings']['Insert'])
         .select();
 
       if (error) {
