@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, Routes, Route } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -156,15 +155,15 @@ const DashboardHome = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div className="flex flex-col space-y-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="bg-gradient-to-r from-primary/80 to-primary p-6 rounded-xl text-white shadow-lg"
+          className="bg-gradient-to-r from-primary/80 to-primary p-4 sm:p-6 rounded-xl text-white shadow-lg"
         >
-          <h1 className="text-2xl sm:text-3xl font-bold">
+          <h1 className="text-xl sm:text-3xl font-bold">
             {getGreeting()}, {profile.username || profile.email.split('@')[0]}!
           </h1>
           <p className="text-sm sm:text-base opacity-90 mt-1">
@@ -177,7 +176,7 @@ const DashboardHome = ({
             <SheetTrigger asChild>
               <Button variant="outline" size={isMobile ? "sm" : "default"} className="relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
                 {unreadCount > 0 ? <BellDot className="h-4 w-4 sm:h-5 sm:w-5 text-primary mr-2" /> : <Bell className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />}
-                Notifications
+                {isMobile ? "" : "Notifications"}
                 {unreadCount > 0 && (
                   <motion.span
                     initial={{ scale: 0 }}
@@ -189,11 +188,11 @@ const DashboardHome = ({
                 )}
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-full sm:max-w-md">
+            <SheetContent side={isMobile ? "bottom" : "right"} className={isMobile ? "h-[80vh]" : "w-full sm:max-w-md"}>
               <SheetHeader className="pb-4 border-b">
                 <SheetTitle className="text-xl">Notifications</SheetTitle>
               </SheetHeader>
-              <ScrollArea className="h-[calc(100vh-8rem)] mt-6 pr-4">
+              <ScrollArea className={isMobile ? "h-[60vh]" : "h-[calc(100vh-8rem)]"} className="mt-6 pr-4">
                 <AnimatePresence mode="popLayout">
                   {isLoadingNotifications ? (
                     Array.from({ length: 3 }).map((_, i) => (
@@ -232,8 +231,8 @@ const DashboardHome = ({
             <TabsTrigger value="recommendations" className="data-[state=active]:bg-primary data-[state=active]:text-white">Recommendations</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="space-y-6 pt-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <TabsContent value="overview" className="space-y-4 sm:space-y-6 pt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
               <AnimatePresence>
                 {stats.map((stat, index) => (
                   <motion.div
@@ -250,34 +249,34 @@ const DashboardHome = ({
 
             {bookings.length > 0 && (
               <Card className="overflow-hidden border-0 shadow-lg bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm">
-                <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
-                  <CardTitle className="flex items-center">
-                    <Activity className="h-5 w-5 mr-2 text-primary" />
+                <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-4 sm:p-6">
+                  <CardTitle className="flex items-center text-base sm:text-lg">
+                    <Activity className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-primary" />
                     Recent Bookings
                   </CardTitle>
                   <CardDescription>Your latest travel arrangements</CardDescription>
                 </CardHeader>
-                <CardContent className="p-6">
-                  <div className="space-y-4">
+                <CardContent className="p-3 sm:p-6">
+                  <div className="space-y-3 sm:space-y-4">
                     {bookings.slice(0, 3).map((booking, index) => (
                       <motion.div
                         key={booking.id}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 + (index * 0.1), duration: 0.4 }}
-                        whileHover={{ scale: 1.02 }}
-                        className="p-4 rounded-lg border bg-card text-card-foreground shadow-sm transition-all duration-200"
+                        whileHover={{ scale: isMobile ? 1 : 1.02 }}
+                        className="p-3 sm:p-4 rounded-lg border bg-card text-card-foreground shadow-sm transition-all duration-200"
                       >
                         <div className="flex justify-between items-center">
                           <div>
-                            <h3 className="font-semibold">
+                            <h3 className="font-semibold text-sm sm:text-base">
                               {booking.destinations?.name || booking.events?.title}
                             </h3>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-xs sm:text-sm text-muted-foreground">
                               {new Date(booking.booking_date).toLocaleDateString()}
                             </p>
                           </div>
-                          <Badge variant={booking.status === 'confirmed' ? 'default' : 'secondary'} className="capitalize">
+                          <Badge variant={booking.status === 'confirmed' ? 'default' : 'secondary'} className="capitalize text-xs">
                             {booking.status}
                           </Badge>
                         </div>
@@ -383,7 +382,7 @@ const BookingsList = ({
   
   if (isMobile) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-3">
         <AnimatePresence>
           {bookings.map((booking, index) => (
             <motion.div 
@@ -401,14 +400,14 @@ const BookingsList = ({
                 y: -20
               }}
               transition={{ delay: index * 0.05, duration: 0.3 }}
-              className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 space-y-3 border border-gray-200/50 dark:border-gray-700/50"
+              className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-3 space-y-3 border border-gray-200/50 dark:border-gray-700/50"
             >
               <div className="flex justify-between items-start">
-                <h3 className="font-medium">
+                <h3 className="font-medium text-sm">
                   {booking.destinations?.name || booking.events?.title}
                 </h3>
                 <span className={cn(
-                  "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize",
+                  "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium capitalize",
                   booking.status === 'confirmed' ? 'bg-green-100 text-green-800 dark:bg-green-800/30 dark:text-green-400' : 
                   booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800/30 dark:text-yellow-400' : 
                   'bg-red-100 text-red-800 dark:bg-red-800/30 dark:text-red-400'
@@ -416,7 +415,7 @@ const BookingsList = ({
                   {booking.status}
                 </span>
               </div>
-              <div className="grid grid-cols-2 gap-2 text-sm">
+              <div className="grid grid-cols-2 gap-2 text-xs sm:text-sm">
                 <div className="text-muted-foreground">Date</div>
                 <div>{new Date(booking.booking_date).toLocaleDateString()}</div>
                 <div className="text-muted-foreground">People</div>
@@ -426,13 +425,13 @@ const BookingsList = ({
               </div>
               <div className="flex gap-2 pt-2">
                 {booking.status === 'pending' && (
-                  <Button variant="default" size="sm" className="flex-1 bg-primary hover:bg-primary/90" onClick={() => handlePayNow(booking.id)}>
+                  <Button variant="default" size="sm" className="flex-1 bg-primary hover:bg-primary/90 text-xs" onClick={() => handlePayNow(booking.id)}>
                     Pay Now
                   </Button>
                 )}
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button variant="destructive" size="sm" className="flex-1">
+                    <Button variant="destructive" size="sm" className="flex-1 text-xs">
                       Delete
                     </Button>
                   </AlertDialogTrigger>
@@ -552,6 +551,7 @@ export const Dashboard = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
 
   const { data: bookings = [], isLoading: isLoadingBookings } = useQuery({
     queryKey: ["bookings", profile?.id],
@@ -629,39 +629,43 @@ export const Dashboard = () => {
   if (isLoading) {
     return (
       <div className="flex min-h-screen w-full">
-        <AppSidebar />
-        <div className="flex-1 p-8 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-gray-900 dark:to-gray-800">
+        {!isMobile && <AppSidebar />}
+        <div className="flex-1 p-4 sm:p-8 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-gray-900 dark:to-gray-800">
           <div className="container mx-auto space-y-8">
-            <Skeleton className="h-16 w-full max-w-md rounded-xl mb-8" />
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Skeleton className="h-12 sm:h-16 w-full max-w-md rounded-xl mb-8" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               {[1, 2, 3, 4].map(i => (
-                <Skeleton key={i} className="h-32 w-full rounded-xl" />
+                <Skeleton key={i} className="h-24 sm:h-32 w-full rounded-xl" />
               ))}
             </div>
-            <Skeleton className="h-[500px] w-full rounded-xl mt-8" />
+            <Skeleton className="h-[300px] sm:h-[500px] w-full rounded-xl mt-8" />
           </div>
         </div>
+        {isMobile && <AppSidebar />}
       </div>
     );
   }
 
   return (
     <div className="flex min-h-screen w-full bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-gray-900 dark:to-gray-800">
-      <AppSidebar />
-      <div className="flex-1 overflow-hidden">
-        <div className="container mx-auto py-6 px-4 sm:px-6 lg:px-8 min-h-screen overflow-auto">
+      {!isMobile && <AppSidebar />}
+      <div className={cn(
+        "flex-1 overflow-hidden",
+        isMobile && "mobile-dashboard-content"
+      )}>
+        <div className="container mx-auto py-4 sm:py-6 px-3 sm:px-6 lg:px-8 min-h-screen overflow-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="flex items-center justify-between mb-6"
+            className="flex items-center justify-between mb-4 sm:mb-6"
           >
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent flex items-center">
-              <LayoutDashboard className="h-6 w-6 mr-2 text-primary" />
+            <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent flex items-center">
+              <LayoutDashboard className="h-5 w-5 sm:h-6 sm:w-6 mr-2 text-primary" />
               Dashboard
             </h1>
             <div className="flex items-center gap-4">
-              <SidebarTrigger />
+              {!isMobile && <SidebarTrigger />}
             </div>
           </motion.div>
 
@@ -680,6 +684,7 @@ export const Dashboard = () => {
           </Routes>
         </div>
       </div>
+      {isMobile && <AppSidebar />}
       <ChatAssistant />
     </div>
   );

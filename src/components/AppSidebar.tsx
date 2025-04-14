@@ -19,11 +19,13 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "@/components/ui/sidebar";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 export function AppSidebar() {
   const navigate = useNavigate();
   const { signOut } = useAuth();
   const { state } = useSidebar();
+  const isMobile = useIsMobile();
 
   const handleSignOut = async () => {
     await signOut();
@@ -35,33 +37,64 @@ export function AppSidebar() {
       title: "Home",
       icon: Home,
       onClick: () => navigate("/dashboard"),
+      path: "/dashboard",
     },
     {
       title: "My Bookings",
       icon: Ticket,
       onClick: () => navigate("/dashboard/bookings"),
+      path: "/dashboard/bookings",
     },
     {
       title: "Destinations",
       icon: MapPin,
       onClick: () => navigate("/dashboard/destinations"),
+      path: "/dashboard/destinations",
     },
     {
       title: "Accommodations",
       icon: Hotel,
       onClick: () => navigate("/dashboard/accommodations"),
+      path: "/dashboard/accommodations",
     },
     {
       title: "Events",
       icon: Calendar,
       onClick: () => navigate("/dashboard/events"),
+      path: "/dashboard/events",
     },
     {
       title: "Settings",
       icon: Settings,
       onClick: () => navigate("/dashboard/settings"),
+      path: "/dashboard/settings",
     },
   ];
+  
+  // For mobile bottom navigation
+  if (isMobile) {
+    return (
+      <div className="mobile-nav-bottom">
+        <div className="flex justify-around items-center">
+          {menuItems.slice(0, 5).map((item) => (
+            <Button
+              key={item.title}
+              variant="ghost"
+              size="sm"
+              onClick={item.onClick}
+              className={cn(
+                "flex flex-col items-center py-1 px-2 h-auto",
+                window.location.pathname === item.path ? "text-primary" : "text-muted-foreground"
+              )}
+            >
+              <item.icon className="h-5 w-5" />
+              <span className="text-xs mt-1">{item.title}</span>
+            </Button>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Sidebar>
@@ -99,7 +132,7 @@ export function AppSidebar() {
                     <SidebarMenuButton
                       onClick={item.onClick}
                       className="hover:bg-primary/10 hover:text-primary data-[active=true]:bg-primary/15 data-[active=true]:text-primary"
-                      isActive={window.location.pathname === "/dashboard" + (index === 0 ? "" : "/" + item.title.toLowerCase().replace(/\s+/g, ''))}
+                      isActive={window.location.pathname === item.path}
                     >
                       <item.icon className="h-5 w-5" />
                       <span className="font-medium">{item.title}</span>
