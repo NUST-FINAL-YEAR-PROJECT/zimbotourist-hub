@@ -63,12 +63,6 @@ export function AppSidebar() {
       onClick: () => navigate("/dashboard/events"),
       path: "/dashboard/events",
     },
-    {
-      title: "Settings",
-      icon: Settings,
-      onClick: () => navigate("/dashboard/settings"),
-      path: "/dashboard/settings",
-    },
   ];
   
   // For mobile bottom navigation
@@ -76,7 +70,7 @@ export function AppSidebar() {
     return (
       <div className="mobile-nav-bottom">
         <div className="flex justify-around items-center">
-          {menuItems.slice(0, 5).map((item) => (
+          {menuItems.map((item) => (
             <Button
               key={item.title}
               variant="ghost"
@@ -140,6 +134,23 @@ export function AppSidebar() {
                   </SidebarMenuItem>
                 </motion.div>
               ))}
+              
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 5 * 0.05, duration: 0.3 }}
+              >
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    onClick={() => navigate("/dashboard/settings")}
+                    className="hover:bg-primary/10 hover:text-primary data-[active=true]:bg-primary/15 data-[active=true]:text-primary"
+                    isActive={window.location.pathname === "/dashboard/settings"}
+                  >
+                    <Settings className="h-5 w-5" />
+                    <span className="font-medium">Settings</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </motion.div>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

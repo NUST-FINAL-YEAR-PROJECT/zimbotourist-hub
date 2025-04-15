@@ -54,16 +54,16 @@ const StatCard = ({
 }) => (
   <motion.div 
     whileHover={{ y: -5 }} 
-    className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200/50 dark:border-gray-700/50 shadow-lg p-6 transition-all duration-300"
+    className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200/50 dark:border-gray-700/50 shadow-lg p-4 sm:p-6 transition-all duration-300"
   >
-    <div className="flex items-center space-x-4">
-      <div className="p-3 bg-primary/10 dark:bg-primary/20 rounded-lg">
-        <Icon className="h-6 w-6 text-primary" />
+    <div className="flex items-center space-x-2 sm:space-x-4">
+      <div className="p-2 sm:p-3 bg-primary/10 dark:bg-primary/20 rounded-lg">
+        <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
       </div>
       <div>
-        <p className="text-sm font-medium text-muted-foreground">{title}</p>
-        <h3 className="text-2xl font-bold">{value}</h3>
-        {description && <p className="text-sm text-muted-foreground mt-1">{description}</p>}
+        <p className="text-xs sm:text-sm font-medium text-muted-foreground">{title}</p>
+        <h3 className="text-xl sm:text-2xl font-bold">{value}</h3>
+        {description && <p className="text-xs sm:text-sm text-muted-foreground mt-1 line-clamp-1">{description}</p>}
       </div>
     </div>
   </motion.div>
@@ -155,18 +155,18 @@ const DashboardHome = ({
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <div className="flex flex-col space-y-4">
+    <div className="space-y-3 sm:space-y-6">
+      <div className="flex flex-col space-y-3 sm:space-y-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="bg-gradient-to-r from-primary/80 to-primary p-4 sm:p-6 rounded-xl text-white shadow-lg"
+          className="bg-gradient-to-r from-primary/80 to-primary p-3 sm:p-6 rounded-xl text-white shadow-lg"
         >
-          <h1 className="text-xl sm:text-3xl font-bold">
+          <h1 className="text-lg sm:text-3xl font-bold">
             {getGreeting()}, {profile.username || profile.email.split('@')[0]}!
           </h1>
-          <p className="text-sm sm:text-base opacity-90 mt-1">
+          <p className="text-sm opacity-90 mt-1">
             Here's what's happening with your travel plans
           </p>
         </motion.div>
@@ -188,7 +188,7 @@ const DashboardHome = ({
                 )}
               </Button>
             </SheetTrigger>
-            <SheetContent side={isMobile ? "bottom" : "right"} className={isMobile ? "h-[80vh]" : "w-full sm:max-w-md"}>
+            <SheetContent side={isMobile ? "bottom" : "right"} className={isMobile ? "mobile-sheet-content" : "w-full sm:max-w-md"}>
               <SheetHeader className="pb-4 border-b">
                 <SheetTitle className="text-xl">Notifications</SheetTitle>
               </SheetHeader>
@@ -219,20 +219,16 @@ const DashboardHome = ({
               </ScrollArea>
             </SheetContent>
           </Sheet>
-
-          <div className="flex-1 flex flex-wrap gap-2">
-            
-          </div>
         </div>
 
         <Tabs defaultValue="overview" className="w-full" onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm p-1 rounded-xl">
+          <TabsList className="grid w-full grid-cols-2 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm p-1 rounded-xl">
             <TabsTrigger value="overview" className="data-[state=active]:bg-primary data-[state=active]:text-white">Overview</TabsTrigger>
             <TabsTrigger value="recommendations" className="data-[state=active]:bg-primary data-[state=active]:text-white">Recommendations</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="space-y-4 sm:space-y-6 pt-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <TabsContent value="overview" className="space-y-3 sm:space-y-6 pt-3 sm:pt-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
               <AnimatePresence>
                 {stats.map((stat, index) => (
                   <motion.div
@@ -240,6 +236,7 @@ const DashboardHome = ({
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1, duration: 0.5 }}
+                    className={isMobile && index > 1 ? "col-span-1" : ""}
                   >
                     <StatCard {...stat} />
                   </motion.div>
@@ -249,15 +246,15 @@ const DashboardHome = ({
 
             {bookings.length > 0 && (
               <Card className="overflow-hidden border-0 shadow-lg bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm">
-                <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-4 sm:p-6">
-                  <CardTitle className="flex items-center text-base sm:text-lg">
+                <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 sm:p-6">
+                  <CardTitle className="flex items-center text-sm sm:text-lg">
                     <Activity className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-primary" />
                     Recent Bookings
                   </CardTitle>
                   <CardDescription>Your latest travel arrangements</CardDescription>
                 </CardHeader>
-                <CardContent className="p-3 sm:p-6">
-                  <div className="space-y-3 sm:space-y-4">
+                <CardContent className="p-2 sm:p-6">
+                  <div className="space-y-2 sm:space-y-4">
                     {bookings.slice(0, 3).map((booking, index) => (
                       <motion.div
                         key={booking.id}
@@ -265,14 +262,14 @@ const DashboardHome = ({
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 + (index * 0.1), duration: 0.4 }}
                         whileHover={{ scale: isMobile ? 1 : 1.02 }}
-                        className="p-3 sm:p-4 rounded-lg border bg-card text-card-foreground shadow-sm transition-all duration-200"
+                        className="p-3 rounded-lg border bg-card text-card-foreground shadow-sm transition-all duration-200"
                       >
                         <div className="flex justify-between items-center">
                           <div>
-                            <h3 className="font-semibold text-sm sm:text-base">
+                            <h3 className="font-semibold text-sm">
                               {booking.destinations?.name || booking.events?.title}
                             </h3>
-                            <p className="text-xs sm:text-sm text-muted-foreground">
+                            <p className="text-xs text-muted-foreground">
                               {new Date(booking.booking_date).toLocaleDateString()}
                             </p>
                           </div>
@@ -628,20 +625,19 @@ export const Dashboard = () => {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen w-full">
-        {!isMobile && <AppSidebar />}
-        <div className="flex-1 p-4 sm:p-8 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-gray-900 dark:to-gray-800">
-          <div className="container mx-auto space-y-8">
-            <Skeleton className="h-12 sm:h-16 w-full max-w-md rounded-xl mb-8" />
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      <div className="flex min-h-screen w-full bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-gray-900 dark:to-gray-800">
+        <div className="flex-1 p-3 sm:p-8">
+          <div className="container mx-auto space-y-4 sm:space-y-8">
+            <Skeleton className="h-12 w-full max-w-md rounded-xl mb-4 sm:mb-8" />
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-6">
               {[1, 2, 3, 4].map(i => (
-                <Skeleton key={i} className="h-24 sm:h-32 w-full rounded-xl" />
+                <Skeleton key={i} className="h-20 sm:h-32 w-full rounded-xl" />
               ))}
             </div>
-            <Skeleton className="h-[300px] sm:h-[500px] w-full rounded-xl mt-8" />
+            <Skeleton className="h-[200px] sm:h-[500px] w-full rounded-xl mt-4 sm:mt-8" />
           </div>
         </div>
-        {isMobile && <AppSidebar />}
+        {isMobile && <div className="h-16" />}
       </div>
     );
   }
@@ -650,18 +646,18 @@ export const Dashboard = () => {
     <div className="flex min-h-screen w-full bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-gray-900 dark:to-gray-800">
       {!isMobile && <AppSidebar />}
       <div className={cn(
-        "flex-1 overflow-hidden",
-        isMobile && "mobile-dashboard-content"
+        "flex-1 overflow-auto",
+        isMobile && "mobile-dashboard-content pb-16"
       )}>
-        <div className="container mx-auto py-4 sm:py-6 px-3 sm:px-6 lg:px-8 min-h-screen overflow-auto">
+        <div className="container mx-auto py-3 sm:py-6 px-0 sm:px-6 min-h-screen overflow-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="flex items-center justify-between mb-4 sm:mb-6"
+            className="flex items-center justify-between mb-3 sm:mb-6 px-3"
           >
-            <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent flex items-center">
-              <LayoutDashboard className="h-5 w-5 sm:h-6 sm:w-6 mr-2 text-primary" />
+            <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent flex items-center">
+              <LayoutDashboard className="h-4 w-4 sm:h-6 sm:w-6 mr-2 text-primary" />
               Dashboard
             </h1>
             <div className="flex items-center gap-4">
@@ -669,19 +665,21 @@ export const Dashboard = () => {
             </div>
           </motion.div>
 
-          <Routes>
-            <Route
-              path="/"
-              element={<DashboardHome profile={profile} bookings={bookings} />}
-            />
-            <Route path="/destinations" element={<DestinationExplorer />} />
-            <Route path="/accommodations" element={<AccommodationsList />} />
-            <Route path="/events" element={<EventsList />} />
-            <Route path="/events/:id" element={<EventDetails />} />
-            <Route path="/settings" element={<SettingsPage />} />
-            <Route path="/payment" element={<PaymentPage />} />
-            <Route path="/bookings" element={<MyBookings />} />
-          </Routes>
+          <div className="mobile-safe-scroll px-3">
+            <Routes>
+              <Route
+                path="/"
+                element={<DashboardHome profile={profile} bookings={bookings} />}
+              />
+              <Route path="/destinations" element={<DestinationExplorer />} />
+              <Route path="/accommodations" element={<AccommodationsList />} />
+              <Route path="/events" element={<EventsList />} />
+              <Route path="/events/:id" element={<EventDetails />} />
+              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/payment" element={<PaymentPage />} />
+              <Route path="/bookings" element={<MyBookings />} />
+            </Routes>
+          </div>
         </div>
       </div>
       {isMobile && <AppSidebar />}
