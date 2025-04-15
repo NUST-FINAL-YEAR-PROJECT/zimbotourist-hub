@@ -1,13 +1,13 @@
 
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { DestinationCard } from "@/components/DestinationCard";
 import { useDestinations } from "@/hooks/useDestinations";
 import { useEvents } from "@/hooks/useEvents";
 import { AccommodationsList } from "@/components/AccommodationsList";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Calendar, ArrowRight, DollarSign } from "lucide-react";
+import { ArrowRight, DollarSign, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 // Import custom sections
@@ -16,13 +16,7 @@ import { FeaturesSection } from "@/components/HomePage/FeaturesSection";
 import { StatsSection } from "@/components/HomePage/StatsSection";
 import { TestimonialsSection } from "@/components/HomePage/TestimonialsSection";
 import { CTASection } from "@/components/HomePage/CTASection";
-
-const tourismPhrases = [
-  "Discover Zimbabwe's Natural Wonders",
-  "Experience Majestic Victoria Falls",
-  "Explore Ancient Ruins of Great Zimbabwe",
-  "Safari Adventures Await You"
-];
+import { TopNavbar } from "@/components/TopNavbar";
 
 const Index = () => {
   const { data: destinations, isLoading: isLoadingDestinations } = useDestinations();
@@ -35,15 +29,6 @@ const Index = () => {
     category: "",
     date: "",
   });
-  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
-
-  const backgroundImages = useMemo(() => {
-    if (!destinations) return [];
-    return destinations
-      .filter(dest => dest.image_url)
-      .map(dest => dest.image_url)
-      .slice(0, 4);
-  }, [destinations]);
 
   const filteredDestinations = useMemo(() => {
     if (!destinations) return [];
@@ -73,21 +58,11 @@ const Index = () => {
     });
   }, [destinations, searchQuery, searchFilters]);
 
-  const handleFilterChange = (key: string, value: string) => {
-    setSearchFilters((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
-  };
-
-  const clearFilters = () => {
-    setSearchFilters({
-      location: "",
-      priceRange: "",
-      category: "",
-      date: "",
-    });
-    setSearchQuery("");
+  const handleSearch = () => {
+    // Scroll to search results if we have results
+    if (filteredDestinations.length > 0 && searchQuery) {
+      document.getElementById('search-results')?.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   const allCategories = useMemo(() => {
@@ -103,26 +78,22 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-white w-full">
-      {/* Hero Section */}
+      {/* Top Navigation Bar */}
+      <TopNavbar />
+      
+      {/* Hero Section (Simplified, No Slideshow) */}
       <HeroSection 
-        backgroundImages={backgroundImages}
-        tourismPhrases={tourismPhrases}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
-        searchFilters={searchFilters}
-        handleFilterChange={handleFilterChange}
-        clearFilters={clearFilters}
-        showAdvancedSearch={showAdvancedSearch}
-        setShowAdvancedSearch={setShowAdvancedSearch}
-        allCategories={allCategories}
+        handleSearch={handleSearch}
       />
 
       {/* Search Results Section */}
-      {(searchQuery || Object.values(searchFilters).some(Boolean)) && (
-        <section className="py-12 sm:py-16 bg-gray-50">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      {searchQuery && (
+        <section id="search-results" className="py-16 bg-gray-50">
+          <div className="container mx-auto px-4">
             <motion.h2 
-              className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8"
+              className="text-3xl font-bold mb-8"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
@@ -143,13 +114,6 @@ const Index = () => {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.8 }}
               >
-                <motion.div 
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.8, delay: 0.2 }}
-                >
-                  <ArrowRight className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                </motion.div>
                 <h3 className="text-xl font-semibold mb-2">No destinations found</h3>
                 <p className="text-muted-foreground">
                   Try adjusting your search criteria or explore our popular destinations
@@ -182,12 +146,9 @@ const Index = () => {
       {/* Features Section */}
       <FeaturesSection />
 
-      {/* Stats Section */}
-      <StatsSection />
-
       {/* Popular Destinations */}
-      <section className="py-20 sm:py-24 bg-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
           <motion.div 
             className="flex justify-between items-center mb-12"
             initial={{ opacity: 0, y: 20 }}
@@ -197,9 +158,13 @@ const Index = () => {
           >
             <div>
               <h2 className="text-3xl md:text-4xl font-bold mb-2">Popular Destinations</h2>
-              <p className="text-muted-foreground">Explore our hand-picked destinations</p>
+              <p className="text-lg text-muted-foreground">Explore our hand-picked destinations</p>
             </div>
-            <Button variant="ghost" className="text-primary group hidden md:flex">
+            <Button 
+              variant="ghost" 
+              className="text-primary group hidden md:flex"
+              onClick={() => navigate('/destinations')}
+            >
               View all 
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Button>
@@ -236,12 +201,26 @@ const Index = () => {
               ))}
             </div>
           )}
+          
+          <div className="mt-8 text-center md:hidden">
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/destinations')}
+              className="w-full"
+            >
+              View all destinations
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </section>
 
+      {/* Stats Section */}
+      <StatsSection />
+
       {/* Accommodations Section */}
-      <section className="py-20 sm:py-24 bg-gray-50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-20 bg-gray-50">
+        <div className="container mx-auto px-4">
           <motion.div 
             className="flex justify-between items-center mb-12"
             initial={{ opacity: 0, y: 20 }}
@@ -251,7 +230,7 @@ const Index = () => {
           >
             <div>
               <h2 className="text-3xl md:text-4xl font-bold mb-2">Featured Accommodations</h2>
-              <p className="text-muted-foreground">Find the perfect place to stay</p>
+              <p className="text-lg text-muted-foreground">Find the perfect place to stay</p>
             </div>
             <Button 
               variant="ghost" 
@@ -269,8 +248,8 @@ const Index = () => {
 
       {/* Events Section (if events exist) */}
       {!isLoadingEvents && events && events.length > 0 && (
-        <section className="py-20 sm:py-24 bg-white">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="py-20 bg-white">
+          <div className="container mx-auto px-4">
             <motion.div 
               className="text-center mb-12"
               initial={{ opacity: 0, y: 20 }}
@@ -279,7 +258,7 @@ const Index = () => {
               viewport={{ once: true, margin: "-100px" }}
             >
               <h2 className="text-3xl md:text-4xl font-bold mb-4">Upcoming Events</h2>
-              <p className="text-muted-foreground">Don't miss out on these amazing experiences</p>
+              <p className="text-lg text-muted-foreground">Don't miss out on these amazing experiences</p>
             </motion.div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {events.slice(0, 3).map((event, index) => (
@@ -313,6 +292,17 @@ const Index = () => {
                   </div>
                 </motion.div>
               ))}
+            </div>
+            
+            <div className="mt-12 text-center">
+              <Button 
+                variant="outline"
+                onClick={() => navigate('/events')}
+                className="px-8 py-6 text-lg"
+              >
+                View All Events
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
             </div>
           </div>
         </section>
