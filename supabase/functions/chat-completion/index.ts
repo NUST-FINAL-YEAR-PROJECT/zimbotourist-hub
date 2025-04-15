@@ -17,6 +17,7 @@ serve(async (req) => {
 
   try {
     if (!openAIApiKey) {
+      console.error('OpenAI API key not configured');
       throw new Error('OpenAI API key not configured');
     }
 
@@ -42,7 +43,7 @@ serve(async (req) => {
 
     // Add conversation history if provided
     if (conversationHistory && conversationHistory.length > 0) {
-      messages.push(...conversationHistory.map((msg: {role: string, content: string}) => ({
+      messages.push(...conversationHistory.map((msg) => ({
         role: msg.role,
         content: msg.content
       })));
@@ -54,6 +55,8 @@ serve(async (req) => {
       content: message
     });
 
+    console.log('Sending request to OpenAI with messages:', JSON.stringify(messages));
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -64,15 +67,21 @@ serve(async (req) => {
         model: 'gpt-4o-mini',
         messages: messages,
         max_tokens: 500,
-        temperature: 0.7, // Slightly higher temperature for more conversational responses
+        temperature: 0.7,
       }),
     });
 
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('OpenAI API error:', errorData);
+      throw new Error(errorData.error?.message || `Failed to get response from OpenAI: ${response.status}`);
+    }
+
     const data = await response.json();
     
-    if (!response.ok) {
-      console.error('OpenAI API error:', data);
-      throw new Error(data.error?.message || 'Failed to get response from OpenAI');
+    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+      console.error('Unexpected response format from OpenAI:', data);
+      throw new Error('Invalid response format from OpenAI');
     }
 
     const aiResponse = data.choices[0].message.content;
@@ -84,7 +93,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in chat-completion function:', error);
     return new Response(
-      JSON.stringify({ error: error.message }), {
+      JSON.stringify({ error: error.message || 'An unknown error occurred' }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }

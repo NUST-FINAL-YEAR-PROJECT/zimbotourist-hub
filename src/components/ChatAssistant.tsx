@@ -30,6 +30,7 @@ export const ChatAssistant = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { data: upcomingEvents } = useUpcomingEvents(3);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -49,10 +50,11 @@ export const ChatAssistant = () => {
         }
       ]);
     }
-  }, [messages]);
+  }, []);
 
   const sendMessage = async () => {
     if (!message.trim()) return;
+    setError(null);
 
     try {
       setIsLoading(true);
@@ -69,13 +71,18 @@ export const ChatAssistant = () => {
       setMessages(prev => [...prev, userMessage]);
       setMessage("");
       
-      // Prepare conversation history (excluding welcome message)
+      // Prepare conversation history (excluding welcome message if it's the only message)
       const conversationHistory = messages
         .filter((msg, index) => index > 0 || messages.length === 1)
         .map(msg => ({
           role: msg.role,
           content: msg.content
         }));
+      
+      console.log('Sending message to chat-completion function:', {
+        message: userMessage.content,
+        conversationHistoryLength: conversationHistory.length
+      });
       
       // Call the Supabase Edge Function
       const { data, error } = await supabase.functions.invoke('chat-completion', {
@@ -86,7 +93,13 @@ export const ChatAssistant = () => {
       });
       
       if (error) {
-        throw new Error(error.message);
+        console.error('Error from chat-completion function:', error);
+        throw new Error(error.message || 'Failed to get response from the chat assistant');
+      }
+
+      if (!data || !data.response) {
+        console.error('Invalid response from chat-completion function:', data);
+        throw new Error('Invalid response from the chat assistant');
       }
 
       // Extract links and images if present in the response
@@ -169,11 +182,12 @@ export const ChatAssistant = () => {
       
       // Add assistant message to chat
       setMessages(prev => [...prev, assistantMessage]);
-      setIsLoading(false);
       
     } catch (error) {
       console.error('Error sending message:', error);
-      toast.error("Something went wrong with the chat. Please try again.");
+      setError(error instanceof Error ? error.message : 'Something went wrong with the chat');
+      toast.error("Chat assistant error: " + (error instanceof Error ? error.message : 'Something went wrong'));
+    } finally {
       setIsLoading(false);
     }
   };
@@ -187,7 +201,7 @@ export const ChatAssistant = () => {
     <>
       <Button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 bg-primary text-white"
+        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 bg-primary text-white z-50"
         size="icon"
       >
         <MessageCircle className="h-6 w-6" />
@@ -262,6 +276,13 @@ export const ChatAssistant = () => {
                   <div className="flex justify-start">
                     <div className="max-w-[80%] rounded-2xl px-4 py-2 bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100">
                       <Loader2 className="h-4 w-4 animate-spin" />
+                    </div>
+                  </div>
+                )}
+                {error && (
+                  <div className="flex justify-center">
+                    <div className="max-w-[90%] rounded-lg px-4 py-2 bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400 text-sm">
+                      Error: {error}. Please try again.
                     </div>
                   </div>
                 )}
