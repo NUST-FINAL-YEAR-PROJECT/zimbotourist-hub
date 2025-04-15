@@ -18,8 +18,8 @@ import { InitializeData } from "./components/InitializeData";
 
 // Create placeholder pages for routes we added in the navbar
 const DestinationsPage = () => (
-  <div className="min-h-screen pt-24 pb-12 bg-gray-50">
-    <div className="container mx-auto px-4">
+  <div className="min-h-screen pt-20 pb-12 bg-gray-50">
+    <div className="content-container mx-auto px-4">
       <h1 className="text-4xl font-bold mb-8">Explore All Destinations</h1>
       <p className="text-lg mb-12 text-muted-foreground">
         This page will show all destinations. Coming soon!
@@ -29,8 +29,8 @@ const DestinationsPage = () => (
 );
 
 const AccommodationsPage = () => (
-  <div className="min-h-screen pt-24 pb-12 bg-gray-50">
-    <div className="container mx-auto px-4">
+  <div className="min-h-screen pt-20 pb-12 bg-gray-50">
+    <div className="content-container mx-auto px-4">
       <h1 className="text-4xl font-bold mb-8">All Accommodations</h1>
       <p className="text-lg mb-12 text-muted-foreground">
         This page will show all accommodations. Coming soon!
@@ -40,8 +40,8 @@ const AccommodationsPage = () => (
 );
 
 const EventsPage = () => (
-  <div className="min-h-screen pt-24 pb-12 bg-gray-50">
-    <div className="container mx-auto px-4">
+  <div className="min-h-screen pt-20 pb-12 bg-gray-50">
+    <div className="content-container mx-auto px-4">
       <h1 className="text-4xl font-bold mb-8">Upcoming Events</h1>
       <p className="text-lg mb-12 text-muted-foreground">
         This page will show all events. Coming soon!
@@ -102,55 +102,57 @@ const App = () => (
       <InitializeData />
       <Toaster />
       <Sonner />
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/documentation" element={<Documentation />} />
-        <Route path="/auth" element={
-          <AuthRoute>
-            <Auth />
-          </AuthRoute>
-        } />
-        <Route path="/destinations" element={<DestinationsPage />} />
-        <Route path="/accommodations" element={<AccommodationsPage />} />
-        <Route path="/events" element={<EventsPage />} />
-        <Route
-          path="/dashboard/*"
-          element={
+      <div className="app-container">
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/documentation" element={<Documentation />} />
+          <Route path="/auth" element={
+            <AuthRoute>
+              <Auth />
+            </AuthRoute>
+          } />
+          <Route path="/destinations" element={<DestinationsPage />} />
+          <Route path="/accommodations" element={<AccommodationsPage />} />
+          <Route path="/events" element={<EventsPage />} />
+          <Route
+            path="/dashboard/*"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/destination/:id"
+            element={
+              <ProtectedRoute>
+                <DestinationDetails />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/events/:id"
+            element={
+              <ProtectedRoute>
+                <EventDetails />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/accommodation/:id"
+            element={
+              <ProtectedRoute>
+                <AccommodationDetails />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="*" element={
             <ProtectedRoute>
-              <Dashboard />
+              <Navigate to="/dashboard" replace />
             </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/destination/:id"
-          element={
-            <ProtectedRoute>
-              <DestinationDetails />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/events/:id"
-          element={
-            <ProtectedRoute>
-              <EventDetails />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/accommodation/:id"
-          element={
-            <ProtectedRoute>
-              <AccommodationDetails />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="*" element={
-          <ProtectedRoute>
-            <Navigate to="/dashboard" replace />
-          </ProtectedRoute>
-        } />
-      </Routes>
+          } />
+        </Routes>
+      </div>
     </TooltipProvider>
   </ThemeProvider>
 );
