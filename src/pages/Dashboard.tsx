@@ -192,7 +192,7 @@ const DashboardHome = ({
               <SheetHeader className="pb-4 border-b">
                 <SheetTitle className="text-xl">Notifications</SheetTitle>
               </SheetHeader>
-              <ScrollArea className={isMobile ? "h-[60vh]" : "h-[calc(100vh-8rem)]"} className="mt-6 pr-4">
+              <ScrollArea className="mt-6 pr-4 h-[calc(100vh-8rem)]">
                 <AnimatePresence mode="popLayout">
                   {isLoadingNotifications ? (
                     Array.from({ length: 3 }).map((_, i) => (
