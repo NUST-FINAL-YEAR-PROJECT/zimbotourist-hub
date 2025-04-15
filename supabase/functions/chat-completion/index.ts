@@ -20,9 +20,39 @@ serve(async (req) => {
       throw new Error('OpenAI API key not configured');
     }
 
-    const { message, conversationId } = await req.json();
+    const { message, conversationHistory = [] } = await req.json();
     console.log('Received message:', message);
-    console.log('Conversation ID:', conversationId);
+    console.log('Conversation history length:', conversationHistory.length);
+
+    // Construct messages array with system prompt and conversation history
+    const messages = [
+      {
+        role: 'system',
+        content: `You are a friendly and conversational travel assistant for Zimbabwe tourism. 
+        Engage naturally in conversations while providing helpful tourism information when relevant. 
+        Your primary goal is to be helpful, personable, and informative about Zimbabwe's attractions, 
+        culture, travel tips, and experiences. When the conversation moves to general topics, 
+        maintain a warm and friendly tone, but find natural ways to relate topics back to 
+        tourism in Zimbabwe when appropriate without being forceful.
+        
+        Be concise but thorough in your responses. If you don't know something specific about 
+        Zimbabwe tourism, acknowledge it rather than providing incorrect information.`
+      }
+    ];
+
+    // Add conversation history if provided
+    if (conversationHistory && conversationHistory.length > 0) {
+      messages.push(...conversationHistory.map((msg: {role: string, content: string}) => ({
+        role: msg.role,
+        content: msg.content
+      })));
+    }
+
+    // Add the new user message
+    messages.push({
+      role: 'user',
+      content: message
+    });
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -32,17 +62,9 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         model: 'gpt-4o-mini',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are a helpful travel assistant for Zimbabwe tourism. Provide concise, informative responses about tourist destinations, activities, accommodation options, travel tips, local customs, safety information, and other helpful advice for travelers in Zimbabwe. Your responses should be friendly, accurate, and tailored to help tourists make the most of their visit to Zimbabwe.'
-          },
-          {
-            role: 'user',
-            content: message
-          }
-        ],
+        messages: messages,
         max_tokens: 500,
+        temperature: 0.7, // Slightly higher temperature for more conversational responses
       }),
     });
 
