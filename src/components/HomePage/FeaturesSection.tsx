@@ -62,19 +62,21 @@ export const FeaturesSection = () => {
   ];
 
   return (
-    <section className="py-10 sm:py-16 bg-white">
+    <section className="py-8 sm:py-12 bg-gray-50">
       <div className="content-container">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true, margin: "-100px" }}
-          className="text-center mb-8 sm:mb-12"
+          className="text-center mb-6 sm:mb-10"
         >
           <h2 className="text-3xl sm:text-4xl font-bold mb-3">Why Choose Zimbabwe?</h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">Experience the beauty of Southern Africa with these amazing features</p>
         </motion.div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        
+        {/* More organized grid layout with better visual grouping */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
           {features.map((feature, index) => (
             <motion.div
               key={index}
@@ -82,10 +84,10 @@ export const FeaturesSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
               viewport={{ once: true, margin: "-100px" }}
-              className="p-5 rounded-xl bg-white shadow-sm hover:shadow-md transition-all duration-700 border border-gray-100 group"
+              className="p-4 rounded-xl bg-white shadow-md hover:shadow-lg transition-all duration-500 border border-gray-100 group"
             >
-              <div className={`inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-xl ${feature.color} bg-opacity-10 mb-4 transition-all duration-700 group-hover:bg-opacity-20`}>
-                <feature.icon size={20} className={`text-${feature.color.split('-')[1]}-500`} />
+              <div className={`inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-xl ${feature.color} text-white mb-3`}>
+                <feature.icon size={20} className="text-white" />
               </div>
               <h3 className="text-base sm:text-lg font-semibold mb-2">{feature.title}</h3>
               <p className="text-sm text-muted-foreground">{feature.description}</p>
