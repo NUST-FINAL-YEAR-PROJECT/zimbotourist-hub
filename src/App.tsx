@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -18,34 +17,61 @@ import { InitializeData } from "./components/InitializeData";
 
 // Create placeholder pages for routes we added in the navbar
 const DestinationsPage = () => (
-  <div className="min-h-screen pt-20 pb-12 bg-gray-50">
-    <div className="content-container mx-auto px-4">
-      <h1 className="text-4xl font-bold mb-8">Explore All Destinations</h1>
-      <p className="text-lg mb-12 text-muted-foreground">
-        This page will show all destinations. Coming soon!
+  <div className="min-h-screen pt-16 pb-12 bg-gray-50">
+    <div className="content-container">
+      <h1 className="text-3xl font-bold mb-6">Explore All Destinations</h1>
+      <p className="text-lg mb-8 text-muted-foreground">
+        Discover the beauty of Zimbabwe's landscapes, wildlife, and cultural heritage.
       </p>
+      
+      {/* Added placeholder content */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div key={i} className="bg-white rounded-xl shadow-sm p-4 h-64 flex items-center justify-center">
+            <p className="text-muted-foreground">Destination card {i} - Coming soon</p>
+          </div>
+        ))}
+      </div>
     </div>
   </div>
 );
 
 const AccommodationsPage = () => (
-  <div className="min-h-screen pt-20 pb-12 bg-gray-50">
-    <div className="content-container mx-auto px-4">
-      <h1 className="text-4xl font-bold mb-8">All Accommodations</h1>
-      <p className="text-lg mb-12 text-muted-foreground">
-        This page will show all accommodations. Coming soon!
+  <div className="min-h-screen pt-16 pb-12 bg-gray-50">
+    <div className="content-container">
+      <h1 className="text-3xl font-bold mb-6">All Accommodations</h1>
+      <p className="text-lg mb-8 text-muted-foreground">
+        Find comfortable and luxurious places to stay during your Zimbabwe adventure.
       </p>
+      
+      {/* Added placeholder content */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div key={i} className="bg-white rounded-xl shadow-sm p-4 h-64 flex items-center justify-center">
+            <p className="text-muted-foreground">Accommodation card {i} - Coming soon</p>
+          </div>
+        ))}
+      </div>
     </div>
   </div>
 );
 
 const EventsPage = () => (
-  <div className="min-h-screen pt-20 pb-12 bg-gray-50">
-    <div className="content-container mx-auto px-4">
-      <h1 className="text-4xl font-bold mb-8">Upcoming Events</h1>
-      <p className="text-lg mb-12 text-muted-foreground">
-        This page will show all events. Coming soon!
+  <div className="min-h-screen pt-16 pb-12 bg-gray-50">
+    <div className="content-container">
+      <h1 className="text-3xl font-bold mb-6">Upcoming Events</h1>
+      <p className="text-lg mb-8 text-muted-foreground">
+        Experience cultural festivals, wildlife tours, and special exhibitions across Zimbabwe.
       </p>
+      
+      {/* Added placeholder content */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div key={i} className="bg-white rounded-xl shadow-sm p-4 h-64 flex items-center justify-center">
+            <p className="text-muted-foreground">Event card {i} - Coming soon</p>
+          </div>
+        ))}
+      </div>
     </div>
   </div>
 );
