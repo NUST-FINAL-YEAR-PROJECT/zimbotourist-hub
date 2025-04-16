@@ -1,3 +1,4 @@
+
 #root {
   width: 100%;
   min-height: 100vh;
@@ -67,7 +68,7 @@
 
 /* Content width constraint - Updated for more compact professional layout */
 .content-container {
-  max-width: 1100px; /* Reduced from 1200px for more compact professional look */
+  max-width: 1080px; /* Reduced for more compact look */
   margin-left: auto;
   margin-right: auto;
   width: 100%;
@@ -178,18 +179,18 @@
 
 /* Section styling - UPDATED to reduce vertical spacing for more content */
 .section-container {
-  padding: 2.5rem 1rem; /* Reduced from 3rem */
+  padding: 2rem 1rem; /* Reduced spacing */
 }
 
 @media (min-width: 640px) {
   .section-container {
-    padding: 3rem 2rem; /* Reduced from 3.5rem */
+    padding: 2.5rem 2rem; /* Reduced spacing */
   }
 }
 
 @media (min-width: 1024px) {
   .section-container {
-    padding: 3.5rem 2rem; /* Reduced from 4rem */
+    padding: 3rem 2rem; /* Reduced spacing */
   }
 }
 
@@ -224,14 +225,14 @@
 /* Enhanced dashboard layout */
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 1rem;
 }
 
 @media (min-width: 768px) {
   .dashboard-grid {
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.25rem;
   }
 }
 
@@ -259,8 +260,8 @@
 
 /* Better section spacing */
 .section-spacing-y {
-  margin-top: 1.5rem;
-  margin-bottom: 1.5rem;
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
 }
 
 /* Professional secondary navigation style */
@@ -345,4 +346,72 @@
 
 .dark .text-body {
   color: rgba(255, 255, 255, 0.75);
+}
+
+/* New Colorful Elements */
+.text-gradient-primary {
+  background: linear-gradient(90deg, #0EA5E9, #3B82F6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #0EA5E9, #3B82F6);
+}
+
+.bg-gradient-accent {
+  background: linear-gradient(135deg, #F97316, #FB923C);
+}
+
+.btn-gradient {
+  background: linear-gradient(90deg, #0EA5E9, #3B82F6);
+  transition: all 0.3s ease;
+}
+
+.btn-gradient:hover {
+  background: linear-gradient(90deg, #0284C7, #2563EB);
+  transform: translateY(-2px);
+}
+
+/* Decorative elements */
+.decorative-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: currentColor;
+  opacity: 0.5;
+}
+
+/* Consistent card styling */
+.content-card {
+  border-radius: 0.75rem;
+  background-color: white;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.content-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  transform: translateY(-5px);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #0EA5E9;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #0284C7;
 }
