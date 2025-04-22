@@ -33,25 +33,27 @@ export const HeroSection = ({
         initial={{ opacity: 0, y: 40, scale: 0.9 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 1, delay: 0.3, type: "spring" }}
-        className="absolute right-4 md:right-16 top-[18%] md:top-[10%] bg-black/70 p-2 rounded-2xl shadow-2xl hover:scale-105 transition-all z-30"
+        className="absolute right-4 md:right-16 top-[10%] lg:top-[15%] bg-black/70 p-2 rounded-2xl shadow-2xl hover:scale-105 transition-all z-30"
         style={{
           width: "340px",
           maxWidth: "92vw",
           border: "4px solid #ffb300",
         }}
       >
-        <div className="relative w-full aspect-video rounded-xl overflow-hidden">
+        <div className="relative w-full aspect-video rounded-xl overflow-hidden shadow-2xl">
           <iframe
             width="100%"
             height="100%"
-            src="https://www.youtube.com/embed/SS1Gg_XXnO8?si=QpVFv8E_yca3qNbF"
-            title="YouTube video player"
+            src="https://www.youtube.com/embed/SS1Gg_XXnO8?si=QpVFv8E_yca3qNbF&autoplay=0&mute=1"
+            title="Zimbabwe Travel Video"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
             className="rounded-xl"
             style={{ border: 0 }}
           ></iframe>
-          <span className="absolute bottom-2 right-2 bg-yellow-400/90 text-black text-xs px-2 py-1 rounded font-bold shadow">Watch Zimbabwe</span>
+          <span className="absolute bottom-2 right-2 bg-yellow-400/90 text-black text-xs px-2 py-1 rounded font-bold shadow">
+            Watch Zimbabwe
+          </span>
         </div>
       </motion.div>
 
