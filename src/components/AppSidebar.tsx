@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 import { LogOut, MapPin, Settings, Ticket, Home, Calendar, Hotel, Sparkles } from "lucide-react";
 import {
@@ -15,7 +14,6 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "@/components/ui/sidebar";
@@ -65,7 +63,6 @@ export function AppSidebar() {
     },
   ];
   
-  // For mobile bottom navigation
   if (isMobile) {
     return (
       <div className="mobile-nav-bottom">
@@ -105,7 +102,6 @@ export function AppSidebar() {
               Reserve.zw
             </h2>
           </div>
-          <ThemeToggle />
         </div>
       </SidebarHeader>
       <SidebarContent>

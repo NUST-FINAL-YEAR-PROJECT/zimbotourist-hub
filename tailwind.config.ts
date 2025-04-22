@@ -1,8 +1,6 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
-  darkMode: ["class"],
   content: [
     "./pages/**/*.{ts,tsx}",
     "./components/**/*.{ts,tsx}",
@@ -20,11 +18,11 @@ export default {
     },
     extend: {
       colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
+        border: "#E2E8F0",
+        input: "#E2E8F0",
+        ring: "#0EA5E9",
+        background: "#FFFFFF",
+        foreground: "#1A1F2C",
         primary: {
           DEFAULT: "#0EA5E9",
           foreground: "#FFFFFF",
@@ -33,29 +31,26 @@ export default {
         secondary: {
           DEFAULT: "#F0F9FF",
           foreground: "#1A1F2C",
-          dark: "#0F172A",
         },
         destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
+          DEFAULT: "#EF4444",
+          foreground: "#FFFFFF",
         },
         muted: {
           DEFAULT: "#F1F5F9",
           foreground: "#64748B",
-          dark: "#1E293B",
         },
         accent: {
           DEFAULT: "#F97316",
           foreground: "#FFFFFF",
-          dark: "#EA580C",
         },
         popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
+          DEFAULT: "#FFFFFF",
+          foreground: "#1A1F2C",
         },
         card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
+          DEFAULT: "#FFFFFF",
+          foreground: "#1A1F2C",
         },
         sidebar: {
           DEFAULT: "#F8FAFC",
@@ -64,12 +59,6 @@ export default {
           accent: "#EFF6FF",
           "accent-foreground": "#0EA5E9",
           ring: "#BFDBFE",
-          dark: {
-            DEFAULT: "#0F172A",
-            border: "#1E293B",
-            accent: "#1E293B",
-            "accent-foreground": "#E2E8F0",
-          },
         }
       },
       fontFamily: {
@@ -77,9 +66,9 @@ export default {
         sans: ["Open Sans", "sans-serif"],
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        lg: "0.75rem",
+        md: "0.5rem",
+        sm: "0.25rem",
       },
       keyframes: {
         "accordion-down": {

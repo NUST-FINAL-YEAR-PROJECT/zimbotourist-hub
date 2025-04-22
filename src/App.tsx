@@ -1,7 +1,6 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { ThemeProvider } from "@/components/theme-provider";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import Index from "./pages/Index";
@@ -15,7 +14,6 @@ import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { InitializeData } from "./components/InitializeData";
 
-// Create placeholder pages for routes we added in the navbar
 const DestinationsPage = () => (
   <div className="min-h-screen pt-16 pb-12 bg-gray-50">
     <div className="content-container">
@@ -24,7 +22,6 @@ const DestinationsPage = () => (
         Discover the beauty of Zimbabwe's landscapes, wildlife, and cultural heritage.
       </p>
       
-      {/* Added placeholder content */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
         {[1, 2, 3, 4, 5, 6].map((i) => (
           <div key={i} className="bg-white rounded-xl shadow-sm p-4 h-64 flex items-center justify-center">
@@ -44,7 +41,6 @@ const AccommodationsPage = () => (
         Find comfortable and luxurious places to stay during your Zimbabwe adventure.
       </p>
       
-      {/* Added placeholder content */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
         {[1, 2, 3, 4, 5, 6].map((i) => (
           <div key={i} className="bg-white rounded-xl shadow-sm p-4 h-64 flex items-center justify-center">
@@ -64,7 +60,6 @@ const EventsPage = () => (
         Experience cultural festivals, wildlife tours, and special exhibitions across Zimbabwe.
       </p>
       
-      {/* Added placeholder content */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
         {[1, 2, 3, 4, 5, 6].map((i) => (
           <div key={i} className="bg-white rounded-xl shadow-sm p-4 h-64 flex items-center justify-center">
@@ -123,64 +118,62 @@ const AuthRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const App = () => (
-  <ThemeProvider defaultTheme="system" storageKey="ui-theme">
-    <TooltipProvider>
-      <InitializeData />
-      <Toaster />
-      <Sonner />
-      <div className="app-container">
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/documentation" element={<Documentation />} />
-          <Route path="/auth" element={
-            <AuthRoute>
-              <Auth />
-            </AuthRoute>
-          } />
-          <Route path="/destinations" element={<DestinationsPage />} />
-          <Route path="/accommodations" element={<AccommodationsPage />} />
-          <Route path="/events" element={<EventsPage />} />
-          <Route
-            path="/dashboard/*"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/destination/:id"
-            element={
-              <ProtectedRoute>
-                <DestinationDetails />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/events/:id"
-            element={
-              <ProtectedRoute>
-                <EventDetails />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/accommodation/:id"
-            element={
-              <ProtectedRoute>
-                <AccommodationDetails />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="*" element={
+  <TooltipProvider>
+    <InitializeData />
+    <Toaster />
+    <Sonner />
+    <div className="app-container">
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/documentation" element={<Documentation />} />
+        <Route path="/auth" element={
+          <AuthRoute>
+            <Auth />
+          </AuthRoute>
+        } />
+        <Route path="/destinations" element={<DestinationsPage />} />
+        <Route path="/accommodations" element={<AccommodationsPage />} />
+        <Route path="/events" element={<EventsPage />} />
+        <Route
+          path="/dashboard/*"
+          element={
             <ProtectedRoute>
-              <Navigate to="/dashboard" replace />
+              <Dashboard />
             </ProtectedRoute>
-          } />
-        </Routes>
-      </div>
-    </TooltipProvider>
-  </ThemeProvider>
+          }
+        />
+        <Route
+          path="/destination/:id"
+          element={
+            <ProtectedRoute>
+              <DestinationDetails />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/events/:id"
+          element={
+            <ProtectedRoute>
+              <EventDetails />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/accommodation/:id"
+          element={
+            <ProtectedRoute>
+              <AccommodationDetails />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={
+          <ProtectedRoute>
+            <Navigate to="/dashboard" replace />
+          </ProtectedRoute>
+        } />
+      </Routes>
+    </div>
+  </TooltipProvider>
 );
 
 export default App;
