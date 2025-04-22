@@ -125,6 +125,10 @@
     @apply bg-gradient-to-r from-purple-600 to-pink-400 bg-clip-text text-transparent;
   }
   
+  .text-gradient-primary {
+    @apply bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent;
+  }
+
   /* Colorful borders */
   .border-gradient-blue {
     @apply border-2 border-transparent bg-gradient-to-r from-blue-600 to-cyan-400 bg-clip-border;

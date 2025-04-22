@@ -77,23 +77,25 @@ const Index = () => {
   }, [destinations]);
 
   return (
-    <div className="min-h-screen bg-white w-full">
-      {/* Top Navigation Bar */}
+    <div className="min-h-screen bg-gradient-to-b from-[#fdfcfb] via-[#d3e4fd] to-[#fbed96] w-full">
       <TopNavbar />
-      
-      {/* Hero Section (Simplified, No Slideshow) */}
-      <HeroSection 
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        handleSearch={handleSearch}
-      />
+
+      {/* Hero Section with color effect */}
+      <div className="relative">
+        <div className="absolute inset-0 bg-gradient-to-br from-amber-100 via-primary/10 to-pink-100 opacity-80 pointer-events-none" />
+        <HeroSection 
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          handleSearch={handleSearch}
+        />
+      </div>
 
       {/* Search Results Section */}
       {searchQuery && (
-        <section id="search-results" className="py-16 bg-gray-50">
+        <section id="search-results" className="py-16 bg-gradient-to-br from-amber-50 via-white to-blue-50">
           <div className="container mx-auto px-4">
             <motion.h2 
-              className="text-3xl font-bold mb-8"
+              className="text-4xl font-bold mb-8 text-gradient-primary"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
@@ -144,10 +146,13 @@ const Index = () => {
       )}
 
       {/* Features Section */}
-      <FeaturesSection />
+      <div className="relative z-0">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-50 via-pink-50 to-amber-50 opacity-80 pointer-events-none" />
+        <FeaturesSection />
+      </div>
 
       {/* Popular Destinations */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-gradient-to-br from-[#ffdee2] via-[#fbed96] to-[#d3e4fd]">
         <div className="container mx-auto px-4">
           <motion.div 
             className="flex justify-between items-center mb-12"
@@ -157,12 +162,14 @@ const Index = () => {
             viewport={{ once: true, margin: "-100px" }}
           >
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-2">Popular Destinations</h2>
+              <h2 className="text-4xl md:text-5xl font-bold mb-2 text-gradient-blue">
+                Popular Destinations
+              </h2>
               <p className="text-lg text-muted-foreground">Explore our hand-picked destinations</p>
             </div>
             <Button 
               variant="ghost" 
-              className="text-primary group hidden md:flex"
+              className="btn-gradient hover:scale-105 group hidden md:flex"
               onClick={() => navigate('/destinations')}
             >
               View all 
@@ -205,8 +212,8 @@ const Index = () => {
           <div className="mt-8 text-center md:hidden">
             <Button 
               variant="outline" 
+              className="btn-gradient w-full font-semibold"
               onClick={() => navigate('/destinations')}
-              className="w-full"
             >
               View all destinations
               <ArrowRight className="ml-2 h-4 w-4" />
@@ -216,10 +223,13 @@ const Index = () => {
       </section>
 
       {/* Stats Section */}
-      <StatsSection />
+      <div className="relative z-0">
+        <div className="absolute inset-0 bg-gradient-to-r from-primary via-accent to-amber-200 opacity-[.16] pointer-events-none" />
+        <StatsSection />
+      </div>
 
       {/* Accommodations Section */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-gradient-to-br from-[#e5deff] via-[#ffdee2] to-[#fbed96]">
         <div className="container mx-auto px-4">
           <motion.div 
             className="flex justify-between items-center mb-12"
@@ -229,26 +239,27 @@ const Index = () => {
             viewport={{ once: true, margin: "-100px" }}
           >
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-2">Featured Accommodations</h2>
+              <h2 className="text-4xl md:text-5xl font-bold mb-2 text-gradient-purple">
+                Featured Accommodations
+              </h2>
               <p className="text-lg text-muted-foreground">Find the perfect place to stay</p>
             </div>
             <Button 
               variant="ghost" 
-              className="text-primary group hidden md:flex" 
+              className="btn-gradient bg-gradient-accent group hidden md:flex" 
               onClick={() => navigate('/accommodations')}
             >
               View all 
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Button>
           </motion.div>
-          
           <AccommodationsList limit={3} showViewAll={true} />
         </div>
       </section>
 
-      {/* Events Section (if events exist) */}
+      {/* Events Section */}
       {!isLoadingEvents && events && events.length > 0 && (
-        <section className="py-20 bg-white">
+        <section className="py-20 bg-gradient-to-br from-[#f2fce2] via-[#ffe29f] to-[#ffa99f]">
           <div className="container mx-auto px-4">
             <motion.div 
               className="text-center mb-12"
@@ -257,7 +268,9 @@ const Index = () => {
               transition={{ duration: 0.8 }}
               viewport={{ once: true, margin: "-100px" }}
             >
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">Upcoming Events</h2>
+              <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gradient-amber">
+                Upcoming Events
+              </h2>
               <p className="text-lg text-muted-foreground">Don't miss out on these amazing experiences</p>
             </motion.div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -297,8 +310,8 @@ const Index = () => {
             <div className="mt-12 text-center">
               <Button 
                 variant="outline"
+                className="btn-gradient px-8 py-6 text-lg font-semibold"
                 onClick={() => navigate('/events')}
-                className="px-8 py-6 text-lg"
               >
                 View All Events
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -308,10 +321,7 @@ const Index = () => {
         </section>
       )}
 
-      {/* Testimonials Section */}
       <TestimonialsSection />
-
-      {/* CTA Section */}
       <CTASection />
     </div>
   );
