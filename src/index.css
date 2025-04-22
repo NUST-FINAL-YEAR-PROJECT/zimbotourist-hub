@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:wght@300;400;500;600&family=Poppins:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
@@ -13,14 +12,14 @@
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 199 89% 48%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 24 96% 53%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
@@ -52,17 +51,17 @@
   }
 
   html {
-    @apply h-full scroll-smooth;
+    @apply h-full scroll-smooth antialiased;
   }
 
   body {
-    @apply min-h-full bg-background text-foreground font-sans antialiased selection:bg-primary/10;
+    @apply min-h-full bg-background text-foreground font-sans selection:bg-primary/10;
   }
 }
 
 @layer components {
   .hero-section {
-    @apply relative min-h-[80vh] w-full overflow-hidden;
+    @apply relative min-h-[85vh] w-full overflow-hidden;
   }
 
   .hero-image {
@@ -70,7 +69,7 @@
   }
 
   .hero-overlay {
-    @apply absolute inset-0 bg-gradient-to-b from-primary/80 via-primary/50 to-primary/70;
+    @apply absolute inset-0 bg-gradient-to-b from-primary/90 via-primary/70 to-primary/80;
   }
 
   .hero-content {
@@ -78,11 +77,11 @@
   }
 
   .section-title {
-    @apply text-3xl lg:text-5xl font-display font-bold mb-6 text-foreground;
+    @apply text-3xl lg:text-4xl font-display font-bold mb-6 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent;
   }
 
   .card {
-    @apply bg-card text-card-foreground rounded-xl shadow-sm hover:shadow-md transition-all duration-300 dark:border dark:border-border/20;
+    @apply bg-card text-card-foreground rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 dark:border dark:border-border/20;
   }
 
   .glass-card {
@@ -178,6 +177,42 @@
   
   .border-gradient-amber {
     @apply border-2 border-transparent bg-gradient-to-r from-amber-500 to-yellow-300 bg-clip-border;
+  }
+
+  /* Professional buttons with gradients */
+  .btn-gradient-primary {
+    @apply relative overflow-hidden bg-gradient-to-r from-primary via-primary/90 to-primary hover:scale-[1.02] text-white transition-all duration-300 shadow-lg hover:shadow-xl;
+  }
+
+  .btn-gradient-accent {
+    @apply relative overflow-hidden bg-gradient-to-r from-accent via-accent/90 to-accent hover:scale-[1.02] text-white transition-all duration-300 shadow-lg hover:shadow-xl;
+  }
+
+  /* Enhanced Feature Cards */
+  .feature-card {
+    @apply relative overflow-hidden rounded-xl p-6 transition-all duration-500 hover:translate-y-[-5px];
+    background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.7));
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+
+  .feature-card::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 transition-opacity duration-300;
+  }
+
+  .feature-card:hover::before {
+    @apply opacity-100;
+  }
+
+  /* Section spacing */
+  .section-spacing {
+    @apply py-16 md:py-24;
+  }
+
+  /* Content width constraints */
+  .content-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }
 }
 
