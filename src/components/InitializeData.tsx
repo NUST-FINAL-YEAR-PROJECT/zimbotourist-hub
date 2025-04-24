@@ -1,6 +1,5 @@
 
 import { useEffect, useState } from "react";
-import { insertDummyAccommodations } from "@/scripts/insertDummyAccommodations";
 
 export const InitializeData = () => {
   const [initialized, setInitialized] = useState(false);
@@ -9,7 +8,7 @@ export const InitializeData = () => {
     const initialize = async () => {
       if (!initialized) {
         try {
-          await insertDummyAccommodations();
+          // Add any initialization logic here if needed in the future
           setInitialized(true);
         } catch (error) {
           console.error("Error initializing data:", error);
