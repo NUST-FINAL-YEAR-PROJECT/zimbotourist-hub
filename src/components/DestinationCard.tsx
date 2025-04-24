@@ -82,28 +82,28 @@ export const DestinationCard = ({
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="group rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer"
+      className="group rounded-2xl overflow-hidden bg-white/95 backdrop-blur-sm shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer border border-gray-100"
       onClick={handleCardClick}
     >
       <div className="relative aspect-[4/3] overflow-hidden">
         <img
           src={image}
           alt={title}
-          className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
+          className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
         <div className="absolute top-4 right-4">
           <Button
             variant="ghost"
             size="icon"
-            className={`rounded-full ${isInWishlist ? 'text-red-500' : 'text-white'} hover:bg-white/20`}
+            className={`rounded-full ${isInWishlist ? 'text-red-500' : 'text-white'} hover:bg-white/20 backdrop-blur-sm`}
             onClick={handleWishlistClick}
           >
             <Heart className={`h-5 w-5 ${isInWishlist ? 'fill-current' : ''}`} />
           </Button>
         </div>
         <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center">
-          <span className="inline-flex items-center gap-1 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium text-primary shadow-sm">
+          <span className="inline-flex items-center gap-1 bg-white/90 backdrop-blur-sm px-4 py-1.5 rounded-full text-sm font-medium text-primary shadow-sm">
             <DollarSign className="h-4 w-4" />
             {price}
           </span>
@@ -112,13 +112,13 @@ export const DestinationCard = ({
               {categories.slice(0, 2).map((category, index) => (
                 <span
                   key={index}
-                  className="bg-black/50 text-white text-xs px-2 py-1 rounded-full backdrop-blur-sm"
+                  className="bg-black/50 text-white text-xs px-3 py-1.5 rounded-full backdrop-blur-sm font-medium"
                 >
                   {category}
                 </span>
               ))}
               {categories.length > 2 && (
-                <span className="bg-black/50 text-white text-xs px-2 py-1 rounded-full backdrop-blur-sm">
+                <span className="bg-black/50 text-white text-xs px-3 py-1.5 rounded-full backdrop-blur-sm font-medium">
                   +{categories.length - 2}
                 </span>
               )}
@@ -132,49 +132,50 @@ export const DestinationCard = ({
           <h3 className="text-xl font-semibold mb-2 text-foreground group-hover:text-primary transition-colors duration-300">
             {title}
           </h3>
-          <p className="text-muted-foreground line-clamp-2 text-sm">{description}</p>
+          <p className="text-muted-foreground line-clamp-2 text-sm leading-relaxed">{description}</p>
         </div>
         
         {(duration || bestTimeToVisit) && (
-          <div className="flex flex-wrap gap-2 mt-2">
+          <div className="flex flex-wrap gap-3 mt-2">
             {duration && (
-              <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Clock className="h-3 w-3 text-primary" />
+              <span className="flex items-center gap-1.5 text-xs text-muted-foreground bg-gray-50 px-3 py-1.5 rounded-full">
+                <Clock className="h-3.5 w-3.5 text-primary" />
                 {duration}
               </span>
             )}
             {bestTimeToVisit && (
-              <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Calendar className="h-3 w-3 text-primary" />
+              <span className="flex items-center gap-1.5 text-xs text-muted-foreground bg-gray-50 px-3 py-1.5 rounded-full">
+                <Calendar className="h-3.5 w-3.5 text-primary" />
                 {bestTimeToVisit}
               </span>
             )}
           </div>
         )}
 
-        <div className="flex gap-4">
-          {showSimilar && (
+        {showSimilar && (
+          <div className="flex gap-4">
             <Button
               variant="outline"
-              className="flex-1"
+              className="w-full bg-gray-50/50 hover:bg-gray-50 transition-colors duration-300"
               onClick={handleViewSimilar}
             >
               {showingSimilar ? "Hide Similar" : "Show Similar"}
             </Button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
+      {/* Similar destinations section */}
       {showingSimilar && similarDestinations.length > 0 && (
-        <div className="p-4 bg-muted/50 border-t space-y-3">
-          <h4 className="text-sm font-semibold">Similar Destinations</h4>
-          <div className="space-y-3">
+        <div className="p-4 space-y-3 border-t border-gray-100 bg-gray-50/50">
+          <h4 className="text-sm font-semibold text-gray-900">Similar Destinations</h4>
+          <div className="space-y-2">
             {similarDestinations.map((dest) => (
               <motion.div
                 key={dest.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/50 transition-colors cursor-pointer"
+                className="flex items-center gap-3 p-2 rounded-xl hover:bg-white/80 transition-colors cursor-pointer"
                 onClick={(e) => {
                   e.stopPropagation();
                   navigate(`/destination/${dest.id}`);
@@ -183,7 +184,7 @@ export const DestinationCard = ({
                 <img
                   src={dest.image_url || "/placeholder.svg"}
                   alt={dest.name}
-                  className="w-16 h-12 rounded-md object-cover"
+                  className="w-16 h-12 rounded-lg object-cover"
                 />
                 <div className="flex-1 min-w-0">
                   <h5 className="font-medium text-sm truncate">{dest.name}</h5>

@@ -74,12 +74,12 @@ const Index = () => {
   }, [destinations]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#fdfcfb] via-[#d3e4fd] to-[#fbed96] w-full">
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-sky-50 via-white to-blue-50">
       <TopNavbar />
 
-      {/* Hero Section with color effect */}
+      {/* Hero Section with modern gradient effect */}
       <div className="relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-amber-100 via-primary/10 to-pink-100 opacity-80 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-accent/10 to-amber-100/20 opacity-80 pointer-events-none" />
         <HeroSection 
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
@@ -87,19 +87,25 @@ const Index = () => {
         />
       </div>
 
-      {/* Search Results Section */}
+      {/* Search Results Section with modern card layout */}
       {searchQuery && (
-        <section id="search-results" className="py-16 bg-gradient-to-br from-amber-50 via-white to-blue-50">
+        <section id="search-results" className="py-20 bg-gradient-to-br from-sky-50 via-white to-amber-50">
           <div className="container mx-auto px-4">
-            <motion.h2 
-              className="text-4xl font-bold mb-8 text-gradient-primary"
+            <motion.div 
+              className="max-w-4xl mx-auto text-center mb-12"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
             >
-              Search Results
-            </motion.h2>
+              <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                Search Results
+              </h2>
+              <p className="text-lg text-muted-foreground">
+                Discover your next adventure in Zimbabwe
+              </p>
+            </motion.div>
+
             {isLoadingDestinations ? (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {[1, 2, 3].map((i) => (
@@ -142,35 +148,37 @@ const Index = () => {
         </section>
       )}
 
-      {/* Features Section */}
+      {/* Features Section with glass effect */}
       <div className="relative z-0">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-50 via-pink-50 to-amber-50 opacity-80 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-50/80 via-white to-amber-50/80 opacity-90 pointer-events-none" />
         <FeaturesSection />
       </div>
 
-      {/* Popular Destinations */}
-      <section className="py-20 bg-gradient-to-br from-[#ffdee2] via-[#fbed96] to-[#d3e4fd]">
+      {/* Popular Destinations with modern gradient */}
+      <section className="py-24 bg-gradient-to-br from-primary/5 via-white to-accent/5">
         <div className="container mx-auto px-4">
           <motion.div 
-            className="flex justify-between items-center mb-12"
+            className="flex justify-between items-center mb-16"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            viewport={{ once: true, margin: "-100px" }}
+            viewport={{ once: true }}
           >
             <div>
-              <h2 className="text-4xl md:text-5xl font-bold mb-2 text-gradient-blue">
+              <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 Popular Destinations
               </h2>
-              <p className="text-lg text-muted-foreground">Explore our hand-picked destinations</p>
+              <p className="text-xl text-muted-foreground">
+                Explore our hand-picked destinations
+              </p>
             </div>
             <Button 
               variant="ghost" 
-              className="btn-gradient hover:scale-105 group hidden md:flex"
+              className="hidden md:flex items-center gap-2 bg-gradient-to-r from-primary/10 to-accent/10 hover:from-primary/20 hover:to-accent/20 transition-all duration-300"
               onClick={() => navigate('/destinations')}
             >
-              View all 
-              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+              View all destinations
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </Button>
           </motion.div>
           
@@ -219,15 +227,15 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Stats Section */}
+      {/* Stats Section with glass morphism */}
       <div className="relative z-0">
-        <div className="absolute inset-0 bg-gradient-to-r from-primary via-accent to-amber-200 opacity-[.16] pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-accent/5 to-amber-50/5 opacity-80 pointer-events-none" />
         <StatsSection />
       </div>
 
-      {/* Events Section */}
+      {/* Events Section with modern gradient */}
       {!isLoadingEvents && events && events.length > 0 && (
-        <section className="py-20 bg-gradient-to-br from-[#f2fce2] via-[#ffe29f] to-[#ffa99f]">
+        <section className="py-24 bg-gradient-to-br from-emerald-50 via-sky-50 to-amber-50">
           <div className="container mx-auto px-4">
             <motion.div 
               className="text-center mb-12"
