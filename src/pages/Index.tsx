@@ -1,11 +1,9 @@
-
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { DestinationCard } from "@/components/DestinationCard";
 import { useDestinations } from "@/hooks/useDestinations";
 import { useEvents } from "@/hooks/useEvents";
-import { AccommodationsList } from "@/components/AccommodationsList";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowRight, DollarSign, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -59,7 +57,6 @@ const Index = () => {
   }, [destinations, searchQuery, searchFilters]);
 
   const handleSearch = () => {
-    // Scroll to search results if we have results
     if (filteredDestinations.length > 0 && searchQuery) {
       document.getElementById('search-results')?.scrollIntoView({ behavior: 'smooth' });
     }
@@ -227,35 +224,6 @@ const Index = () => {
         <div className="absolute inset-0 bg-gradient-to-r from-primary via-accent to-amber-200 opacity-[.16] pointer-events-none" />
         <StatsSection />
       </div>
-
-      {/* Accommodations Section */}
-      <section className="py-20 bg-gradient-to-br from-[#e5deff] via-[#ffdee2] to-[#fbed96]">
-        <div className="container mx-auto px-4">
-          <motion.div 
-            className="flex justify-between items-center mb-12"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true, margin: "-100px" }}
-          >
-            <div>
-              <h2 className="text-4xl md:text-5xl font-bold mb-2 text-gradient-purple">
-                Featured Accommodations
-              </h2>
-              <p className="text-lg text-muted-foreground">Find the perfect place to stay</p>
-            </div>
-            <Button 
-              variant="ghost" 
-              className="btn-gradient bg-gradient-accent group hidden md:flex" 
-              onClick={() => navigate('/accommodations')}
-            >
-              View all 
-              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Button>
-          </motion.div>
-          <AccommodationsList limit={3} showViewAll={true} />
-        </div>
-      </section>
 
       {/* Events Section */}
       {!isLoadingEvents && events && events.length > 0 && (
