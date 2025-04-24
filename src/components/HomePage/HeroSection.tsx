@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { Search, MapPin, Calendar, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,7 +16,7 @@ export const HeroSection = ({
   handleSearch,
 }: HeroSectionProps) => {
   return (
-    <section className="relative min-h-[85vh] w-full flex flex-col justify-center items-center text-center px-4 overflow-hidden">
+    <section className="relative min-h-screen w-full flex flex-col justify-center items-center text-center px-4 overflow-hidden">
       {/* Background Image with modern gradient overlay */}
       <div className="absolute inset-0 z-0">
         <img
@@ -26,109 +25,99 @@ export const HeroSection = ({
           className="h-full w-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-br from-primary/90 via-black/50 to-accent/80 mix-blend-overlay" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
       </div>
 
       {/* Content */}
-      <div className="relative z-10 max-w-4xl mx-auto">
-        <motion.div
+      <div className="relative z-10 max-w-6xl mx-auto">
+        <Badge 
+          variant="outline" 
+          className="bg-white/10 text-white border-white/20 backdrop-blur-sm px-4 py-1.5 text-sm"
+        >
+          Discover Zimbabwe 🇿🇼
+        </Badge>
+
+        <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="space-y-6"
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="text-6xl sm:text-7xl md:text-8xl font-bold text-white mb-8 leading-tight tracking-tight"
         >
-          <Badge 
-            variant="outline" 
-            className="bg-white/10 text-white border-white/20 backdrop-blur-sm px-4 py-1.5 text-sm"
-          >
-            Discover Zimbabwe 🇿🇼
-          </Badge>
+          Experience <span className="text-amber-300">Africa's</span> Hidden Paradise
+        </motion.h1>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-5xl sm:text-6xl md:text-7xl font-bold text-white mb-6 leading-tight tracking-tight"
-          >
-            Experience <span className="text-amber-300">Africa's</span> Hidden Paradise
-          </motion.h1>
+        <motion.p 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
+          className="text-2xl md:text-3xl text-white/90 max-w-3xl mx-auto mb-12"
+        >
+          Discover breathtaking landscapes, rich culture, and unforgettable adventures
+        </motion.p>
 
-          <motion.p 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto"
-          >
-            Discover breathtaking landscapes, rich culture, and unforgettable adventures
-          </motion.p>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="flex flex-wrap justify-center gap-4 my-8"
+        >
+          {[
+            { icon: MapPin, text: "10+ National Parks" },
+            { icon: Calendar, text: "Year-round destinations" },
+            { icon: Search, text: "300+ Popular attractions" }
+          ].map((item, index) => (
+            <div 
+              key={index}
+              className="flex items-center bg-white/10 backdrop-blur-md rounded-full py-2 px-4 text-white/90 hover:bg-white/20 transition-colors"
+            >
+              <item.icon className="w-4 h-4 text-amber-300 mr-2" />
+              <span className="text-sm font-medium">{item.text}</span>
+            </div>
+          ))}
+        </motion.div>
 
-          {/* Quick Info Stats */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="flex flex-wrap justify-center gap-4 my-8"
-          >
-            {[
-              { icon: MapPin, text: "10+ National Parks" },
-              { icon: Calendar, text: "Year-round destinations" },
-              { icon: Search, text: "300+ Popular attractions" }
-            ].map((item, index) => (
-              <div 
-                key={index}
-                className="flex items-center bg-white/10 backdrop-blur-md rounded-full py-2 px-4 text-white/90 hover:bg-white/20 transition-colors"
-              >
-                <item.icon className="w-4 h-4 text-amber-300 mr-2" />
-                <span className="text-sm font-medium">{item.text}</span>
-              </div>
-            ))}
-          </motion.div>
-
-          {/* Search Section */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
-            className="bg-white/95 backdrop-blur-xl rounded-2xl p-4 shadow-2xl max-w-2xl mx-auto border border-white/20"
-          >
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  type="text"
-                  placeholder="Where do you want to explore?"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 py-6 h-12 text-base bg-white/80 backdrop-blur-sm border-gray-200 rounded-xl"
-                  onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                />
-              </div>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
+          className="bg-white/95 backdrop-blur-xl rounded-2xl p-6 shadow-2xl max-w-4xl mx-auto border border-white/20"
+        >
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <Input
+                type="text"
+                placeholder="Where do you want to explore?"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-12 py-8 h-14 text-lg bg-white/80 backdrop-blur-sm border-gray-200 rounded-xl"
+                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+              />
+            </div>
+            <Button 
+              className="bg-gradient-to-r from-primary to-accent hover:opacity-90 text-white shadow-lg py-8 px-12 text-lg rounded-xl transition-all duration-300"
+              onClick={handleSearch}
+            >
+              Search
+              <ChevronRight className="ml-2 h-5 w-5" />
+            </Button>
+          </div>
+          <div className="flex flex-wrap gap-2 mt-3">
+            <span className="text-xs text-gray-500">Popular:</span>
+            {["Victoria Falls", "Hwange National Park", "Great Zimbabwe"].map((place) => (
               <Button 
-                className="bg-gradient-to-r from-primary to-accent hover:opacity-90 text-white shadow-lg py-6 px-8 text-base rounded-xl transition-all duration-300"
-                onClick={handleSearch}
+                key={place}
+                variant="link" 
+                size="sm" 
+                className="text-xs h-5 p-0 text-primary/90 hover:text-primary"
               >
-                Search
-                <ChevronRight className="ml-2 h-4 w-4" />
+                {place}
               </Button>
-            </div>
-            <div className="flex flex-wrap gap-2 mt-3">
-              <span className="text-xs text-gray-500">Popular:</span>
-              {["Victoria Falls", "Hwange National Park", "Great Zimbabwe"].map((place) => (
-                <Button 
-                  key={place}
-                  variant="link" 
-                  size="sm" 
-                  className="text-xs h-5 p-0 text-primary/90 hover:text-primary"
-                >
-                  {place}
-                </Button>
-              ))}
-            </div>
-          </motion.div>
+            ))}
+          </div>
         </motion.div>
       </div>
 
-      {/* Modern wave decoration */}
       <div className="absolute bottom-0 left-0 right-0">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" className="w-full">
           <path 
