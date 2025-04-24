@@ -8,7 +8,6 @@ import Auth from "./pages/Auth";
 import { Dashboard } from "./pages/Dashboard";
 import { DestinationDetails } from "./pages/DestinationDetails";
 import { EventDetails } from "./pages/EventDetails";
-import { AccommodationDetails } from "./pages/AccommodationDetails";
 import Documentation from "./pages/Documentation";
 import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
@@ -26,25 +25,6 @@ const DestinationsPage = () => (
         {[1, 2, 3, 4, 5, 6].map((i) => (
           <div key={i} className="bg-white rounded-xl shadow-sm p-4 h-64 flex items-center justify-center">
             <p className="text-muted-foreground">Destination card {i} - Coming soon</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  </div>
-);
-
-const AccommodationsPage = () => (
-  <div className="min-h-screen pt-16 pb-12 bg-gray-50">
-    <div className="content-container">
-      <h1 className="text-3xl font-bold mb-6">All Accommodations</h1>
-      <p className="text-lg mb-8 text-muted-foreground">
-        Find comfortable and luxurious places to stay during your Zimbabwe adventure.
-      </p>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-        {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div key={i} className="bg-white rounded-xl shadow-sm p-4 h-64 flex items-center justify-center">
-            <p className="text-muted-foreground">Accommodation card {i} - Coming soon</p>
           </div>
         ))}
       </div>
@@ -132,7 +112,6 @@ const App = () => (
           </AuthRoute>
         } />
         <Route path="/destinations" element={<DestinationsPage />} />
-        <Route path="/accommodations" element={<AccommodationsPage />} />
         <Route path="/events" element={<EventsPage />} />
         <Route
           path="/dashboard/*"
@@ -155,14 +134,6 @@ const App = () => (
           element={
             <ProtectedRoute>
               <EventDetails />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/accommodation/:id"
-          element={
-            <ProtectedRoute>
-              <AccommodationDetails />
             </ProtectedRoute>
           }
         />

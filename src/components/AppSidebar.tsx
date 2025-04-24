@@ -50,12 +50,6 @@ export function AppSidebar() {
       path: "/dashboard/destinations",
     },
     {
-      title: "Accommodations",
-      icon: Hotel,
-      onClick: () => navigate("/dashboard/accommodations"),
-      path: "/dashboard/accommodations",
-    },
-    {
       title: "Events",
       icon: Calendar,
       onClick: () => navigate("/dashboard/events"),

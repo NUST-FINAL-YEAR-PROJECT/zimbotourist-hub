@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Search, Menu, X, ChevronDown, Globe, MapPin, CalendarDays, Home, Users } from "lucide-react";
@@ -24,7 +23,6 @@ export const TopNavbar = () => {
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
   const [user, setUser] = useState(null);
 
-  // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 10) {
@@ -38,7 +36,6 @@ export const TopNavbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Check authentication status
   useEffect(() => {
     const checkUser = async () => {
       try {
@@ -87,15 +84,12 @@ export const TopNavbar = () => {
 
   return (
     <>
-      {/* Desktop Navigation */}
-      <header 
-        className={cn(
-          "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-          isScrolled 
-            ? "bg-white/95 shadow-md backdrop-blur-sm py-2" 
-            : "bg-transparent py-4"
-        )}
-      >
+      <header className={cn(
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+        isScrolled 
+          ? "bg-white/95 shadow-md backdrop-blur-sm py-2" 
+          : "bg-transparent py-4"
+      )}>
         <div className="container mx-auto px-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <Globe className="w-6 h-6 text-primary" />
@@ -107,145 +101,130 @@ export const TopNavbar = () => {
             </span>
           </Link>
 
-          {/* Desktop Navigation Menu */}
-          <div className="hidden md:flex items-center">
-            <NavigationMenu className="mr-4">
-              <NavigationMenuList>
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger className={cn(
-                    "bg-transparent",
-                    isScrolled ? "text-foreground hover:bg-accent" : "text-white hover:bg-white/20"
-                  )}>
-                    Destinations
-                  </NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                      <li className="row-span-3">
-                        <NavigationMenuLink asChild>
-                          <a
-                            className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-primary/50 to-primary p-6 no-underline outline-none focus:shadow-md"
-                            href="/destination/1"
-                          >
-                            <MapPin className="h-6 w-6 text-white" />
-                            <div className="mt-4 mb-2 text-lg font-medium text-white">
-                              Victoria Falls
-                            </div>
-                            <p className="text-sm leading-tight text-white/90">
-                              Experience the majestic Victoria Falls, one of the largest waterfalls in the world
-                            </p>
-                          </a>
-                        </NavigationMenuLink>
-                      </li>
-                      <li>
-                        <NavigationMenuLink asChild>
-                          <a href="/destination/2" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
-                            <div className="text-sm font-medium leading-none">Great Zimbabwe</div>
-                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                              Ancient stone structures and historical monuments
-                            </p>
-                          </a>
-                        </NavigationMenuLink>
-                      </li>
-                      <li>
-                        <NavigationMenuLink asChild>
-                          <a href="/destination/3" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
-                            <div className="text-sm font-medium leading-none">Hwange National Park</div>
-                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                              Home to vast elephant herds and diverse wildlife
-                            </p>
-                          </a>
-                        </NavigationMenuLink>
-                      </li>
-                      <li>
-                        <NavigationMenuLink asChild>
-                          <a href="/destination/4" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
-                            <div className="text-sm font-medium leading-none">Mana Pools</div>
-                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                              UNESCO World Heritage site offering incredible safari experiences
-                            </p>
-                          </a>
-                        </NavigationMenuLink>
-                      </li>
-                    </ul>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger className={cn(
-                    "bg-transparent",
-                    isScrolled ? "text-foreground hover:bg-accent" : "text-white hover:bg-white/20"
-                  )}>
-                    Experiences
-                  </NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] md:grid-cols-2">
-                      <li>
-                        <NavigationMenuLink asChild>
-                          <a href="#" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
-                            <div className="flex items-center gap-2">
-                              <Globe className="h-4 w-4" />
-                              <span className="text-sm font-medium">Safari Adventures</span>
-                            </div>
-                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                              Wildlife safari experiences across Zimbabwe's national parks
-                            </p>
-                          </a>
-                        </NavigationMenuLink>
-                      </li>
-                      <li>
-                        <NavigationMenuLink asChild>
-                          <a href="#" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
-                            <div className="flex items-center gap-2">
-                              <Users className="h-4 w-4" />
-                              <span className="text-sm font-medium">Cultural Tours</span>
-                            </div>
-                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                              Immerse yourself in Zimbabwe's rich culture and traditions
-                            </p>
-                          </a>
-                        </NavigationMenuLink>
-                      </li>
-                      <li>
-                        <NavigationMenuLink asChild>
-                          <a href="#" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
-                            <div className="flex items-center gap-2">
-                              <Home className="h-4 w-4" />
-                              <span className="text-sm font-medium">Accommodations</span>
-                            </div>
-                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                              Find the perfect place to stay during your visit
-                            </p>
-                          </a>
-                        </NavigationMenuLink>
-                      </li>
-                      <li>
-                        <NavigationMenuLink asChild>
-                          <a href="#" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
-                            <div className="flex items-center gap-2">
-                              <CalendarDays className="h-4 w-4" />
-                              <span className="text-sm font-medium">Events</span>
-                            </div>
-                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                              Discover upcoming cultural and tourism events
-                            </p>
-                          </a>
-                        </NavigationMenuLink>
-                      </li>
-                    </ul>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <Link to="/documentation" className={cn(
-                    navigationMenuTriggerStyle(),
-                    "bg-transparent",
-                    isScrolled ? "text-foreground hover:bg-accent" : "text-white hover:bg-white/20"
-                  )}>
-                    About
-                  </Link>
-                </NavigationMenuItem>
-              </NavigationMenuList>
-            </NavigationMenu>
-            
-            {/* Auth buttons */}
+          <NavigationMenu className="mr-4">
+            <NavigationMenuList>
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className={cn(
+                  "bg-transparent",
+                  isScrolled ? "text-foreground hover:bg-accent" : "text-white hover:bg-white/20"
+                )}>
+                  Destinations
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+                    <li className="row-span-3">
+                      <NavigationMenuLink asChild>
+                        <a
+                          className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-primary/50 to-primary p-6 no-underline outline-none focus:shadow-md"
+                          href="/destination/1"
+                        >
+                          <MapPin className="h-6 w-6 text-white" />
+                          <div className="mt-4 mb-2 text-lg font-medium text-white">
+                            Victoria Falls
+                          </div>
+                          <p className="text-sm leading-tight text-white/90">
+                            Experience the majestic Victoria Falls, one of the largest waterfalls in the world
+                          </p>
+                        </a>
+                      </NavigationMenuLink>
+                    </li>
+                    <li>
+                      <NavigationMenuLink asChild>
+                        <a href="/destination/2" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
+                          <div className="text-sm font-medium leading-none">Great Zimbabwe</div>
+                          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                            Ancient stone structures and historical monuments
+                          </p>
+                        </a>
+                      </NavigationMenuLink>
+                    </li>
+                    <li>
+                      <NavigationMenuLink asChild>
+                        <a href="/destination/3" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
+                          <div className="text-sm font-medium leading-none">Hwange National Park</div>
+                          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                            Home to vast elephant herds and diverse wildlife
+                          </p>
+                        </a>
+                      </NavigationMenuLink>
+                    </li>
+                    <li>
+                      <NavigationMenuLink asChild>
+                        <a href="/destination/4" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
+                          <div className="text-sm font-medium leading-none">Mana Pools</div>
+                          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                            UNESCO World Heritage site offering incredible safari experiences
+                          </p>
+                        </a>
+                      </NavigationMenuLink>
+                    </li>
+                  </ul>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className={cn(
+                  "bg-transparent",
+                  isScrolled ? "text-foreground hover:bg-accent" : "text-white hover:bg-white/20"
+                )}>
+                  Experiences
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] md:grid-cols-2">
+                    <li>
+                      <NavigationMenuLink asChild>
+                        <a href="#" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
+                          <div className="flex items-center gap-2">
+                            <Globe className="h-4 w-4" />
+                            <span className="text-sm font-medium">Safari Adventures</span>
+                          </div>
+                          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                            Wildlife safari experiences across Zimbabwe's national parks
+                          </p>
+                        </a>
+                      </NavigationMenuLink>
+                    </li>
+                    <li>
+                      <NavigationMenuLink asChild>
+                        <a href="#" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
+                          <div className="flex items-center gap-2">
+                            <Users className="h-4 w-4" />
+                            <span className="text-sm font-medium">Cultural Tours</span>
+                          </div>
+                          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                            Immerse yourself in Zimbabwe's rich culture and traditions
+                          </p>
+                        </a>
+                      </NavigationMenuLink>
+                    </li>
+                    <li>
+                      <NavigationMenuLink asChild>
+                        <a href="#" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
+                          <div className="flex items-center gap-2">
+                            <CalendarDays className="h-4 w-4" />
+                            <span className="text-sm font-medium">Events</span>
+                          </div>
+                          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                            Discover upcoming cultural and tourism events
+                          </p>
+                        </a>
+                      </NavigationMenuLink>
+                    </li>
+                  </ul>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <Link to="/documentation" className={cn(
+                  navigationMenuTriggerStyle(),
+                  "bg-transparent",
+                  isScrolled ? "text-foreground hover:bg-accent" : "text-white hover:bg-white/20"
+                )}>
+                  About
+                </Link>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
+          
+          <div className="flex items-center gap-2">
             {isLoadingAuth ? (
               <div className="h-9 w-16 bg-gray-200 animate-pulse rounded-md" />
             ) : user ? (
@@ -291,8 +270,7 @@ export const TopNavbar = () => {
               </div>
             )}
           </div>
-          
-          {/* Mobile menu toggle */}
+
           <button 
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="md:hidden p-2 rounded-full"
@@ -306,7 +284,6 @@ export const TopNavbar = () => {
         </div>
       </header>
 
-      {/* Mobile Navigation Overlay */}
       {isMenuOpen && (
         <motion.div
           initial={{ opacity: 0, x: "100%" }}
@@ -355,7 +332,6 @@ export const TopNavbar = () => {
                 </div>
               </Link>
 
-              {/* Auth links for mobile */}
               <div className="pt-4 border-t border-border">
                 {user ? (
                   <>
