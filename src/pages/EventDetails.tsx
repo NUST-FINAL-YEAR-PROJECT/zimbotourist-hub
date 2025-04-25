@@ -8,7 +8,7 @@ import { ReviewSection } from "@/components/ReviewSection";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import {
   Breadcrumb,
   BreadcrumbList,

@@ -1,3 +1,4 @@
+
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { MapPin, Calendar, Clock, Star, Activity, ArrowLeft, Home } from "lucide-react";
@@ -9,7 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import { useState } from "react";
 import { AuthRequiredDialog } from "@/components/AuthRequiredDialog";
 import { useAuth } from "@/hooks/useAuth";
