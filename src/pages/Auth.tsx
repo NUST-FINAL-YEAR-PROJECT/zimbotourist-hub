@@ -151,11 +151,20 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-primary/5 via-primary/10 to-accent/5 px-4 py-8">
+      <div className="absolute inset-0 z-0">
+        <img
+          src="https://images.unsplash.com/photo-1516026672322-bc52d61a55d5"
+          alt="Zimbabwe Background"
+          className="h-full w-full object-cover opacity-10"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-black/30 to-accent/20 mix-blend-overlay" />
+      </div>
+      
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
+        className="w-full max-w-md z-10"
       >
         <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-sm">
           <CardHeader className="space-y-1 pb-8">
