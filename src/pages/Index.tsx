@@ -74,11 +74,11 @@ const Index = () => {
   }, [destinations]);
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-sky-50 via-white to-blue-50">
+    <div className="min-h-screen w-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-sky-50 via-white to-blue-50">
       <TopNavbar />
 
       {/* Hero Section with modern gradient effect */}
-      <div className="relative">
+      <div className="relative h-screen">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-accent/10 to-amber-100/20 opacity-80 pointer-events-none" />
         <HeroSection 
           searchQuery={searchQuery}
@@ -89,7 +89,7 @@ const Index = () => {
 
       {/* Search Results Section with modern card layout */}
       {searchQuery && (
-        <section id="search-results" className="py-20 bg-gradient-to-br from-sky-50 via-white to-amber-50">
+        <section id="search-results" className="min-h-screen py-20 bg-gradient-to-br from-sky-50 via-white to-amber-50">
           <div className="container mx-auto px-4">
             <motion.div 
               className="max-w-4xl mx-auto text-center mb-12"
@@ -149,13 +149,13 @@ const Index = () => {
       )}
 
       {/* Features Section with glass effect */}
-      <div className="relative z-0">
+      <div className="relative min-h-screen z-0">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-50/80 via-white to-amber-50/80 opacity-90 pointer-events-none" />
         <FeaturesSection />
       </div>
 
       {/* Popular Destinations with modern gradient */}
-      <section className="py-24 bg-gradient-to-br from-primary/5 via-white to-accent/5">
+      <section className="min-h-screen py-24 bg-gradient-to-br from-primary/5 via-white to-accent/5">
         <div className="container mx-auto px-4">
           <motion.div 
             className="flex justify-between items-center mb-16"
@@ -228,14 +228,14 @@ const Index = () => {
       </section>
 
       {/* Stats Section with glass morphism */}
-      <div className="relative z-0">
+      <div className="relative min-h-screen z-0">
         <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-accent/5 to-amber-50/5 opacity-80 pointer-events-none" />
         <StatsSection />
       </div>
 
       {/* Events Section with modern gradient */}
       {!isLoadingEvents && events && events.length > 0 && (
-        <section className="py-24 bg-gradient-to-br from-emerald-50 via-sky-50 to-amber-50">
+        <section className="min-h-screen py-24 bg-gradient-to-br from-emerald-50 via-sky-50 to-amber-50">
           <div className="container mx-auto px-4">
             <motion.div 
               className="text-center mb-12"

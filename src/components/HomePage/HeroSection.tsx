@@ -21,7 +21,7 @@ export const HeroSection = ({
   const isMobile = useIsMobile();
   
   return (
-    <section className="relative min-h-screen w-full flex flex-col justify-center items-center text-center px-4 overflow-hidden">
+    <section className="relative h-screen w-full flex flex-col justify-center items-center text-center px-4 overflow-hidden">
       {/* Background Image with modern gradient overlay */}
       <motion.div 
         initial={{ scale: 1.1, opacity: 0 }}
