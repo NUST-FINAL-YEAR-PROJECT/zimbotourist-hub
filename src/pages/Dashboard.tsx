@@ -1,11 +1,9 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, Routes, Route } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { DestinationExplorer } from "@/components/DestinationExplorer";
 import { EventsList } from "@/components/EventsList";
 import { Skeleton } from "@/components/ui/skeleton";
-// Removed AccommodationsList import
 import { supabase } from "@/integrations/supabase/client";
 import type { Profile, Booking, AppNotification } from "@/types/models";
 import { Bell, BellDot, CalendarDays, Trash2, LayoutDashboard, Activity, MapPin, Calendar, Clock, Users } from "lucide-react";
@@ -673,7 +671,6 @@ export const Dashboard = () => {
                 element={<DashboardHome profile={profile} bookings={bookings} />}
               />
               <Route path="/destinations" element={<DestinationExplorer />} />
-              {/* Remove the accommodations route */}
               <Route path="/events" element={<EventsList />} />
               <Route path="/events/:id" element={<EventDetails />} />
               <Route path="/settings" element={<SettingsPage />} />

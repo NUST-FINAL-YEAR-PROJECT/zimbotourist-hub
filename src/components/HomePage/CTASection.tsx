@@ -15,7 +15,7 @@ export const CTASection = () => {
 
   return (
     <section className="h-screen relative overflow-hidden flex items-center justify-center">
-      <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/90 to-accent"></div>
+      <div className="absolute inset-0 bg-gradient-to-r from-primary/90 via-primary/80 to-accent/90"></div>
       <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1516026672322-bc52d61a55d5')] opacity-10 mix-blend-overlay"></div>
       
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
