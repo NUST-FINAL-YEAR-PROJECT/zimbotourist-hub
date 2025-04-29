@@ -7,12 +7,12 @@ import { Toaster } from "@/components/ui/sonner";
 import App from './App.tsx';
 import './index.css';
 
+// Initialize window.env if it doesn't exist
+window.env = window.env || {};
+
 // Add VITE_SUPABASE_FUNCTIONS_URL to window.env for use in components
 if (import.meta.env.VITE_SUPABASE_FUNCTIONS_URL) {
-  window.env = {
-    ...window.env,
-    VITE_SUPABASE_FUNCTIONS_URL: import.meta.env.VITE_SUPABASE_FUNCTIONS_URL,
-  };
+  window.env.VITE_SUPABASE_FUNCTIONS_URL = import.meta.env.VITE_SUPABASE_FUNCTIONS_URL;
 }
 
 const queryClient = new QueryClient();
