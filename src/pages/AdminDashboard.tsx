@@ -30,7 +30,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { useDestinations } from "@/hooks/useDestinations";
 import { useEvents } from "@/hooks/useEvents";
 import { useUsers } from "@/hooks/useUsers";
-import { checkSupabaseConnection } from "@/integrations/supabase/client";
+import { checkSupabaseConnection, fetchSupabaseData } from "@/integrations/supabase/client";
 
 export const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -41,20 +41,28 @@ export const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [connectionStatus, setConnectionStatus] = useState<boolean | null>(null);
 
-  // Check Supabase connection on component mount
+  // Check Supabase connection and debug data on component mount
   useEffect(() => {
-    const checkConnection = async () => {
+    const initializeData = async () => {
+      // Check connection
       const isConnected = await checkSupabaseConnection();
       setConnectionStatus(isConnected);
       
       if (!isConnected) {
         toast.error("Could not connect to database. Please check your connection.");
-      } else {
-        console.log("Database connection established successfully");
+        return;
+      }
+      
+      console.log("Database connection established successfully");
+      
+      // For debugging, fetch profiles directly
+      const profilesData = await fetchSupabaseData('profiles');
+      if (profilesData) {
+        console.log("Direct profiles fetch result:", profilesData);
       }
     };
     
-    checkConnection();
+    initializeData();
   }, []);
 
   // Log users data for debugging
@@ -76,8 +84,8 @@ export const AdminDashboard = () => {
   };
 
   const handleRefreshUsers = () => {
+    toast.info("Refreshing users data...");
     refetchUsers();
-    toast.success("Refreshing users data...");
   };
 
   // Placeholder data for demonstration
@@ -90,7 +98,7 @@ export const AdminDashboard = () => {
   // Show connection status
   const renderConnectionStatus = () => {
     if (connectionStatus === null) return <p>Checking database connection...</p>;
-    if (connectionStatus === false) return <p className="text-red-500">Database connection failed!</p>;
+    if (connectionStatus === false) return <p className="text-red-500 font-medium">Database connection failed! Please check your network and credentials.</p>;
     return null;
   };
 
@@ -290,6 +298,13 @@ export const AdminDashboard = () => {
                   </Button>
                 </div>
               </div>
+              
+              {connectionStatus === false && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                  <h3 className="text-yellow-700 font-medium mb-1">Connection Issue</h3>
+                  <p className="text-yellow-600 text-sm">Unable to connect to the database. Users cannot be displayed.</p>
+                </div>
+              )}
               
               {usersError && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">

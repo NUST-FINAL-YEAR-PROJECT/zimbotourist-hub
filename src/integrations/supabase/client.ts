@@ -17,15 +17,32 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
 // Add this helper function to check if Supabase connection is working
 export const checkSupabaseConnection = async () => {
   try {
+    console.log("Checking Supabase connection...");
     const { data, error } = await supabase.from('profiles').select('count', { count: 'exact', head: true });
+    
     if (error) {
       console.error('Supabase connection error:', error);
       return false;
     }
+    
     console.log('Supabase connection successful');
     return true;
   } catch (err) {
     console.error('Unexpected error checking Supabase connection:', err);
     return false;
   }
+};
+
+// Add a generic fetch function to help with debugging
+export const fetchSupabaseData = async (table: string, select = "*") => {
+  console.log(`Fetching data from ${table} table...`);
+  const { data, error } = await supabase.from(table).select(select);
+  
+  if (error) {
+    console.error(`Error fetching ${table}:`, error);
+    return null;
+  }
+  
+  console.log(`${table} data:`, data);
+  return data;
 };

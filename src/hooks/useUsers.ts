@@ -16,23 +16,29 @@ export const useUsers = () => {
     queryKey: ["users"],
     queryFn: async () => {
       console.log("Fetching users from Supabase...");
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .order("created_at", { ascending: false });
+      try {
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("*")
+          .order("created_at", { ascending: false });
 
-      if (error) {
-        console.error("Error fetching users:", error);
-        throw error;
+        if (error) {
+          console.error("Error fetching users:", error);
+          throw new Error(`Failed to fetch users: ${error.message}`);
+        }
+
+        if (!data || data.length === 0) {
+          console.log("No users found in the database");
+          return [];
+        } else {
+          console.log(`Successfully fetched ${data.length} users`, data);
+        }
+
+        return data as User[];
+      } catch (err) {
+        console.error("Unexpected error in useUsers hook:", err);
+        throw err;
       }
-
-      if (!data || data.length === 0) {
-        console.log("No users found in the database");
-      } else {
-        console.log(`Successfully fetched ${data.length} users`);
-      }
-
-      return data as User[];
     },
     refetchOnWindowFocus: false,
     refetchOnMount: true,
