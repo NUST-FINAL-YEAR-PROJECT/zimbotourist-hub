@@ -37,5 +37,7 @@ export const useUsers = () => {
     refetchOnWindowFocus: false,
     refetchOnMount: true,
     staleTime: 30000, // 30 seconds
+    retry: 3, // Retry failed requests up to 3 times
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
   });
 };

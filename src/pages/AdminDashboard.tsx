@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { 
@@ -30,14 +30,44 @@ import { useProfile } from "@/hooks/useProfile";
 import { useDestinations } from "@/hooks/useDestinations";
 import { useEvents } from "@/hooks/useEvents";
 import { useUsers } from "@/hooks/useUsers";
+import { checkSupabaseConnection } from "@/integrations/supabase/client";
 
 export const AdminDashboard = () => {
   const navigate = useNavigate();
   const { signOut, user } = useAuth();
   const { data: destinations, isLoading: destinationsLoading } = useDestinations();
   const { data: events, isLoading: eventsLoading } = useEvents();
-  const { data: users, isLoading: usersLoading, refetch: refetchUsers } = useUsers();
+  const { data: users, isLoading: usersLoading, refetch: refetchUsers, error: usersError } = useUsers();
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [connectionStatus, setConnectionStatus] = useState<boolean | null>(null);
+
+  // Check Supabase connection on component mount
+  useEffect(() => {
+    const checkConnection = async () => {
+      const isConnected = await checkSupabaseConnection();
+      setConnectionStatus(isConnected);
+      
+      if (!isConnected) {
+        toast.error("Could not connect to database. Please check your connection.");
+      } else {
+        console.log("Database connection established successfully");
+      }
+    };
+    
+    checkConnection();
+  }, []);
+
+  // Log users data for debugging
+  useEffect(() => {
+    if (users) {
+      console.log("Users data in AdminDashboard:", users);
+    }
+    
+    if (usersError) {
+      console.error("Error fetching users in AdminDashboard:", usersError);
+      toast.error("Failed to load users. Please try refreshing.");
+    }
+  }, [users, usersError]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -56,6 +86,13 @@ export const AdminDashboard = () => {
     { id: "2", email: "sarah@example.com", destination: "Great Zimbabwe", date: "2025-06-12", status: "Pending", amount: "$180" },
     { id: "3", email: "mike@example.com", event: "Wildlife Safari", date: "2025-04-30", status: "Cancelled", amount: "$320" },
   ];
+
+  // Show connection status
+  const renderConnectionStatus = () => {
+    if (connectionStatus === null) return <p>Checking database connection...</p>;
+    if (connectionStatus === false) return <p className="text-red-500">Database connection failed!</p>;
+    return null;
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -93,6 +130,8 @@ export const AdminDashboard = () => {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
+        {renderConnectionStatus()}
+        
         <Tabs defaultValue="dashboard" value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="mb-8 bg-white p-1 border">
             <TabsTrigger value="dashboard" className="data-[state=active]:bg-amber-50 data-[state=active]:text-amber-700">
@@ -252,9 +291,27 @@ export const AdminDashboard = () => {
                 </div>
               </div>
               
+              {usersError && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                  <h3 className="text-red-700 font-medium mb-1">Error loading users</h3>
+                  <p className="text-red-600 text-sm">{usersError instanceof Error ? usersError.message : "Unknown error occurred"}</p>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handleRefreshUsers}
+                    className="mt-2 text-red-600 border-red-300 hover:bg-red-50"
+                  >
+                    Try Again
+                  </Button>
+                </div>
+              )}
+              
               {usersLoading ? (
                 <div className="flex justify-center py-8">
-                  <p>Loading users data...</p>
+                  <div className="flex flex-col items-center">
+                    <RefreshCcw className="h-8 w-8 animate-spin mb-2 text-amber-500" />
+                    <p>Loading users data...</p>
+                  </div>
                 </div>
               ) : !users || users.length === 0 ? (
                 <div className="text-center p-8 bg-gray-50 rounded-lg">
