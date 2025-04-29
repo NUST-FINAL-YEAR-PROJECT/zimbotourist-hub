@@ -296,12 +296,12 @@ const Auth = () => {
   };
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center overflow-hidden bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-      {/* Auth Container */}
-      <div className="w-full max-w-6xl mx-auto flex rounded-2xl shadow-xl overflow-hidden bg-white">
+    <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+      {/* Auth Container - Fixed width and centered */}
+      <div className="w-full max-w-6xl mx-auto flex flex-col lg:flex-row rounded-2xl shadow-xl overflow-hidden bg-white">
         {/* Left panel: Form */}
         <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-12">
-          <div className="w-full max-w-md">
+          <div className="w-full max-w-md mx-auto">
             <div className="mb-8">
               <button 
                 onClick={() => navigate('/')} 
