@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -89,6 +89,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading, isAdmin, showSplash } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const verifyAdminAccess = async () => {
@@ -123,9 +124,7 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
     if (!loading && user && !showSplash) {
       verifyAdminAccess();
     }
-  }, [user, loading, showSplash, isAdmin]);
-
-  const navigate = useNavigate();
+  }, [user, loading, showSplash, isAdmin, navigate]);
 
   if (loading) {
     return (
