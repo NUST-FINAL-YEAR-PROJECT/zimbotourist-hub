@@ -37,9 +37,17 @@ export const AdminDashboard = () => {
   const { signOut, user } = useAuth();
   const { data: destinations, isLoading: destinationsLoading } = useDestinations();
   const { data: events, isLoading: eventsLoading } = useEvents();
-  const { data: users, isLoading: usersLoading, refetch: refetchUsers, error: usersError } = useUsers();
+  const { 
+    data: users, 
+    isLoading: usersLoading, 
+    refetch: refetchUsers, 
+    error: usersError,
+    isError: isUsersError
+  } = useUsers();
   const [activeTab, setActiveTab] = useState("dashboard");
   const [connectionStatus, setConnectionStatus] = useState<boolean | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const [isRateLimited, setIsRateLimited] = useState(false);
 
   // Check Supabase connection and debug data on component mount
   useEffect(() => {
@@ -54,12 +62,6 @@ export const AdminDashboard = () => {
       }
       
       console.log("Database connection established successfully");
-      
-      // For debugging, fetch profiles directly
-      const profilesData = await fetchSupabaseData('profiles');
-      if (profilesData) {
-        console.log("Direct profiles fetch result:", profilesData);
-      }
     };
     
     initializeData();
@@ -73,7 +75,16 @@ export const AdminDashboard = () => {
     
     if (usersError) {
       console.error("Error fetching users in AdminDashboard:", usersError);
-      toast.error("Failed to load users. Please try refreshing.");
+      
+      // Check if it's a rate limit error
+      if (usersError instanceof Error && 
+          (usersError.message.includes("Rate limit") || 
+           usersError.message.includes("429"))) {
+        setIsRateLimited(true);
+        toast.error("Request rate limit reached. Please wait a moment before trying again.");
+      } else {
+        toast.error("Failed to load users. Please try refreshing.");
+      }
     }
   }, [users, usersError]);
 
@@ -84,8 +95,44 @@ export const AdminDashboard = () => {
   };
 
   const handleRefreshUsers = () => {
+    setIsRateLimited(false);
+    setRetryCount(prevCount => prevCount + 1);
     toast.info("Refreshing users data...");
-    refetchUsers();
+    
+    // Add a small delay before refetching to avoid hitting rate limits
+    setTimeout(() => {
+      refetchUsers();
+    }, 1000);
+  };
+
+  // Render rate limit warning
+  const renderRateLimitWarning = () => {
+    if (isRateLimited) {
+      return (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+          <h3 className="text-amber-700 font-medium mb-1">Rate Limit Reached</h3>
+          <p className="text-amber-600 text-sm mb-2">Supabase is rate limiting your requests. This is common during development.</p>
+          <p className="text-amber-600 text-sm mb-2">Please wait a moment before trying again.</p>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleRefreshUsers}
+            className="mt-2 text-amber-600 border-amber-300 hover:bg-amber-50"
+          >
+            <RefreshCcw className="h-4 w-4 mr-2" />
+            Try Again
+          </Button>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  // Show connection status
+  const renderConnectionStatus = () => {
+    if (connectionStatus === null) return <p>Checking database connection...</p>;
+    if (connectionStatus === false) return <p className="text-red-500 font-medium">Database connection failed! Please check your network and credentials.</p>;
+    return null;
   };
 
   // Placeholder data for demonstration
@@ -94,13 +141,6 @@ export const AdminDashboard = () => {
     { id: "2", email: "sarah@example.com", destination: "Great Zimbabwe", date: "2025-06-12", status: "Pending", amount: "$180" },
     { id: "3", email: "mike@example.com", event: "Wildlife Safari", date: "2025-04-30", status: "Cancelled", amount: "$320" },
   ];
-
-  // Show connection status
-  const renderConnectionStatus = () => {
-    if (connectionStatus === null) return <p>Checking database connection...</p>;
-    if (connectionStatus === false) return <p className="text-red-500 font-medium">Database connection failed! Please check your network and credentials.</p>;
-    return null;
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -306,7 +346,9 @@ export const AdminDashboard = () => {
                 </div>
               )}
               
-              {usersError && (
+              {renderRateLimitWarning()}
+              
+              {usersError && !isRateLimited && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
                   <h3 className="text-red-700 font-medium mb-1">Error loading users</h3>
                   <p className="text-red-600 text-sm">{usersError instanceof Error ? usersError.message : "Unknown error occurred"}</p>

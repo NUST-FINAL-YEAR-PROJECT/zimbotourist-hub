@@ -23,8 +23,14 @@ export const useUsers = () => {
           .order("created_at", { ascending: false });
 
         if (error) {
-          console.error("Error fetching users:", error);
-          throw new Error(`Failed to fetch users: ${error.message}`);
+          // Handle rate limiting specifically
+          if (error.message.includes("429") || error.message.includes("rate limit")) {
+            console.error("Rate limit reached when fetching users. Please try again later:", error);
+            throw new Error(`Rate limit reached. Please try again in a few moments.`);
+          } else {
+            console.error("Error fetching users:", error);
+            throw new Error(`Failed to fetch users: ${error.message}`);
+          }
         }
 
         if (!data || data.length === 0) {
@@ -41,9 +47,15 @@ export const useUsers = () => {
       }
     },
     refetchOnWindowFocus: false,
-    refetchOnMount: true,
-    staleTime: 30000, // 30 seconds
-    retry: 3, // Retry failed requests up to 3 times
+    refetchOnMount: false, // Changed to false to prevent multiple fetches on mount
+    staleTime: 60000, // Increased to 1 minute
+    retry: (failureCount, error) => {
+      // Don't retry on rate limit errors, but retry other errors up to 3 times
+      if (error instanceof Error && error.message.includes("Rate limit reached")) {
+        return false;
+      }
+      return failureCount < 3;
+    },
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
   });
 };

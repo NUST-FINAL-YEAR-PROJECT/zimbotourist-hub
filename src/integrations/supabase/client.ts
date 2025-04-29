@@ -33,8 +33,8 @@ export const checkSupabaseConnection = async () => {
   }
 };
 
-// Add a generic fetch function to help with debugging
-export const fetchSupabaseData = async (table: string, select = "*") => {
+// Fixed the fetchSupabaseData function to use proper typing
+export const fetchSupabaseData = async <T extends keyof Database['public']['Tables']>(table: T, select = "*") => {
   console.log(`Fetching data from ${table} table...`);
   const { data, error } = await supabase.from(table).select(select);
   
