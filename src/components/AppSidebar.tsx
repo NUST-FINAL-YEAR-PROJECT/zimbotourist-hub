@@ -83,8 +83,8 @@ export function AppSidebar() {
   }
 
   return (
-    <Sidebar>
-      <SidebarHeader className="border-b border-sidebar-border p-4">
+    <Sidebar className="bg-white border-r border-gray-100">
+      <SidebarHeader className="border-b border-gray-100 p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center justify-center">
@@ -99,9 +99,9 @@ export function AppSidebar() {
           </div>
         </div>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="bg-white">
         <SidebarGroup>
-          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-gray-500">
             Menu
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -146,12 +146,12 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="border-t border-sidebar-border p-4">
+      <SidebarFooter className="border-t border-gray-100 p-4 bg-white">
         <SidebarMenu>
           <SidebarMenuItem>
             <Button
               variant="ghost"
-              className="w-full justify-start gap-2 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
+              className="w-full justify-start gap-2 text-red-500 hover:text-red-600 hover:bg-red-50"
               onClick={handleSignOut}
             >
               <LogOut className="h-4 w-4" />
