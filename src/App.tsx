@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -16,7 +17,8 @@ import { InitializeData } from "./components/InitializeData";
 import { supabase } from "@/integrations/supabase/client";
 import { DestinationsPage } from "./pages/DestinationsPage";
 
-const DestinationsPage = () => (
+// Rename to SimpleDestinationsPage to avoid conflict with the imported component
+const SimpleDestinationsPage = () => (
   <div className="min-h-screen pt-16 pb-12 bg-gray-50">
     <div className="content-container">
       <h1 className="text-3xl font-bold mb-6">Explore All Destinations</h1>
