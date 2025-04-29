@@ -54,7 +54,7 @@ export const CTASection = () => {
             viewport={{ once: true, margin: "-100px" }}
           >
             <Button
-              size="xl"
+              size="2xl"
               variant="amber"
               className="text-lg font-medium px-10 py-7 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 group"
               onClick={handleAuthClick}

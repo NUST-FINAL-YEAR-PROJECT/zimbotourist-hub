@@ -296,100 +296,103 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen w-full flex overflow-hidden">
-      {/* Left panel: Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-4 lg:p-8">
-        <div className="w-full max-w-md">
-          <div className="mb-8">
-            <button 
-              onClick={() => navigate('/')} 
-              className="mb-12 flex items-center text-indigo-600 hover:text-indigo-800 transition-colors"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Home
-            </button>
+    <div className="flex min-h-screen w-full items-center justify-center overflow-hidden bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+      {/* Auth Container */}
+      <div className="w-full max-w-6xl mx-auto flex rounded-2xl shadow-xl overflow-hidden bg-white">
+        {/* Left panel: Form */}
+        <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-12">
+          <div className="w-full max-w-md">
+            <div className="mb-8">
+              <button 
+                onClick={() => navigate('/')} 
+                className="mb-12 flex items-center text-indigo-600 hover:text-indigo-800 transition-colors"
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Home
+              </button>
+              
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="flex items-center mb-2"
+              >
+                <Globe className="h-6 w-6 mr-2 text-indigo-600" />
+                <span className="font-bold text-xl text-gray-900">Zimbabwe Tourism</span>
+              </motion.div>
+              
+              <motion.h1
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+                className="text-3xl font-bold tracking-tight text-gray-900"
+              >
+                {formSuccess 
+                  ? "Success!" 
+                  : mode === "signin"
+                  ? "Welcome back"
+                  : mode === "signup"
+                  ? "Create your account"
+                  : "Reset your password"}
+              </motion.h1>
+              
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="text-gray-600 mt-2"
+              >
+                {formSuccess 
+                  ? "Please check your email" 
+                  : mode === "signin"
+                  ? "Sign in to access your account"
+                  : mode === "signup"
+                  ? "Join us and start exploring Zimbabwe"
+                  : "We'll send you instructions via email"}
+              </motion.p>
+            </div>
             
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="flex items-center mb-2"
-            >
-              <Globe className="h-6 w-6 mr-2 text-indigo-600" />
-              <span className="font-bold text-xl text-gray-900">Zimbabwe Tourism</span>
-            </motion.div>
-            
-            <motion.h1
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-3xl font-bold tracking-tight text-gray-900"
-            >
-              {formSuccess 
-                ? "Success!" 
-                : mode === "signin"
-                ? "Welcome back"
-                : mode === "signup"
-                ? "Create your account"
-                : "Reset your password"}
-            </motion.h1>
-            
-            <motion.p
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-gray-600 mt-2"
-            >
-              {formSuccess 
-                ? "Please check your email" 
-                : mode === "signin"
-                ? "Sign in to access your account"
-                : mode === "signup"
-                ? "Join us and start exploring Zimbabwe"
-                : "We'll send you instructions via email"}
-            </motion.p>
+            {formSuccess ? renderSuccessMessage() : renderForm()}
           </div>
-          
-          {formSuccess ? renderSuccessMessage() : renderForm()}
-        </div>
-      </div>
-      
-      {/* Right panel: Image and information */}
-      <div className="hidden lg:block w-1/2 bg-indigo-600 relative overflow-hidden">
-        <div className="absolute inset-0">
-          <img
-            src="https://images.unsplash.com/photo-1516026672322-bc52d61a55d5"
-            alt="Victoria Falls, Zimbabwe"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/80 via-indigo-800/70 to-indigo-900/80" />
         </div>
         
-        <div className="relative h-full flex flex-col justify-between p-12 text-white">
-          <div>
-            <h2 className="text-3xl font-bold mb-6">Discover the Beauty of Zimbabwe</h2>
-            <p className="text-white/90 text-lg max-w-md">
-              From the majestic Victoria Falls to the ancient ruins of Great Zimbabwe, 
-              embark on a journey through breathtaking landscapes and rich cultural heritage.
-            </p>
+        {/* Right panel: Image and information */}
+        <div className="hidden lg:block w-1/2 bg-indigo-600 relative overflow-hidden">
+          <div className="absolute inset-0">
+            <img
+              src="https://images.unsplash.com/photo-1516026672322-bc52d61a55d5"
+              alt="Victoria Falls, Zimbabwe"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/80 via-indigo-800/70 to-indigo-900/80" />
           </div>
           
-          <div className="grid grid-cols-2 gap-6 max-w-lg">
-            <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg">
-              <h3 className="font-semibold mb-1">120+</h3>
-              <p className="text-sm text-white/80">Unique destinations to explore</p>
+          <div className="relative h-full flex flex-col justify-between p-12 text-white">
+            <div>
+              <h2 className="text-3xl font-bold mb-6">Discover the Beauty of Zimbabwe</h2>
+              <p className="text-white/90 text-lg max-w-md">
+                From the majestic Victoria Falls to the ancient ruins of Great Zimbabwe, 
+                embark on a journey through breathtaking landscapes and rich cultural heritage.
+              </p>
             </div>
-            <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg">
-              <h3 className="font-semibold mb-1">5000+</h3>
-              <p className="text-sm text-white/80">Happy travelers last year</p>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg">
-              <h3 className="font-semibold mb-1">98%</h3>
-              <p className="text-sm text-white/80">Customer satisfaction rate</p>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg">
-              <h3 className="font-semibold mb-1">24/7</h3>
-              <p className="text-sm text-white/80">Support for our members</p>
+            
+            <div className="grid grid-cols-2 gap-6 max-w-lg">
+              <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg">
+                <h3 className="font-semibold mb-1">120+</h3>
+                <p className="text-sm text-white/80">Unique destinations to explore</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg">
+                <h3 className="font-semibold mb-1">5000+</h3>
+                <p className="text-sm text-white/80">Happy travelers last year</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg">
+                <h3 className="font-semibold mb-1">98%</h3>
+                <p className="text-sm text-white/80">Customer satisfaction rate</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg">
+                <h3 className="font-semibold mb-1">24/7</h3>
+                <p className="text-sm text-white/80">Support for our members</p>
+              </div>
             </div>
           </div>
         </div>
