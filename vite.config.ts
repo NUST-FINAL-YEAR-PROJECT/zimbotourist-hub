@@ -5,14 +5,11 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 import fs from 'node:fs';
 import type { ViteDevServer } from 'vite';
-import type { Connect } from 'vite';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
-    host: true, // Listen on all addresses
     port: 8080,
-    // Remove middlewareMode as it's causing the HTTP server issue
   },
   plugins: [
     react(),
@@ -38,7 +35,7 @@ export default defineConfig(({ mode }) => ({
       name: 'spa-fallback',
       configureServer(server: ViteDevServer) {
         // Return index.html for any route
-        server.middlewares.use((req: Connect.IncomingMessage, res: any, next: Connect.NextFunction) => {
+        server.middlewares.use((req: any, res: any, next: any) => {
           if (req.url?.includes('.')) {
             // Skip for asset requests
             next();
