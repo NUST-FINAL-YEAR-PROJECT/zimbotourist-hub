@@ -6,7 +6,7 @@ import { EventsList } from "@/components/EventsList";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import type { Profile, Booking, AppNotification } from "@/types/models";
-import { Bell, BellDot, CalendarDays, Trash2, LayoutDashboard, Activity, MapPin, Calendar, Clock, Users } from "lucide-react";
+import { Bell, BellDot, CalendarDays, Trash2, LayoutDashboard, Activity, MapPin, Calendar, Clock, Users, CheckCircle, AlertTriangle, Info } from "lucide-react";
 import { AppSidebar } from "@/components/AppSidebar";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -79,13 +79,13 @@ const NotificationItem = ({
   const getIconForType = () => {
     switch (notification.type) {
       case 'success':
-        return <CheckCircle2 className="h-5 w-5 text-green-500" />;
+        return <CheckCircle className="h-5 w-5 text-green-500" />;
       case 'error':
-        return <AlertCircle className="h-5 w-5 text-red-500" />;
-      case 'info':
-        return <Info className="h-5 w-5 text-blue-500" />;
+        return <AlertTriangle className="h-5 w-5 text-red-500" />;
+      case 'warning':
+        return <AlertTriangle className="h-5 w-5 text-amber-500" />;
       default:
-        return <Bell className="h-5 w-5 text-indigo-500" />;
+        return <Info className="h-5 w-5 text-blue-500" />;
     }
   };
   
@@ -95,8 +95,8 @@ const NotificationItem = ({
     switch (notification.type) {
       case 'success': return "bg-green-50 hover:bg-green-100";
       case 'error': return "bg-red-50 hover:bg-red-100";
-      case 'info': return "bg-blue-50 hover:bg-blue-100";
-      default: return "bg-indigo-50 hover:bg-indigo-100";
+      case 'warning': return "bg-amber-50 hover:bg-amber-100";
+      default: return "bg-blue-50 hover:bg-blue-100";
     }
   };
   

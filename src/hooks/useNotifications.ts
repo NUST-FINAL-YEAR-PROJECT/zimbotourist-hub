@@ -75,7 +75,7 @@ export const useNotifications = (userId: string | undefined) => {
           queryClient.invalidateQueries({ queryKey: ["notifications"] });
           
           // Determine the toast variant based on notification type
-          let variant: 'default' | 'destructive' | 'success' | 'info' | 'warning' = 'default';
+          let variant: 'default' | 'destructive' | 'success' | 'warning' = 'default';
           switch (newNotification.type) {
             case 'error':
               variant = 'destructive';
@@ -83,11 +83,12 @@ export const useNotifications = (userId: string | undefined) => {
             case 'success':
               variant = 'success';
               break;
-            case 'info':
-              variant = 'info';
-              break;
             case 'warning':
               variant = 'warning';
+              break;
+            // For 'default' or any other type, use 'default' variant
+            default:
+              variant = 'default';
               break;
           }
           
