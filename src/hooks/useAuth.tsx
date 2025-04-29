@@ -13,6 +13,30 @@ export const useAuth = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
 
+  // Function to check if user is admin
+  const checkAdminStatus = async (userId: string) => {
+    try {
+      const { data: profileData, error } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', userId)
+        .single();
+        
+      if (error) {
+        console.error('Error checking admin status:', error);
+        return false;
+      }
+      
+      const userIsAdmin = profileData?.role === 'ADMIN';
+      console.log("User admin status check:", userIsAdmin, "for user ID:", userId);
+      setIsAdmin(userIsAdmin);
+      return userIsAdmin;
+    } catch (error) {
+      console.error('Error in checkAdminStatus:', error);
+      return false;
+    }
+  };
+
   useEffect(() => {
     // Get initial session
     const getInitialSession = async () => {
@@ -26,15 +50,7 @@ export const useAuth = () => {
         
         // Check if user is admin
         if (session?.user) {
-          const { data: profileData } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', session.user.id)
-            .single();
-            
-          const userIsAdmin = profileData?.role === 'ADMIN';
-          setIsAdmin(userIsAdmin);
-          console.log("User admin status:", userIsAdmin);
+          await checkAdminStatus(session.user.id);
         }
       } catch (error: any) {
         console.error('Error getting session:', error);
@@ -65,19 +81,13 @@ export const useAuth = () => {
         if (_event === 'SIGNED_IN') {
           // Check if user is admin after sign in
           if (session?.user) {
-            const { data: profileData } = await supabase
-              .from('profiles')
-              .select('role')
-              .eq('id', session.user.id)
-              .single();
-              
-            const userIsAdmin = profileData?.role === 'ADMIN';
-            setIsAdmin(userIsAdmin);
-            console.log("User signed in as admin:", userIsAdmin);
+            const userIsAdmin = await checkAdminStatus(session.user.id);
             
             // Show splash screen and let it handle the navigation
             setShowSplash(true);
             toast.success("Successfully signed in");
+            
+            console.log("User signed in as admin:", userIsAdmin, "will redirect to:", userIsAdmin ? "/admin/dashboard" : "/dashboard");
           }
         }
       }

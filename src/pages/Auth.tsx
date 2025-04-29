@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -123,7 +122,10 @@ const Auth = () => {
               return;
             }
             
-            if (profileData?.role !== 'ADMIN') {
+            const isUserAdmin = profileData?.role === 'ADMIN';
+            console.log("Auth page - Admin login check:", isUserAdmin);
+            
+            if (!isUserAdmin) {
               toast({
                 variant: "destructive",
                 title: "Access denied",

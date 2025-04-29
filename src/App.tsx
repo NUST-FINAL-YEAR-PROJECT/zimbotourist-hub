@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -58,7 +57,7 @@ const EventsPage = () => (
 );
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading, showSplash, setShowSplash } = useAuth();
+  const { user, loading, showSplash } = useAuth();
   const location = useLocation();
 
   useEffect(() => {
@@ -88,28 +87,45 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading, isAdmin, showSplash, setShowSplash } = useAuth();
+  const { user, loading, isAdmin, showSplash } = useAuth();
   const location = useLocation();
 
   useEffect(() => {
-    const checkAdminStatus = async () => {
+    const verifyAdminAccess = async () => {
       if (user) {
+        console.log("AdminRoute - Verifying admin access for user:", user.id);
+        console.log("AdminRoute - Current isAdmin state:", isAdmin);
+        
+        // Double-check admin status directly from database
         const { data, error } = await supabase
           .from('profiles')
           .select('role')
           .eq('id', user.id)
           .single();
         
-        if (error || data?.role !== 'ADMIN') {
-          sessionStorage.setItem('redirectAfterAuth', '/');
+        if (error) {
+          console.error('Admin verification error:', error);
+        } else {
+          const hasAdminRole = data?.role === 'ADMIN';
+          console.log("AdminRoute - Database admin check result:", hasAdminRole);
+          
+          if (!hasAdminRole) {
+            console.log("AdminRoute - User is not admin, redirecting to dashboard");
+            // This is a backup redirect if isAdmin state is wrong
+            if (!showSplash) {
+              navigate('/dashboard');
+            }
+          }
         }
       }
     };
     
-    if (!loading && user) {
-      checkAdminStatus();
+    if (!loading && user && !showSplash) {
+      verifyAdminAccess();
     }
-  }, [user, loading]);
+  }, [user, loading, showSplash, isAdmin]);
+
+  const navigate = useNavigate();
 
   if (loading) {
     return (
