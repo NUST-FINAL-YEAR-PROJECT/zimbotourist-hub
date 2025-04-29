@@ -47,14 +47,20 @@ export const useAuth = () => {
       const email = "kudzaiz@novatechzw.com";
       const password = "admin123";
       
+      console.log("Attempting to log in as admin with email:", email);
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Admin login error:", error);
+        throw error;
+      }
       
       if (data.session) {
+        console.log("Admin login successful:", data.user);
         setSession(data.session);
         setUser(data.session.user);
         setIsAdmin(true);

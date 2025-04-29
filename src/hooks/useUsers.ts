@@ -47,14 +47,14 @@ export const useUsers = () => {
       }
     },
     refetchOnWindowFocus: false,
-    refetchOnMount: false, // Changed to false to prevent multiple fetches on mount
-    staleTime: 60000, // Increased to 1 minute
+    refetchOnMount: false, // Prevent multiple fetches on mount
+    staleTime: 60000 * 5, // 5 minutes - increased to reduce unnecessary fetches
     retry: (failureCount, error) => {
-      // Don't retry on rate limit errors, but retry other errors up to 3 times
+      // Don't retry on rate limit errors, but retry other errors up to 2 times
       if (error instanceof Error && error.message.includes("Rate limit reached")) {
         return false;
       }
-      return failureCount < 3;
+      return failureCount < 2;
     },
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
   });

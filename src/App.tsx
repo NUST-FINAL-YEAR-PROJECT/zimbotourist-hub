@@ -91,13 +91,14 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const navigate = useNavigate();
   
-  // Check for bypass parameter in URL
+  // Check for bypass parameter in URL - this makes it easier to access the admin dashboard
   const searchParams = new URLSearchParams(location.search);
   const bypassAuth = searchParams.get("bypass") === "true";
   
   useEffect(() => {
     // If bypass is true, log in as admin automatically
     if (bypassAuth && !user) {
+      console.log("Bypassing auth and logging in as admin automatically");
       loginAsAdmin();
     } else if (!bypassAuth && user) {
       const verifyAdminAccess = async () => {
@@ -110,13 +111,14 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
             .from('profiles')
             .select('role')
             .eq('id', user.id)
-            .single();
+            .maybeSingle();
           
           if (error) {
             console.error('Admin verification error:', error);
           } else {
             const hasAdminRole = data?.role === 'ADMIN';
             console.log("AdminRoute - Database admin check result:", hasAdminRole);
+            console.log("AdminRoute - Profile data:", data);
             
             if (!hasAdminRole) {
               console.log("AdminRoute - User is not admin, redirecting to dashboard");
