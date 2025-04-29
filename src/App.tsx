@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,6 +14,7 @@ import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { InitializeData } from "./components/InitializeData";
 import { supabase } from "@/integrations/supabase/client";
+import { DestinationsPage } from "./pages/DestinationsPage";
 
 const DestinationsPage = () => (
   <div className="min-h-screen pt-16 pb-12 bg-gray-50">

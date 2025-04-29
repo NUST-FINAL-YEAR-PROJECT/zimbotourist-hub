@@ -1,10 +1,12 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 import type { Destination } from "@/types/models";
 
 export const useDestinations = () => {
+  const { toast } = useToast();
+  
   return useQuery({
     queryKey: ["destinations"],
     queryFn: async () => {
@@ -16,19 +18,31 @@ export const useDestinations = () => {
 
         if (error) {
           console.error("Supabase error:", error);
-          toast.error("Failed to fetch destinations");
+          toast({
+            title: "Failed to fetch destinations",
+            description: error.message,
+            variant: "destructive"
+          });
           throw error;
         }
 
         if (!data) {
-          toast.error("No destinations found");
+          toast({
+            title: "No destinations found",
+            description: "Please try again later",
+            variant: "destructive"
+          });
           return [];
         }
 
         return data as Destination[];
       } catch (error) {
         console.error("Fetch error:", error);
-        toast.error("Failed to fetch destinations");
+        toast({
+          title: "Failed to fetch destinations",
+          description: "Please check your connection and try again",
+          variant: "destructive"
+        });
         throw error;
       }
     },
@@ -38,6 +52,8 @@ export const useDestinations = () => {
 };
 
 export const useDestination = (id: string) => {
+  const { toast } = useToast();
+  
   return useQuery({
     queryKey: ["destination", id],
     queryFn: async () => {
@@ -50,14 +66,22 @@ export const useDestination = (id: string) => {
 
         if (error) {
           console.error("Supabase error:", error);
-          toast.error("Failed to fetch destination");
+          toast({
+            title: "Failed to fetch destination",
+            description: error.message,
+            variant: "destructive"
+          });
           throw error;
         }
 
         return data as Destination;
       } catch (error) {
         console.error("Fetch error:", error);
-        toast.error("Failed to fetch destination");
+        toast({
+          title: "Failed to fetch destination",
+          description: "Please check your connection and try again",
+          variant: "destructive"
+        });
         throw error;
       }
     },
