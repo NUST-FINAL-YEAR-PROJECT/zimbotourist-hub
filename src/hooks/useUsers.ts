@@ -26,8 +26,16 @@ export const useUsers = () => {
         throw error;
       }
 
-      console.log("Fetched users:", data);
+      if (!data || data.length === 0) {
+        console.log("No users found in the database");
+      } else {
+        console.log(`Successfully fetched ${data.length} users`);
+      }
+
       return data as User[];
     },
+    refetchOnWindowFocus: false,
+    refetchOnMount: true,
+    staleTime: 30000, // 30 seconds
   });
 };
