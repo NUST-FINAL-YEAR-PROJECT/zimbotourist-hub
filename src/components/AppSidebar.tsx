@@ -1,6 +1,6 @@
 
 import { useNavigate } from "react-router-dom";
-import { LogOut, MapPin, Settings, Ticket, Home, Calendar, Sparkles, Bell, AlertCircle, Info, CheckCircle2 } from "lucide-react";
+import { LogOut, MapPin, Settings, Ticket, Home, Calendar, Sparkles, Bell, AlertCircle, Info, CheckCircle2, ShieldCheck } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -22,7 +22,7 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 
 export function AppSidebar() {
   const navigate = useNavigate();
-  const { signOut } = useAuth();
+  const { signOut, isAdmin } = useAuth();
   const { state } = useSidebar();
   const isMobile = useIsMobile();
 
@@ -142,6 +142,25 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </motion.div>
+              
+              {isAdmin && (
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 6 * 0.05, duration: 0.3 }}
+                >
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      onClick={() => navigate("/admin/dashboard")}
+                      className="hover:bg-amber-50 hover:text-amber-600 data-[active=true]:bg-amber-100 data-[active=true]:text-amber-600"
+                      isActive={window.location.pathname.startsWith("/admin/dashboard")}
+                    >
+                      <ShieldCheck className="h-5 w-5" />
+                      <span className="font-medium">Admin Dashboard</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </motion.div>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
