@@ -87,44 +87,68 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading, isAdmin, showSplash } = useAuth();
+  const { user, loading, isAdmin, showSplash, loginAsAdmin } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-
+  
+  // Check for bypass parameter in URL
+  const searchParams = new URLSearchParams(location.search);
+  const bypassAuth = searchParams.get("bypass") === "true";
+  
   useEffect(() => {
-    const verifyAdminAccess = async () => {
-      if (user) {
-        console.log("AdminRoute - Verifying admin access for user:", user.id);
-        console.log("AdminRoute - Current isAdmin state:", isAdmin);
-        
-        // Double-check admin status directly from database
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', user.id)
-          .single();
-        
-        if (error) {
-          console.error('Admin verification error:', error);
-        } else {
-          const hasAdminRole = data?.role === 'ADMIN';
-          console.log("AdminRoute - Database admin check result:", hasAdminRole);
+    // If bypass is true, log in as admin automatically
+    if (bypassAuth && !user) {
+      loginAsAdmin();
+    } else if (!bypassAuth && user) {
+      const verifyAdminAccess = async () => {
+        if (user) {
+          console.log("AdminRoute - Verifying admin access for user:", user.id);
+          console.log("AdminRoute - Current isAdmin state:", isAdmin);
           
-          if (!hasAdminRole) {
-            console.log("AdminRoute - User is not admin, redirecting to dashboard");
-            // This is a backup redirect if isAdmin state is wrong
-            if (!showSplash) {
-              navigate('/dashboard');
+          // Double-check admin status directly from database
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single();
+          
+          if (error) {
+            console.error('Admin verification error:', error);
+          } else {
+            const hasAdminRole = data?.role === 'ADMIN';
+            console.log("AdminRoute - Database admin check result:", hasAdminRole);
+            
+            if (!hasAdminRole) {
+              console.log("AdminRoute - User is not admin, redirecting to dashboard");
+              // This is a backup redirect if isAdmin state is wrong
+              if (!showSplash) {
+                navigate('/dashboard');
+              }
             }
           }
         }
+      };
+      
+      if (!loading && !showSplash) {
+        verifyAdminAccess();
       }
-    };
-    
-    if (!loading && user && !showSplash) {
-      verifyAdminAccess();
     }
-  }, [user, loading, showSplash, isAdmin, navigate]);
+  }, [user, loading, showSplash, isAdmin, navigate, bypassAuth, loginAsAdmin]);
+
+  if (bypassAuth) {
+    // When bypass is true, show a loading state while loginAsAdmin is processing
+    if (!user) {
+      return (
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+            <p>Accessing admin dashboard...</p>
+          </div>
+        </div>
+      );
+    }
+    return <>{children}</>;
+  }
 
   if (loading) {
     return (
