@@ -1,11 +1,10 @@
 
 import { motion } from "framer-motion";
-import { Search, MapPin, Calendar, ChevronRight } from "lucide-react";
+import { ChevronDown, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import { AnimatedWords } from "./AnimatedWords";
+import { useState, useEffect } from "react";
 
 interface HeroSectionProps {
   searchQuery: string;
@@ -19,149 +18,126 @@ export const HeroSection = ({
   handleSearch,
 }: HeroSectionProps) => {
   const isMobile = useIsMobile();
+  const [scrollY, setScrollY] = useState(0);
   
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <section className="relative h-screen w-full flex flex-col justify-center items-center text-center px-4 overflow-hidden">
-      {/* Background Image with modern gradient overlay */}
+    <section className="relative h-screen flex flex-col justify-center items-center overflow-hidden">
+      {/* Background layers */}
       <motion.div 
-        initial={{ scale: 1.1, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
         transition={{ duration: 1.5 }}
         className="absolute inset-0 z-0"
       >
-        <img
-          src="https://images.unsplash.com/photo-1516026672322-bc52d61a55d5"
-          alt="Victoria Falls"
-          className="h-full w-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/90 via-black/50 to-accent/80 mix-blend-overlay" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1601581975053-7c899da7d575')] bg-cover bg-center" />
+        <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-primary/30 to-black/70" />
+        <div className="absolute inset-0 backdrop-blur-[1px]" />
+        
+        <div className="absolute inset-0">
+          <div className="h-full w-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))]
+            from-primary/20 via-transparent to-transparent opacity-70" />
+        </div>
+        
+        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-black to-transparent" />
       </motion.div>
-
+      
       {/* Content */}
-      <div className="relative z-10 max-w-7xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.5 }}
-        >
-          <Badge 
-            variant="outline" 
-            className="bg-white/10 text-white border-white/20 backdrop-blur-sm px-5 py-2 text-base"
-          >
-            Discover Zimbabwe 🇿🇼
-          </Badge>
-        </motion.div>
-
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className={`${isMobile ? "text-5xl" : "text-7xl md:text-8xl lg:text-9xl"} font-bold text-white mb-8 leading-tight tracking-tight mt-6`}
-        >
-          Experience <br className="hidden md:block" />
-          <AnimatedWords />
-        </motion.h1>
-
-        <motion.p 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-          className="text-xl md:text-2xl lg:text-3xl text-white/90 max-w-4xl mx-auto mb-12"
-        >
-          Discover breathtaking landscapes, rich culture, and unforgettable adventures
-        </motion.p>
-
+      <div className="relative z-10 container mx-auto px-4 flex flex-col items-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="flex flex-wrap justify-center gap-6 my-12"
+          transition={{ delay: 0.5, duration: 0.8 }}
+          className="text-center mb-4"
         >
-          {[
-            { icon: MapPin, text: "10+ National Parks", delay: 0.6 },
-            { icon: Calendar, text: "Year-round destinations", delay: 0.7 },
-            { icon: Search, text: "300+ Popular attractions", delay: 0.8 }
-          ].map((item, index) => (
-            <motion.div 
-              key={index}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: item.delay }}
-              className="flex items-center bg-white/10 backdrop-blur-md rounded-full py-3 px-6 text-white/90 hover:bg-white/20 transition-all duration-300 hover:scale-105"
-            >
-              <item.icon className="w-5 h-5 text-amber-300 mr-3" />
-              <span className="text-base md:text-lg font-medium">{item.text}</span>
-            </motion.div>
-          ))}
+          <h1 className="text-white font-display tracking-tighter leading-none mb-6">
+            <span className={`block ${isMobile ? "text-5xl" : "text-7xl md:text-8xl"} font-bold`}>Discover</span>
+            <span className={`block ${isMobile ? "text-6xl" : "text-9xl"} font-extrabold 
+              bg-gradient-to-r from-amber-300 via-white to-amber-300 bg-clip-text text-transparent`}>
+              Zimbabwe
+            </span>
+          </h1>
+          
+          <p className="text-white/90 text-xl md:text-2xl max-w-3xl mx-auto mb-10 leading-relaxed">
+            Experience the breathtaking beauty, rich culture, and unforgettable adventures.
+            Your journey begins here.
+          </p>
         </motion.div>
-
+        
+        {/* Search container with glass effect */}
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.5 }}
-          className="bg-white/95 backdrop-blur-xl rounded-2xl p-8 shadow-2xl max-w-5xl mx-auto border border-white/20"
+          transition={{ delay: 0.8, duration: 0.8 }}
+          className="w-full max-w-4xl backdrop-blur-xl bg-white/10 border border-white/20 
+            rounded-2xl p-8 shadow-[0_8px_32px_rgba(0,0,0,0.12)]"
         >
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col md:flex-row gap-3">
             <div className="relative flex-1">
-              <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 h-6 w-6" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/70" />
               <Input
                 type="text"
                 placeholder="Where do you want to explore?"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-14 py-8 h-16 text-lg bg-white/80 backdrop-blur-sm border-gray-200 rounded-xl"
+                className="pl-10 py-6 h-14 text-lg bg-white/5 text-white border-white/10 placeholder:text-white/50 
+                  focus:border-white/30 focus:ring-0 rounded-xl"
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
               />
             </div>
             <Button 
-              className="bg-gradient-to-r from-primary to-accent hover:opacity-90 text-white shadow-lg py-8 px-12 text-lg rounded-xl transition-all duration-300 hover:scale-105"
               onClick={handleSearch}
+              className="h-14 px-8 font-medium text-lg bg-gradient-to-r from-amber-400 to-amber-500 
+                hover:from-amber-500 hover:to-amber-600 text-black rounded-xl transition-all duration-300"
             >
-              Search
-              <ChevronRight className="ml-2 h-5 w-5" />
+              Explore Now
             </Button>
           </div>
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.9 }}
-            className="flex flex-wrap gap-3 mt-4"
-          >
-            <span className="text-sm text-gray-500">Popular:</span>
-            {["Victoria Falls", "Hwange National Park", "Great Zimbabwe", "Matobo National Park"].map((place, index) => (
-              <motion.div
+          
+          <div className="flex flex-wrap gap-3 mt-4 justify-center">
+            <span className="text-sm text-white/60">Popular:</span>
+            {["Victoria Falls", "Hwange National Park", "Great Zimbabwe", "Matobo Hills"].map((place) => (
+              <Button 
                 key={place}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.4, delay: 1 + index * 0.1 }}
+                variant="ghost" 
+                size="sm" 
+                className="text-sm h-7 p-0 text-white/80 hover:text-white hover:bg-white/10"
+                onClick={() => setSearchQuery(place)}
               >
-                <Button 
-                  variant="link" 
-                  size="sm" 
-                  className="text-sm h-5 p-0 text-primary/90 hover:text-primary hover:scale-105 transition-transform"
-                >
-                  {place}
-                </Button>
-              </motion.div>
+                {place}
+              </Button>
             ))}
-          </motion.div>
+          </div>
         </motion.div>
       </div>
-
+      
+      {/* Scroll indicator */}
       <motion.div 
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1, delay: 1 }}
-        className="absolute bottom-0 left-0 right-0"
+        animate={{ opacity: scrollY > 20 ? 0 : 1 }}
+        transition={{ duration: 0.3 }}
+        className="absolute bottom-12 left-1/2 -translate-x-1/2 text-white"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" className="w-full">
-          <path 
-            fill="#ffffff" 
-            fillOpacity="1" 
-            d="M0,128L48,144C96,160,192,192,288,186.7C384,181,480,139,576,149.3C672,160,768,224,864,229.3C960,235,1056,181,1152,149.3C1248,117,1344,107,1392,101.3L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
-          />
-        </svg>
+        <div className="flex flex-col items-center">
+          <span className="text-sm text-white/80 mb-2">Scroll to discover</span>
+          <motion.div
+            animate={{ y: [0, 10, 0] }}
+            transition={{
+              duration: 1.5,
+              repeat: Infinity,
+              repeatType: "loop"
+            }}
+          >
+            <ChevronDown className="h-6 w-6" />
+          </motion.div>
+        </div>
       </motion.div>
     </section>
   );

@@ -1,7 +1,6 @@
 
 import { motion } from "framer-motion";
-import { Users, MapPin, Compass, Clock } from "lucide-react";
-import { useIsMobile } from "@/hooks/useIsMobile";
+import { Users, MapPin, Camera, Award } from "lucide-react";
 
 interface Stat {
   label: string;
@@ -10,41 +9,46 @@ interface Stat {
 }
 
 export const StatsSection = () => {
-  const isMobile = useIsMobile();
-  
   const stats: Stat[] = [
     { label: "Happy Travelers", value: "10,000+", icon: Users },
     { label: "Destinations", value: "50+", icon: MapPin },
-    { label: "Local Guides", value: "100+", icon: Compass },
-    { label: "Years Experience", value: "15+", icon: Clock }
+    { label: "Photo Opportunities", value: "Unlimited", icon: Camera },
+    { label: "Travel Awards", value: "25+", icon: Award }
   ];
 
   return (
-    <section className="py-28 sm:py-36 bg-primary text-white">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-16">
+    <section className="relative py-20 overflow-hidden bg-black text-white">
+      {/* Background elements */}
+      <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1606108627827-ec3f836df1a1')] bg-cover bg-center opacity-30" />
+      <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/70 to-primary/40" />
+      
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 max-w-7xl mx-auto">
           {stats.map((stat, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: index * 0.2 }}
+              transition={{ duration: 0.8, delay: index * 0.1 }}
               viewport={{ once: true, margin: "-100px" }}
               className="text-center group"
             >
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/10 mb-8 transition-transform duration-500 group-hover:scale-110 group-hover:bg-white/20">
+              <div className="mb-6 w-20 h-20 rounded-3xl bg-white/10 backdrop-blur-sm flex items-center justify-center mx-auto
+                group-hover:bg-primary transition-all duration-500 transform group-hover:rotate-6">
                 <stat.icon className="w-10 h-10" />
               </div>
-              <motion.h4 
-                className={`${isMobile ? "text-4xl" : "text-5xl lg:text-6xl"} font-bold mb-4`}
-                initial={{ opacity: 0, scale: 0.5 }}
+              
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
                 whileInView={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8, delay: 0.3 + index * 0.2 }}
+                transition={{ duration: 0.8, delay: 0.2 + index * 0.1 }}
                 viewport={{ once: true, margin: "-100px" }}
               >
-                {stat.value}
-              </motion.h4>
-              <p className="text-xl text-white/80">{stat.label}</p>
+                <h3 className="text-4xl lg:text-5xl font-display font-bold mb-2 bg-gradient-to-r from-white via-white to-white/70 bg-clip-text text-transparent">
+                  {stat.value}
+                </h3>
+                <p className="text-lg text-white/80">{stat.label}</p>
+              </motion.div>
             </motion.div>
           ))}
         </div>
