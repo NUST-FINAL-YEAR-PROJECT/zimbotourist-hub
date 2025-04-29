@@ -9,6 +9,8 @@ export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showSplash, setShowSplash] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -21,6 +23,17 @@ export const useAuth = () => {
         }
         setSession(session);
         setUser(session?.user ?? null);
+        
+        // Check if user is admin
+        if (session?.user) {
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', session.user.id)
+            .single();
+            
+          setIsAdmin(profileData?.role === 'ADMIN');
+        }
       } catch (error: any) {
         console.error('Error getting session:', error);
         toast.error(error.message);
@@ -40,15 +53,29 @@ export const useAuth = () => {
       if (_event === 'SIGNED_OUT') {
         setSession(null);
         setUser(null);
-        navigate('/');  // Changed from '/auth' to '/'
+        setIsAdmin(false);
+        navigate('/');
         toast.success("Successfully signed out");
       } else if (_event === 'SIGNED_IN' || _event === 'TOKEN_REFRESHED') {
         setSession(session);
         setUser(session?.user ?? null);
         
         if (_event === 'SIGNED_IN') {
-          navigate('/dashboard');
-          toast.success("Successfully signed in");
+          // Check if user is admin after sign in
+          if (session?.user) {
+            const { data: profileData } = await supabase
+              .from('profiles')
+              .select('role')
+              .eq('id', session.user.id)
+              .single();
+              
+            const userIsAdmin = profileData?.role === 'ADMIN';
+            setIsAdmin(userIsAdmin);
+            
+            // Show splash screen and let it handle the navigation
+            setShowSplash(true);
+            toast.success("Successfully signed in");
+          }
         }
       }
       
@@ -70,5 +97,5 @@ export const useAuth = () => {
     }
   };
 
-  return { user, session, loading, signOut };
+  return { user, session, loading, signOut, showSplash, setShowSplash, isAdmin };
 };

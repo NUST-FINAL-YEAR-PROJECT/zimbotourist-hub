@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -54,7 +55,7 @@ const EventsPage = () => (
 );
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading } = useAuth();
+  const { user, loading, showSplash, setShowSplash } = useAuth();
   const location = useLocation();
 
   useEffect(() => {
@@ -71,6 +72,11 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
+  if (showSplash) {
+    // Don't redirect, let the splash screen handle it
+    return <>{children}</>;
+  }
+
   if (!user) {
     return <Navigate to="/auth" replace state={{ from: location }} />;
   }
@@ -79,7 +85,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading } = useAuth();
+  const { user, loading, isAdmin, showSplash, setShowSplash } = useAuth();
   const location = useLocation();
 
   useEffect(() => {
@@ -110,15 +116,24 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
+  if (showSplash) {
+    // Don't redirect, let the splash screen handle it
+    return <>{children}</>;
+  }
+
   if (!user) {
     return <Navigate to="/auth?admin=true" replace state={{ from: location }} />;
+  }
+
+  if (!isAdmin) {
+    return <Navigate to="/dashboard" replace />;
   }
 
   return <>{children}</>;
 };
 
 const AuthRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading } = useAuth();
+  const { user, loading, showSplash } = useAuth();
   const location = useLocation();
 
   if (loading) {
@@ -127,6 +142,11 @@ const AuthRoute = ({ children }: { children: React.ReactNode }) => {
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
+  }
+
+  if (showSplash) {
+    // Don't redirect, let the splash screen handle it
+    return <>{children}</>;
   }
 
   if (user) {

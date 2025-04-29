@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -18,6 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2, ArrowRight, Mail, Lock, ArrowLeft, Globe, CheckCircle2, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { SplashScreen } from "@/components/SplashScreen";
 
 type AuthMode = "signin" | "signup" | "forgot-password" | "reset-password" | "admin-signin";
 
@@ -31,13 +31,13 @@ const Auth = () => {
   const [formSuccess, setFormSuccess] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, showSplash, setShowSplash, isAdmin } = useAuth();
 
   useEffect(() => {
-    if (user) {
+    if (user && !showSplash) {
       navigate("/dashboard");
     }
-  }, [user, navigate]);
+  }, [user, navigate, showSplash]);
 
   const validateForm = () => {
     if (!email) {
@@ -130,13 +130,13 @@ const Auth = () => {
               title: "Welcome, Administrator!",
               description: "You have been successfully logged in.",
             });
-            navigate("/admin/dashboard");
+            setShowSplash(true); // Show splash screen and it will redirect to admin dashboard
           } else {
             toast({
               title: "Welcome back!",
               description: "You have been successfully logged in.",
             });
-            navigate("/dashboard");
+            setShowSplash(true); // Show splash screen and it will redirect to dashboard
           }
         }
       } else if (mode === "signup") {
@@ -188,6 +188,14 @@ const Auth = () => {
       setLoading(false);
     }
   };
+
+  // Render splash screen if user has successfully authenticated
+  if (showSplash) {
+    return <SplashScreen 
+      redirectPath={isAdmin ? "/admin/dashboard" : "/dashboard"} 
+      isAdmin={isAdmin} 
+    />;
+  }
 
   const renderSuccessMessage = () => {
     return (
