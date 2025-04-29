@@ -20,4 +20,12 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  // Add proper handling for Node.js modules
+  optimizeDeps: {
+    exclude: ['paynow'] // Exclude the paynow package from client-side bundling
+  },
+  // Define environment variables that should be replaced
+  define: {
+    'process.env': {}
+  }
 }));

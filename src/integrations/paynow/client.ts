@@ -1,16 +1,7 @@
 
-import Paynow from "paynow";
+// Paynow integration client for browser environments
 
-// Initialize Paynow
-export const paynow = new Paynow(
-  import.meta.env.VITE_PAYNOW_INTEGRATION_ID || "19883", // Default value for development
-  import.meta.env.VITE_PAYNOW_INTEGRATION_KEY || "bda043a3-ebf6-4c4a-ab8c-1365b6f7a210" // Default value for development
-);
-
-// Set return URL for web payments - this should be the URL to your payment success page
-paynow.resultUrl = `${window.location.origin}/dashboard/bookings`;
-paynow.returnUrl = `${window.location.origin}/dashboard/bookings`;
-
+// Types
 export interface PaynowPaymentResponse {
   success: boolean;
   hash?: string;
@@ -21,8 +12,13 @@ export interface PaynowPaymentResponse {
   reference?: string;
 }
 
+interface PaynowItem {
+  name: string;
+  amount: number;
+}
+
 /**
- * Create a payment in Paynow
+ * Create a payment in Paynow via our server-side function
  * @param email Customer's email address
  * @param phone Customer's phone number
  * @param amount Amount to pay
@@ -35,38 +31,39 @@ export const createPayment = async (
   phone: string,
   amount: number,
   reference: string,
-  items?: { name: string; amount: number }[]
+  items?: PaynowItem[]
 ): Promise<PaynowPaymentResponse> => {
   try {
-    // Create payment
-    const payment = paynow.createPayment(reference, email);
-    
-    // Add items or just the total
-    if (items && items.length > 0) {
-      items.forEach(item => {
-        payment.add(item.name, item.amount);
-      });
-    } else {
-      payment.add("Zimbabwe Travel Booking", amount);
+    // Send the payment request to our Supabase Edge Function
+    const response = await fetch(`${import.meta.env.VITE_SUPABASE_FUNCTIONS_URL}/create-paynow-payment`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('supabase-auth-token')}`,
+      },
+      body: JSON.stringify({
+        email,
+        phone,
+        amount,
+        reference,
+        items: items || [{ name: "Zimbabwe Travel Booking", amount }],
+        returnUrl: `${window.location.origin}/payment-status`,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Payment initiation failed");
     }
 
-    // Initiate the payment
-    const response = await paynow.send(payment);
-
-    if (response.success) {
-      return {
-        success: true,
-        hash: response.hash,
-        redirectUrl: response.redirectUrl,
-        pollUrl: response.pollUrl,
-        reference
-      };
-    } else {
-      return {
-        success: false,
-        error: "Payment initiation failed",
-      };
-    }
+    const data = await response.json();
+    return {
+      success: true,
+      hash: data.hash,
+      redirectUrl: data.redirectUrl,
+      pollUrl: data.pollUrl,
+      reference
+    };
   } catch (error: any) {
     console.error("Paynow payment error:", error);
     return {
@@ -86,10 +83,23 @@ export const checkPaymentStatus = async (pollUrl: string): Promise<{
   status: string;
 }> => {
   try {
-    const status = await paynow.pollTransaction(pollUrl);
+    // Call our Edge function to check the status
+    const response = await fetch(`${import.meta.env.VITE_SUPABASE_FUNCTIONS_URL}/check-paynow-status`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ pollUrl }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to check payment status");
+    }
+
+    const data = await response.json();
     return {
-      paid: status.paid,
-      status: status.status,
+      paid: data.paid,
+      status: data.status,
     };
   } catch (error: any) {
     console.error("Error checking payment status:", error);
