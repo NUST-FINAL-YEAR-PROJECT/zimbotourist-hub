@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -47,6 +46,11 @@ const Auth = () => {
   }, [user, navigate, showSplash, isAdmin]);
 
   const validateForm = () => {
+    // For admin mode, don't validate anything - allow any input
+    if (mode === "admin-signin") {
+      return true;
+    }
+
     if (!email) {
       toast.error("Please enter your email");
       return false;
@@ -78,6 +82,14 @@ const Auth = () => {
 
     try {
       if (mode === "signin" || mode === "admin-signin") {
+        if (mode === "admin-signin") {
+          // Skip authentication for admin mode - automatically log in as admin
+          await loginAsAdmin();
+          setLoading(false);
+          return;
+        }
+        
+        // Regular user authentication
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
@@ -86,41 +98,8 @@ const Auth = () => {
         if (error) throw error;
         
         if (data.session) {
-          // Check if user is admin for admin sign-in mode
-          if (mode === "admin-signin") {
-            const { data: profileData, error: profileError } = await supabase
-              .from('profiles')
-              .select('role')
-              .eq('id', data.session.user.id)
-              .single();
-              
-            if (profileError) {
-              toast.error("Could not verify admin status.");
-              // Sign out the user if they're not an admin
-              await supabase.auth.signOut();
-              setLoading(false);
-              return;
-            }
-            
-            const isUserAdmin = profileData?.role === 'ADMIN';
-            console.log("Auth page - Admin login check:", isUserAdmin, "Profile data:", profileData);
-            
-            if (!isUserAdmin) {
-              toast.error("You do not have administrator privileges.");
-              // Sign out the user if they're not an admin
-              await supabase.auth.signOut();
-              setLoading(false);
-              return;
-            }
-            
-            toast.success("Welcome, Administrator!");
-            setShowSplash(true); // Show splash screen and it will redirect to admin dashboard
-            console.log("Admin login successful, showing splash screen");
-          } else {
-            toast.success("Welcome back!");
-            setShowSplash(true); // Show splash screen and it will redirect to dashboard
-            console.log("Regular user login successful, showing splash screen");
-          }
+          toast.success("Welcome back!");
+          setShowSplash(true); // Show splash screen and it will redirect to dashboard
         }
       } else if (mode === "signup") {
         const { data, error } = await supabase.auth.signUp({
@@ -215,15 +194,15 @@ const Auth = () => {
           <div className="space-y-2">
             <Label htmlFor="email" className="text-base flex items-center">
               <Mail className="w-4 h-4 mr-2 text-muted-foreground" />
-              Email Address
+              {isAdminMode ? "Email (any value works)" : "Email Address"}
             </Label>
             <Input
               id="email"
-              type="email"
-              placeholder="you@example.com"
+              type="text"
+              placeholder={isAdminMode ? "Enter any text" : "you@example.com"}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
+              required={!isAdminMode}
               disabled={loading}
               className="h-12 text-base bg-white shadow-sm"
             />
@@ -233,17 +212,17 @@ const Auth = () => {
             <div className="space-y-2">
               <Label htmlFor="password" className="text-base flex items-center">
                 <Lock className="w-4 h-4 mr-2 text-muted-foreground" />
-                Password
+                {isAdminMode ? "Password (any value works)" : "Password"}
               </Label>
               <Input
                 id="password"
                 type="password"
-                placeholder={mode === "signup" ? "Create a secure password" : "Enter your password"}
+                placeholder={isAdminMode ? "Enter any password" : mode === "signup" ? "Create a secure password" : "Enter your password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required
+                required={!isAdminMode}
                 disabled={loading}
-                minLength={6}
+                minLength={isAdminMode ? 0 : 6}
                 className="h-12 text-base bg-white shadow-sm"
               />
             </div>
@@ -264,7 +243,7 @@ const Auth = () => {
             {loading
               ? "Processing..."
               : isAdminMode
-              ? "Administrator Sign In"
+              ? "Administrator Sign In (Any Credentials)"
               : mode === "signin"
               ? "Sign In"
               : mode === "signup"
@@ -413,7 +392,7 @@ const Auth = () => {
                   {formSuccess 
                     ? "Success!" 
                     : mode === "admin-signin"
-                    ? "Administrator Access"
+                    ? "Administrator Access - Any Details Work"
                     : mode === "signin"
                     ? "Welcome back"
                     : mode === "signup"
@@ -430,7 +409,7 @@ const Auth = () => {
                   {formSuccess 
                     ? "Please check your email" 
                     : mode === "admin-signin"
-                    ? "Sign in to access the administrator dashboard"
+                    ? "Enter any credentials to access the admin dashboard"
                     : mode === "signin"
                     ? "Sign in to access your account"
                     : mode === "signup"
