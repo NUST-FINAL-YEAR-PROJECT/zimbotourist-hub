@@ -29,13 +29,13 @@ export const HeroSection = ({
   }, []);
 
   return (
-    <section className="relative h-screen flex flex-col justify-center items-center overflow-hidden">
+    <section className="relative h-screen w-full flex flex-col justify-center items-center overflow-hidden">
       {/* Background layers */}
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1.5 }}
-        className="absolute inset-0 z-0"
+        className="absolute inset-0 z-0 w-full"
       >
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1601581975053-7c899da7d575')] bg-cover bg-center" />
         <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-primary/30 to-black/70" />
@@ -50,12 +50,12 @@ export const HeroSection = ({
       </motion.div>
       
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-4 flex flex-col items-center">
+      <div className="relative z-10 container mx-auto px-4 flex flex-col items-center w-full">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.8 }}
-          className="text-center mb-4"
+          className="text-center mb-4 w-full"
         >
           <h1 className="text-white font-display tracking-tighter leading-none mb-6">
             <span className={`block ${isMobile ? "text-5xl" : "text-7xl md:text-8xl"} font-bold`}>Discover</span>

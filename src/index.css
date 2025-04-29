@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:wght@300;400;500;600&family=Poppins:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
@@ -5,8 +6,10 @@
 @tailwind utilities;
 
 @layer base {
-  html {
-    @apply h-full scroll-smooth antialiased;
+  html, body {
+    @apply h-full w-full overflow-x-hidden scroll-smooth antialiased;
+    margin: 0;
+    padding: 0;
   }
 
   body {
@@ -178,4 +181,24 @@
 #root {
   @apply w-full min-h-screen;
   text-align: initial;
+  display: flex;
+  flex-direction: column;
 }
+
+/* Full screen fixes */
+.app-container {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.full-width-section {
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+}
+

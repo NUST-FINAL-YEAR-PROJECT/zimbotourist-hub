@@ -36,11 +36,11 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-white overflow-x-hidden">
+    <div className="min-h-screen w-full overflow-x-hidden bg-white">
       <TopNavbar />
       
       {/* Sections */}
-      <main>
+      <main className="w-full">
         <HeroSection 
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
@@ -62,7 +62,7 @@ const Index = () => {
       
       {/* Footer with scroll to top */}
       <motion.footer 
-        className="bg-white py-8 border-t border-gray-200"
+        className="bg-white py-8 border-t border-gray-200 w-full"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
