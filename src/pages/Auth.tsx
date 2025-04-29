@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -123,7 +124,7 @@ const Auth = () => {
             }
             
             const isUserAdmin = profileData?.role === 'ADMIN';
-            console.log("Auth page - Admin login check:", isUserAdmin);
+            console.log("Auth page - Admin login check:", isUserAdmin, "Profile data:", profileData);
             
             if (!isUserAdmin) {
               toast({
@@ -205,8 +206,8 @@ const Auth = () => {
   // Render splash screen if user has successfully authenticated
   if (showSplash) {
     return <SplashScreen 
-      redirectPath={isAdmin ? "/admin/dashboard" : "/dashboard"} 
-      isAdmin={isAdmin} 
+      redirectPath={mode === "admin-signin" ? "/admin/dashboard" : "/dashboard"} 
+      isAdmin={mode === "admin-signin"} 
     />;
   }
 

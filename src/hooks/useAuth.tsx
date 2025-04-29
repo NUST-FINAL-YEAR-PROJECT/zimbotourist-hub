@@ -16,6 +16,7 @@ export const useAuth = () => {
   // Function to check if user is admin
   const checkAdminStatus = async (userId: string) => {
     try {
+      console.log("Checking admin status for user ID:", userId);
       const { data: profileData, error } = await supabase
         .from('profiles')
         .select('role')
@@ -28,7 +29,8 @@ export const useAuth = () => {
       }
       
       const userIsAdmin = profileData?.role === 'ADMIN';
-      console.log("User admin status check:", userIsAdmin, "for user ID:", userId);
+      console.log("Admin status check result:", userIsAdmin, "for user ID:", userId);
+      console.log("Profile data:", profileData);
       setIsAdmin(userIsAdmin);
       return userIsAdmin;
     } catch (error) {
