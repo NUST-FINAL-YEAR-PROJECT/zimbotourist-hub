@@ -21,7 +21,7 @@ export const useAuth = () => {
         .from('profiles')
         .select('role')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
         
       if (error) {
         console.error('Error checking admin status:', error);
@@ -43,8 +43,8 @@ export const useAuth = () => {
   const loginAsAdmin = async () => {
     try {
       setLoading(true);
-      // Hardcoded admin credentials
-      const email = "admin@zimbabwetourism.com";
+      // Use working admin credentials
+      const email = "kudzaiz@novatechzw.com";
       const password = "admin123";
       
       const { data, error } = await supabase.auth.signInWithPassword({
