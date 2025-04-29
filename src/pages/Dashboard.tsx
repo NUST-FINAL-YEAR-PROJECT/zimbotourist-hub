@@ -56,8 +56,8 @@ const StatCard = ({
     className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200/50 dark:border-gray-700/50 shadow-lg p-4 sm:p-6 transition-all duration-300"
   >
     <div className="flex items-center space-x-2 sm:space-x-4">
-      <div className="p-2 sm:p-3 bg-primary/10 dark:bg-primary/20 rounded-lg">
-        <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+      <div className="p-2 sm:p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg">
+        <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-indigo-600" />
       </div>
       <div>
         <p className="text-xs sm:text-sm font-medium text-muted-foreground">{title}</p>
@@ -160,7 +160,7 @@ const DashboardHome = ({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="bg-gradient-to-r from-primary/80 to-primary p-3 sm:p-6 rounded-xl text-white shadow-lg"
+          className="bg-gradient-to-r from-purple-600 to-indigo-600 p-3 sm:p-6 rounded-xl text-white shadow-lg"
         >
           <h1 className="text-lg sm:text-3xl font-bold">
             {getGreeting()}, {profile.username || profile.email.split('@')[0]}!
@@ -173,14 +173,14 @@ const DashboardHome = ({
         <div className="flex flex-wrap items-center gap-2 sm:gap-4">
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="outline" size={isMobile ? "sm" : "default"} className="relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-                {unreadCount > 0 ? <BellDot className="h-4 w-4 sm:h-5 sm:w-5 text-primary mr-2" /> : <Bell className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />}
+              <Button variant="outline" size={isMobile ? "sm" : "default"} className="relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:bg-indigo-50">
+                {unreadCount > 0 ? <BellDot className="h-4 w-4 sm:h-5 sm:w-5 text-indigo-600 mr-2" /> : <Bell className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />}
                 {isMobile ? "" : "Notifications"}
                 {unreadCount > 0 && (
                   <motion.span
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-xs text-white flex items-center justify-center"
+                    className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-indigo-600 text-xs text-white flex items-center justify-center"
                   >
                     {unreadCount}
                   </motion.span>
@@ -222,8 +222,8 @@ const DashboardHome = ({
 
         <Tabs defaultValue="overview" className="w-full" onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-2 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm p-1 rounded-xl">
-            <TabsTrigger value="overview" className="data-[state=active]:bg-primary data-[state=active]:text-white">Overview</TabsTrigger>
-            <TabsTrigger value="recommendations" className="data-[state=active]:bg-primary data-[state=active]:text-white">Recommendations</TabsTrigger>
+            <TabsTrigger value="overview" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white">Overview</TabsTrigger>
+            <TabsTrigger value="recommendations" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white">Recommendations</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-3 sm:space-y-6 pt-3 sm:pt-4">
@@ -245,9 +245,9 @@ const DashboardHome = ({
 
             {bookings.length > 0 && (
               <Card className="overflow-hidden border-0 shadow-lg bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm">
-                <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 sm:p-6">
+                <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/30 dark:to-purple-900/30 p-3 sm:p-6">
                   <CardTitle className="flex items-center text-sm sm:text-lg">
-                    <Activity className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-primary" />
+                    <Activity className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-indigo-600" />
                     Recent Bookings
                   </CardTitle>
                   <CardDescription>Your latest travel arrangements</CardDescription>
@@ -261,7 +261,7 @@ const DashboardHome = ({
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 + (index * 0.1), duration: 0.4 }}
                         whileHover={{ scale: isMobile ? 1 : 1.02 }}
-                        className="p-3 rounded-lg border bg-card text-card-foreground shadow-sm transition-all duration-200"
+                        className="p-3 rounded-lg border bg-card text-card-foreground hover:border-indigo-200 shadow-sm transition-all duration-200"
                       >
                         <div className="flex justify-between items-center">
                           <div>
@@ -624,7 +624,7 @@ export const Dashboard = () => {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen w-full bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-gray-900 dark:to-gray-800">
+      <div className="flex min-h-screen w-full bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
         <div className="flex-1 p-3 sm:p-8">
           <div className="container mx-auto space-y-4 sm:space-y-8">
             <Skeleton className="h-12 w-full max-w-md rounded-xl mb-4 sm:mb-8" />
@@ -642,7 +642,7 @@ export const Dashboard = () => {
   }
 
   return (
-    <div className="flex min-h-screen w-full bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-gray-900 dark:to-gray-800">
+    <div className="flex min-h-screen w-full bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
       {!isMobile && <AppSidebar />}
       <div className={cn(
         "flex-1 overflow-auto",
@@ -655,8 +655,8 @@ export const Dashboard = () => {
             transition={{ duration: 0.5 }}
             className="flex items-center justify-between mb-3 sm:mb-6 px-3"
           >
-            <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent flex items-center">
-              <LayoutDashboard className="h-4 w-4 sm:h-6 sm:w-6 mr-2 text-primary" />
+            <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent flex items-center">
+              <LayoutDashboard className="h-4 w-4 sm:h-6 sm:w-6 mr-2 text-indigo-600" />
               Dashboard
             </h1>
             <div className="flex items-center gap-4">
