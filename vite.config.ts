@@ -10,6 +10,8 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    // Add middleware for SPA routing during development
+    middlewareMode: true,
   },
   plugins: [
     react(),
@@ -17,12 +19,34 @@ export default defineConfig(({ mode }) => ({
     componentTagger(),
     {
       name: 'generate-redirects',
-      writeBundle() {
-        // Ensure this doesn't overwrite an existing _redirects file
-        if (!fs.existsSync('dist/_redirects')) {
-          fs.writeFileSync('dist/_redirects', '/*  /index.html  200\n');
-          console.log('✅ _redirects file generated successfully');
+      buildStart() {
+        // Ensure _redirects file exists in public folder
+        if (!fs.existsSync('public/_redirects')) {
+          fs.writeFileSync('public/_redirects', '/*  /index.html  200\n');
+          console.log('✅ _redirects file created in public folder');
         }
+      },
+      writeBundle() {
+        // Ensure this always creates/updates _redirects file in dist folder
+        fs.writeFileSync('dist/_redirects', '/*  /index.html  200\n');
+        console.log('✅ _redirects file generated in dist folder');
+      }
+    },
+    // Handle history API fallback for SPA routing
+    {
+      name: 'spa-fallback',
+      configureServer(server) {
+        // Return index.html for any route
+        server.middlewares.use((req, res, next) => {
+          if (req.url?.includes('.')) {
+            // Skip for asset requests
+            next();
+          } else {
+            // This helps with client-side routing in dev mode
+            req.url = '/';
+            next();
+          }
+        });
       }
     }
   ].filter(Boolean),
@@ -38,5 +62,16 @@ export default defineConfig(({ mode }) => ({
   // Define environment variables that should be replaced
   define: {
     'process.env': {}
+  },
+  // Ensure history fallback for built app
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Split vendor code for better caching
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+        }
+      }
+    }
   }
 }));
