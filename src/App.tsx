@@ -16,6 +16,7 @@ import { useEffect } from "react";
 import { InitializeData } from "./components/InitializeData";
 import { supabase } from "@/integrations/supabase/client";
 import { DestinationsPage } from "./pages/DestinationsPage";
+import { PaymentStatusPage } from "./pages/PaymentStatusPage";
 
 // Rename to SimpleDestinationsPage to avoid conflict with the imported component
 const SimpleDestinationsPage = () => (
@@ -176,6 +177,11 @@ const App = () => (
         } />
         <Route path="/destinations" element={<DestinationsPage />} />
         <Route path="/events" element={<EventsPage />} />
+        <Route path="/payment-status" element={
+          <ProtectedRoute>
+            <PaymentStatusPage />
+          </ProtectedRoute>
+        } />
         <Route
           path="/dashboard/*"
           element={

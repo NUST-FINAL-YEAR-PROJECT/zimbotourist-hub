@@ -9,6 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { createPayment } from "@/integrations/paynow/client";
 import { BookingInvoice } from "./BookingInvoice";
 import { DuplicateBookingAlert } from "./DuplicateBookingAlert";
 import { ArrowLeft, ArrowRight, Calendar as CalendarIcon, Users, Mail, Phone, Receipt } from "lucide-react";
@@ -105,6 +106,7 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
 
     setIsSubmitting(true);
     try {
+      // Create a new booking record
       const { data: booking, error: bookingError } = await supabase
         .from("bookings")
         .insert({
@@ -131,13 +133,27 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
         className: "bg-green-50 border-green-200"
       });
       
-      // Construct PayNow URL with booking details
-      const amount = (destination.price * numberOfPeople).toFixed(2);
-      const merchantId = "19883"; // Replace with your actual merchant ID
-      const paymentLink = `https://www.paynow.co.zw/Payment/BillPaymentLink/?q=aWQ9${merchantId}&amount=${amount}&reference=${booking?.id || 'BOOKING'}&l=0&return_url=${encodeURIComponent(window.location.origin + "/dashboard/bookings")}`;
+      // Initialize Paynow payment
+      const amount = destination.price * numberOfPeople;
+      const paymentResponse = await createPayment(
+        contactEmail,
+        contactPhone,
+        amount,
+        booking?.id || 'BOOKING',
+        [{ name: `Booking: ${destination.name}`, amount }]
+      );
+
+      if (!paymentResponse.success) {
+        throw new Error(paymentResponse.error || "Failed to initialize payment");
+      }
+
+      // Redirect to Paynow for payment
+      if (paymentResponse.redirectUrl) {
+        window.location.href = paymentResponse.redirectUrl;
+      } else {
+        throw new Error("No redirect URL provided by payment gateway");
+      }
       
-      // Redirect to PayNow
-      window.location.href = paymentLink;
     } catch (error: any) {
       toast({
         title: "Booking Creation Failed",
