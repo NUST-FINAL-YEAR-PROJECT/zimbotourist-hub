@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -30,7 +31,7 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [formSuccess, setFormSuccess] = useState(false);
   const navigate = useNavigate();
-  const { user, showSplash, setShowSplash, isAdmin } = useAuth();
+  const { user, showSplash, setShowSplash, isAdmin, loginAsAdmin } = useAuth();
   
   useEffect(() => {
     // If URL has admin=true param, switch to admin signin mode
@@ -157,6 +158,12 @@ const Auth = () => {
     }
   };
 
+  // Handle quick admin login
+  const handleQuickAdminLogin = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    await loginAsAdmin();
+  };
+
   // Render splash screen if user has successfully authenticated
   if (showSplash) {
     return <SplashScreen 
@@ -266,6 +273,29 @@ const Auth = () => {
             {!loading && <ArrowRight className="ml-2 h-5 w-5" />}
           </Button>
         </div>
+
+        {isAdminMode && (
+          <div className="pt-2">
+            <Button
+              type="button"
+              onClick={handleQuickAdminLogin}
+              className="w-full h-12 text-base font-semibold bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white"
+              disabled={loading}
+            >
+              {loading ? (
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+              ) : (
+                <>
+                  Quick Admin Access
+                  <ShieldCheck className="ml-2 h-5 w-5" />
+                </>
+              )}
+            </Button>
+            <p className="text-center text-sm text-muted-foreground mt-2">
+              Uses hardcoded admin credentials
+            </p>
+          </div>
+        )}
 
         <div className="flex flex-col items-center space-y-4 text-sm pt-2">
           {mode === "signin" ? (

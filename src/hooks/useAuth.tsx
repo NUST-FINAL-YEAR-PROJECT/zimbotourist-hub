@@ -39,6 +39,36 @@ export const useAuth = () => {
     }
   };
 
+  // Login with hardcoded admin credentials
+  const loginAsAdmin = async () => {
+    try {
+      setLoading(true);
+      // Hardcoded admin credentials
+      const email = "admin@zimbabwetourism.com";
+      const password = "admin123";
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+      
+      if (data.session) {
+        setSession(data.session);
+        setUser(data.session.user);
+        setIsAdmin(true);
+        setShowSplash(true);
+        toast.success("Successfully logged in as Administrator!");
+      }
+    } catch (error: any) {
+      console.error('Error logging in as admin:', error);
+      toast.error(error.message || "Failed to login as admin");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     // Get initial session
     const getInitialSession = async () => {
@@ -115,5 +145,5 @@ export const useAuth = () => {
     }
   };
 
-  return { user, session, loading, signOut, showSplash, setShowSplash, isAdmin };
+  return { user, session, loading, signOut, showSplash, setShowSplash, isAdmin, loginAsAdmin };
 };
