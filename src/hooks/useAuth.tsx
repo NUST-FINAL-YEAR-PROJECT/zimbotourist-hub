@@ -32,7 +32,9 @@ export const useAuth = () => {
             .eq('id', session.user.id)
             .single();
             
-          setIsAdmin(profileData?.role === 'ADMIN');
+          const userIsAdmin = profileData?.role === 'ADMIN';
+          setIsAdmin(userIsAdmin);
+          console.log("User admin status:", userIsAdmin);
         }
       } catch (error: any) {
         console.error('Error getting session:', error);
@@ -71,6 +73,7 @@ export const useAuth = () => {
               
             const userIsAdmin = profileData?.role === 'ADMIN';
             setIsAdmin(userIsAdmin);
+            console.log("User signed in as admin:", userIsAdmin);
             
             // Show splash screen and let it handle the navigation
             setShowSplash(true);

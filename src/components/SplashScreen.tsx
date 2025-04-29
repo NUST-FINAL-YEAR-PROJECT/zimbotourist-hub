@@ -14,6 +14,7 @@ export const SplashScreen = ({ redirectPath, isAdmin = false }: SplashScreenProp
   const [progress, setProgress] = useState(0);
   
   useEffect(() => {
+    console.log("SplashScreen mounted, will redirect to:", redirectPath, "isAdmin:", isAdmin);
     const duration = 1500; // 1.5 seconds for the animation
     const interval = 15; // Update every 15ms
     const steps = duration / interval;
@@ -27,13 +28,14 @@ export const SplashScreen = ({ redirectPath, isAdmin = false }: SplashScreenProp
       if (currentProgress >= 100) {
         clearInterval(timer);
         setTimeout(() => {
+          console.log("Redirecting to:", redirectPath);
           navigate(redirectPath);
         }, 300);
       }
     }, interval);
     
     return () => clearInterval(timer);
-  }, [navigate, redirectPath]);
+  }, [navigate, redirectPath, isAdmin]);
   
   return (
     <div className="fixed inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 z-50">

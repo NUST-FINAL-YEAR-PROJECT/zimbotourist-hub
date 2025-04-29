@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -23,7 +24,8 @@ type AuthMode = "signin" | "signup" | "forgot-password" | "reset-password" | "ad
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
-  const initialMode = searchParams.get("mode") === "signup" ? "signup" : "signin";
+  const isAdminPage = searchParams.get("admin") === "true";
+  const initialMode = searchParams.get("mode") === "signup" ? "signup" : isAdminPage ? "admin-signin" : "signin";
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -32,12 +34,19 @@ const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, showSplash, setShowSplash, isAdmin } = useAuth();
+  
+  useEffect(() => {
+    // If URL has admin=true param, switch to admin signin mode
+    if (isAdminPage) {
+      setMode("admin-signin");
+    }
+  }, [isAdminPage]);
 
   useEffect(() => {
     if (user && !showSplash) {
-      navigate("/dashboard");
+      navigate(isAdmin ? "/admin/dashboard" : "/dashboard");
     }
-  }, [user, navigate, showSplash]);
+  }, [user, navigate, showSplash, isAdmin]);
 
   const validateForm = () => {
     if (!email) {
@@ -131,12 +140,14 @@ const Auth = () => {
               description: "You have been successfully logged in.",
             });
             setShowSplash(true); // Show splash screen and it will redirect to admin dashboard
+            console.log("Admin login successful, showing splash screen");
           } else {
             toast({
               title: "Welcome back!",
               description: "You have been successfully logged in.",
             });
             setShowSplash(true); // Show splash screen and it will redirect to dashboard
+            console.log("Regular user login successful, showing splash screen");
           }
         }
       } else if (mode === "signup") {
