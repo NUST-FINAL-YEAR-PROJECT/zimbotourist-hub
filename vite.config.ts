@@ -10,10 +10,9 @@ import type { Connect } from 'vite';
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
-    host: "::",
+    host: true, // Listen on all addresses
     port: 8080,
-    // Add middleware for SPA routing during development
-    middlewareMode: true,
+    // Remove middlewareMode as it's causing the HTTP server issue
   },
   plugins: [
     react(),
