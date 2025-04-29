@@ -53,7 +53,8 @@ export const useNotifications = (userId: string | undefined) => {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      // Explicitly invalidate the notifications query after marking all as read
+      queryClient.invalidateQueries({ queryKey: ["notifications", userId] });
     },
   });
 

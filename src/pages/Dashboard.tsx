@@ -160,10 +160,11 @@ const DashboardHome = ({
   const {
     notifications,
     isLoading: isLoadingNotifications,
-    markAsRead
+    markAsRead,
+    markAllAsRead,
+    unreadCount
   } = useNotifications(profile?.id);
   const navigate = useNavigate();
-  const unreadCount = notifications?.filter(n => !n.is_read).length || 0;
   const isMobile = useIsMobile();
   
   const stats = [
@@ -251,10 +252,7 @@ const DashboardHome = ({
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  onClick={() => notifications
-                    .filter(n => !n.is_read)
-                    .forEach(n => markAsRead.mutate(n.id))
-                  }
+                  onClick={() => markAllAsRead.mutate()}
                   className="text-xs hover:bg-indigo-50 text-indigo-600"
                 >
                   Mark all as read
