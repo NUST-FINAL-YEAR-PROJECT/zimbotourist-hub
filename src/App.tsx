@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,12 +6,14 @@ import { useAuth } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import { Dashboard } from "./pages/Dashboard";
+import AdminDashboard from "./pages/AdminDashboard";
 import { DestinationDetails } from "./pages/DestinationDetails";
 import { EventDetails } from "./pages/EventDetails";
 import Documentation from "./pages/Documentation";
 import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { InitializeData } from "./components/InitializeData";
+import { supabase } from "@/integrations/supabase/client";
 
 const DestinationsPage = () => (
   <div className="min-h-screen pt-16 pb-12 bg-gray-50">
@@ -77,6 +78,45 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+const AdminRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, loading } = useAuth();
+  const location = useLocation();
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (user) {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single();
+        
+        if (error || data?.role !== 'ADMIN') {
+          sessionStorage.setItem('redirectAfterAuth', '/');
+        }
+      }
+    };
+    
+    if (!loading && user) {
+      checkAdminStatus();
+    }
+  }, [user, loading]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/auth?admin=true" replace state={{ from: location }} />;
+  }
+
+  return <>{children}</>;
+};
+
 const AuthRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
@@ -120,6 +160,14 @@ const App = () => (
             <ProtectedRoute>
               <Dashboard />
             </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/dashboard/*"
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
           }
         />
         <Route

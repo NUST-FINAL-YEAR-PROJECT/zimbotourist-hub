@@ -15,11 +15,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Loader2, ArrowRight, Mail, Lock, ArrowLeft, Globe, CheckCircle2 } from "lucide-react";
+import { Loader2, ArrowRight, Mail, Lock, ArrowLeft, Globe, CheckCircle2, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
-type AuthMode = "signin" | "signup" | "forgot-password" | "reset-password";
+type AuthMode = "signin" | "signup" | "forgot-password" | "reset-password" | "admin-signin";
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
@@ -86,7 +86,7 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      if (mode === "signin") {
+      if (mode === "signin" || mode === "admin-signin") {
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
@@ -94,11 +94,50 @@ const Auth = () => {
         
         if (error) throw error;
         if (data.session) {
-          toast({
-            title: "Welcome back!",
-            description: "You have been successfully logged in.",
-          });
-          navigate("/dashboard");
+          // Check if user is admin for admin sign-in mode
+          if (mode === "admin-signin") {
+            const { data: profileData, error: profileError } = await supabase
+              .from('profiles')
+              .select('role')
+              .eq('id', data.session.user.id)
+              .single();
+              
+            if (profileError) {
+              toast({
+                variant: "destructive",
+                title: "Access denied",
+                description: "Could not verify admin status.",
+              });
+              // Sign out the user if they're not an admin
+              await supabase.auth.signOut();
+              setLoading(false);
+              return;
+            }
+            
+            if (profileData?.role !== 'ADMIN') {
+              toast({
+                variant: "destructive",
+                title: "Access denied",
+                description: "You do not have administrator privileges.",
+              });
+              // Sign out the user if they're not an admin
+              await supabase.auth.signOut();
+              setLoading(false);
+              return;
+            }
+            
+            toast({
+              title: "Welcome, Administrator!",
+              description: "You have been successfully logged in.",
+            });
+            navigate("/admin/dashboard");
+          } else {
+            toast({
+              title: "Welcome back!",
+              description: "You have been successfully logged in.",
+            });
+            navigate("/dashboard");
+          }
         }
       } else if (mode === "signup") {
         const { data, error } = await supabase.auth.signUp({
@@ -185,6 +224,8 @@ const Auth = () => {
   };
 
   const renderForm = () => {
+    const isAdminMode = mode === "admin-signin";
+    
     return (
       <form onSubmit={handleAuth} className="space-y-6">
         <div className="space-y-4">
@@ -229,12 +270,18 @@ const Auth = () => {
         <div className="pt-2">
           <Button
             type="submit"
-            className="w-full h-12 text-base font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+            className={`w-full h-12 text-base font-semibold ${
+              isAdminMode 
+                ? "bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700" 
+                : "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+            } text-white`}
             disabled={loading}
           >
             {loading && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
             {loading
               ? "Processing..."
+              : isAdminMode
+              ? "Administrator Sign In"
               : mode === "signin"
               ? "Sign In"
               : mode === "signup"
@@ -266,6 +313,29 @@ const Auth = () => {
                   Sign up
                 </button>
               </div>
+              <Button
+                type="button"
+                onClick={() => setMode("admin-signin")}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2 border-amber-500 text-amber-600 hover:bg-amber-50"
+                disabled={loading}
+              >
+                <ShieldCheck className="h-4 w-4" />
+                Administrator Access
+              </Button>
+            </>
+          ) : mode === "admin-signin" ? (
+            <>
+              <button
+                type="button"
+                onClick={() => setMode("signin")}
+                className="text-indigo-600 hover:text-indigo-800 font-medium hover:underline transition-colors flex items-center"
+                disabled={loading}
+              >
+                <ArrowLeft className="mr-1 h-4 w-4" />
+                Back to user sign in
+              </button>
             </>
           ) : mode === "signup" ? (
             <div className="flex items-center space-x-2">
@@ -318,8 +388,14 @@ const Auth = () => {
                   transition={{ duration: 0.5 }}
                   className="flex items-center mb-2"
                 >
-                  <Globe className="h-6 w-6 mr-2 text-indigo-600" />
-                  <span className="font-bold text-xl text-gray-900">Zimbabwe Tourism</span>
+                  {mode === "admin-signin" ? (
+                    <ShieldCheck className="h-6 w-6 mr-2 text-amber-500" />
+                  ) : (
+                    <Globe className="h-6 w-6 mr-2 text-indigo-600" />
+                  )}
+                  <span className="font-bold text-xl text-gray-900">
+                    {mode === "admin-signin" ? "Admin Portal" : "Zimbabwe Tourism"}
+                  </span>
                 </motion.div>
                 
                 <motion.h1
@@ -330,6 +406,8 @@ const Auth = () => {
                 >
                   {formSuccess 
                     ? "Success!" 
+                    : mode === "admin-signin"
+                    ? "Administrator Access"
                     : mode === "signin"
                     ? "Welcome back"
                     : mode === "signup"
@@ -345,6 +423,8 @@ const Auth = () => {
                 >
                   {formSuccess 
                     ? "Please check your email" 
+                    : mode === "admin-signin"
+                    ? "Sign in to access the administrator dashboard"
                     : mode === "signin"
                     ? "Sign in to access your account"
                     : mode === "signup"
