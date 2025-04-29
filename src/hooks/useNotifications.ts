@@ -40,6 +40,23 @@ export const useNotifications = (userId: string | undefined) => {
     },
   });
 
+  const markAllAsRead = useMutation({
+    mutationFn: async () => {
+      if (!userId) return;
+      
+      const { error } = await supabase
+        .from("notifications")
+        .update({ is_read: true })
+        .eq("user_id", userId)
+        .eq("is_read", false);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    },
+  });
+
   useEffect(() => {
     if (!userId) return;
 
@@ -57,10 +74,27 @@ export const useNotifications = (userId: string | undefined) => {
           const newNotification = payload.new as AppNotification;
           queryClient.invalidateQueries({ queryKey: ["notifications"] });
           
+          // Determine the toast variant based on notification type
+          let variant: 'default' | 'destructive' | 'success' | 'info' | 'warning' = 'default';
+          switch (newNotification.type) {
+            case 'error':
+              variant = 'destructive';
+              break;
+            case 'success':
+              variant = 'success';
+              break;
+            case 'info':
+              variant = 'info';
+              break;
+            case 'warning':
+              variant = 'warning';
+              break;
+          }
+          
           toast({
             title: newNotification.title,
             description: newNotification.description,
-            variant: newNotification.type === 'error' ? 'destructive' : 'default',
+            variant,
           });
         }
       )
@@ -75,5 +109,7 @@ export const useNotifications = (userId: string | undefined) => {
     notifications,
     isLoading,
     markAsRead,
+    markAllAsRead,
+    unreadCount: notifications.filter(n => !n.is_read).length,
   };
 };

@@ -1,6 +1,6 @@
 
 import { useNavigate } from "react-router-dom";
-import { LogOut, MapPin, Settings, Ticket, Home, Calendar, Sparkles } from "lucide-react";
+import { LogOut, MapPin, Settings, Ticket, Home, Calendar, Sparkles, Bell, AlertCircle, Info, CheckCircle2 } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,

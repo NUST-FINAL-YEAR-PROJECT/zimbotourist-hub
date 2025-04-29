@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, Routes, Route } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -75,28 +74,78 @@ const NotificationItem = ({
   onRead: (id: string) => void;
 }) => {
   const isUnread = !notification.is_read;
+  
+  // Determine icon and style based on notification type
+  const getIconForType = () => {
+    switch (notification.type) {
+      case 'success':
+        return <CheckCircle2 className="h-5 w-5 text-green-500" />;
+      case 'error':
+        return <AlertCircle className="h-5 w-5 text-red-500" />;
+      case 'info':
+        return <Info className="h-5 w-5 text-blue-500" />;
+      default:
+        return <Bell className="h-5 w-5 text-indigo-500" />;
+    }
+  };
+  
+  const getBgColor = () => {
+    if (!isUnread) return "bg-white hover:bg-gray-50";
+    
+    switch (notification.type) {
+      case 'success': return "bg-green-50 hover:bg-green-100";
+      case 'error': return "bg-red-50 hover:bg-red-100";
+      case 'info': return "bg-blue-50 hover:bg-blue-100";
+      default: return "bg-indigo-50 hover:bg-indigo-100";
+    }
+  };
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3 }}
-      whileHover={{ scale: 1.02 }}
+      whileHover={{ scale: 1.01 }}
       className={cn(
-        "p-4 hover:bg-accent/50 transition-all cursor-pointer rounded-lg mb-2 border-l-4",
-        isUnread ? "bg-primary/5 border-primary" : "border-transparent"
+        "p-4 transition-all cursor-pointer rounded-lg mb-3 border shadow-sm",
+        getBgColor(),
+        isUnread ? "border-l-4 border-l-indigo-500" : "border-gray-100"
       )}
       onClick={() => onRead(notification.id)}
     >
-      <div className="flex justify-between items-start mb-1">
-        <h5 className="font-medium">{notification.title}</h5>
-        <span className="text-xs text-muted-foreground">
-          {new Date(notification.created_at).toLocaleDateString()}
-        </span>
+      <div className="flex items-start gap-3">
+        <div className={cn(
+          "mt-1 rounded-full p-1",
+          isUnread ? "bg-white" : "bg-gray-100"
+        )}>
+          {getIconForType()}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex justify-between items-start mb-1">
+            <h5 className={cn(
+              "font-medium truncate",
+              isUnread ? "text-gray-900" : "text-gray-700"
+            )}>
+              {notification.title}
+            </h5>
+            <span className="text-xs text-muted-foreground whitespace-nowrap ml-2">
+              {new Date(notification.created_at).toLocaleDateString()}
+            </span>
+          </div>
+          <p className={cn(
+            "text-sm line-clamp-2", 
+            isUnread ? "text-gray-700" : "text-muted-foreground"
+          )}>
+            {notification.description}
+          </p>
+        </div>
       </div>
-      <p className="text-sm text-muted-foreground">
-        {notification.description}
-      </p>
+      {isUnread && (
+        <div className="flex justify-end mt-2">
+          <Badge variant="outline" className="text-xs bg-white">New</Badge>
+        </div>
+      )}
     </motion.div>
   );
 };
@@ -170,8 +219,12 @@ const DashboardHome = ({
       <div className="flex flex-wrap items-center gap-2 sm:gap-4">
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="outline" size={isMobile ? "sm" : "default"} className="relative bg-white hover:bg-indigo-50">
-              {unreadCount > 0 ? <BellDot className="h-4 w-4 sm:h-5 sm:w-5 text-indigo-600 mr-2" /> : <Bell className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />}
+            <Button variant="outline" size={isMobile ? "sm" : "default"} className="relative bg-white hover:bg-indigo-50 border-gray-200 shadow-sm">
+              {unreadCount > 0 ? (
+                <BellDot className="h-4 w-4 sm:h-5 sm:w-5 text-indigo-600 mr-2" />
+              ) : (
+                <Bell className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+              )}
               {isMobile ? "" : "Notifications"}
               {unreadCount > 0 && (
                 <motion.span
@@ -186,21 +239,42 @@ const DashboardHome = ({
           </SheetTrigger>
           <SheetContent side={isMobile ? "bottom" : "right"} className={isMobile ? "mobile-sheet-content" : "w-full sm:max-w-md"}>
             <SheetHeader className="pb-4 border-b">
-              <SheetTitle className="text-xl">Notifications</SheetTitle>
+              <SheetTitle className="flex items-center gap-2 text-xl">
+                <Bell className="h-5 w-5 text-indigo-600" /> Notifications
+              </SheetTitle>
             </SheetHeader>
-            <ScrollArea className="mt-6 pr-4 h-[calc(100vh-8rem)]">
+            <div className="flex justify-between items-center mt-4 mb-2 px-1">
+              <p className="text-sm text-muted-foreground">
+                {notifications.length} {notifications.length === 1 ? 'notification' : 'notifications'}
+              </p>
+              {unreadCount > 0 && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => notifications
+                    .filter(n => !n.is_read)
+                    .forEach(n => markAsRead.mutate(n.id))
+                  }
+                  className="text-xs hover:bg-indigo-50 text-indigo-600"
+                >
+                  Mark all as read
+                </Button>
+              )}
+            </div>
+            <ScrollArea className="mt-2 pr-4 h-[calc(100vh-8rem)]">
               <AnimatePresence mode="popLayout">
                 {isLoadingNotifications ? (
                   Array.from({ length: 3 }).map((_, i) => (
-                    <div key={i} className="p-4 space-y-2 mb-2 border rounded-lg">
+                    <div key={i} className="p-4 space-y-2 mb-3 border rounded-lg">
                       <Skeleton className="h-4 w-3/4" />
                       <Skeleton className="h-4 w-full" />
                     </div>
                   ))
                 ) : notifications?.length === 0 ? (
                   <div className="p-8 text-center text-muted-foreground">
-                    <Bell className="h-10 w-10 mx-auto mb-3 opacity-20" />
-                    No notifications yet
+                    <Bell className="h-12 w-12 mx-auto mb-3 opacity-20" />
+                    <p className="text-lg font-medium mb-2">No notifications yet</p>
+                    <p className="text-sm">We'll notify you when there's activity related to your account</p>
                   </div>
                 ) : (
                   notifications?.map(notification => (
