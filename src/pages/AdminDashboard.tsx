@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -30,12 +29,14 @@ import {
 import { useProfile } from "@/hooks/useProfile";
 import { useDestinations } from "@/hooks/useDestinations";
 import { useEvents } from "@/hooks/useEvents";
+import { useUsers } from "@/hooks/useUsers";
 
 export const AdminDashboard = () => {
   const navigate = useNavigate();
   const { signOut, user } = useAuth();
   const { data: destinations, isLoading: destinationsLoading } = useDestinations();
   const { data: events, isLoading: eventsLoading } = useEvents();
+  const { data: users, isLoading: usersLoading, refetch: refetchUsers } = useUsers();
   const [activeTab, setActiveTab] = useState("dashboard");
 
   const handleSignOut = async () => {
@@ -44,13 +45,12 @@ export const AdminDashboard = () => {
     toast.success("Successfully signed out from admin dashboard");
   };
 
-  // Placeholder data for demonstration
-  const usersData = [
-    { id: "1", email: "john@example.com", role: "USER", status: "Active", dateJoined: "2025-03-15" },
-    { id: "2", email: "sarah@example.com", role: "USER", status: "Active", dateJoined: "2025-03-12" },
-    { id: "3", email: "admin@reserve.zw", role: "ADMIN", status: "Active", dateJoined: "2025-03-01" },
-  ];
+  const handleRefreshUsers = () => {
+    refetchUsers();
+    toast.success("Refreshing users data...");
+  };
 
+  // Placeholder data for demonstration
   const bookingsData = [
     { id: "1", user: "john@example.com", destination: "Victoria Falls", date: "2025-05-20", status: "Confirmed", amount: "$250" },
     { id: "2", email: "sarah@example.com", destination: "Great Zimbabwe", date: "2025-06-12", status: "Pending", amount: "$180" },
@@ -133,20 +133,20 @@ export const AdminDashboard = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
                   <h3 className="text-lg font-medium mb-2 text-gray-700">Total Users</h3>
-                  <p className="text-3xl font-bold text-amber-500">1,234</p>
-                  <p className="text-sm text-gray-500 mt-2">+12% from last month</p>
+                  <p className="text-3xl font-bold text-amber-500">{users?.length || 0}</p>
+                  <p className="text-sm text-gray-500 mt-2">Updated just now</p>
                 </div>
                 
                 <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
                   <h3 className="text-lg font-medium mb-2 text-gray-700">Active Destinations</h3>
-                  <p className="text-3xl font-bold text-amber-500">78</p>
-                  <p className="text-sm text-gray-500 mt-2">+3 new this month</p>
+                  <p className="text-3xl font-bold text-amber-500">{destinations?.length || 0}</p>
+                  <p className="text-sm text-gray-500 mt-2">Total destinations</p>
                 </div>
                 
                 <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                  <h3 className="text-lg font-medium mb-2 text-gray-700">Total Bookings</h3>
-                  <p className="text-3xl font-bold text-amber-500">582</p>
-                  <p className="text-sm text-gray-500 mt-2">+28% from last month</p>
+                  <h3 className="text-lg font-medium mb-2 text-gray-700">Total Events</h3>
+                  <p className="text-3xl font-bold text-amber-500">{events?.length || 0}</p>
+                  <p className="text-sm text-gray-500 mt-2">Upcoming events</p>
                 </div>
                 
                 <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
@@ -204,6 +204,7 @@ export const AdminDashboard = () => {
                   variant="outline" 
                   size="sm" 
                   className="flex items-center gap-2 border-amber-500 text-amber-600"
+                  onClick={handleRefreshUsers}
                 >
                   <RefreshCcw className="h-4 w-4" />
                   Refresh
@@ -235,52 +236,75 @@ export const AdminDashboard = () => {
                       className="pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-amber-300"
                     />
                   </div>
-                  <Button className="bg-amber-500 hover:bg-amber-600">
+                  <Button 
+                    className="bg-amber-500 hover:bg-amber-600"
+                  >
                     Add User
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={handleRefreshUsers}
+                    className="flex items-center gap-2"
+                  >
+                    <RefreshCcw className="h-4 w-4" />
+                    Refresh
                   </Button>
                 </div>
               </div>
               
-              <Table>
-                <TableCaption>A list of all registered users</TableCaption>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[100px]">ID</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Date Joined</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {usersData.map(user => (
-                    <TableRow key={user.id}>
-                      <TableCell className="font-medium">{user.id}</TableCell>
-                      <TableCell>{user.email}</TableCell>
-                      <TableCell>
-                        <span className={`px-2 py-1 rounded-full text-xs ${user.role === 'ADMIN' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'}`}>
-                          {user.role}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <span className="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">
-                          {user.status}
-                        </span>
-                      </TableCell>
-                      <TableCell>{user.dateJoined}</TableCell>
-                      <TableCell className="text-right">
-                        <Button variant="outline" size="sm" className="mr-2">
-                          Edit
-                        </Button>
-                        <Button variant="destructive" size="sm">
-                          Delete
-                        </Button>
-                      </TableCell>
+              {usersLoading ? (
+                <div className="flex justify-center py-8">
+                  <p>Loading users data...</p>
+                </div>
+              ) : !users || users.length === 0 ? (
+                <div className="text-center p-8 bg-gray-50 rounded-lg">
+                  <Users className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                  <h3 className="text-lg font-medium mb-2">No Users Found</h3>
+                  <p className="text-gray-500 mb-4">There are no users registered in the system.</p>
+                  <Button className="bg-amber-500 hover:bg-amber-600">
+                    Add First User
+                  </Button>
+                </div>
+              ) : (
+                <Table>
+                  <TableCaption>A list of all registered users</TableCaption>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[100px]">ID</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Username</TableHead>
+                      <TableHead>Role</TableHead>
+                      <TableHead>Date Joined</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {users.map(user => (
+                      <TableRow key={user.id}>
+                        <TableCell className="font-medium">{user.id.substring(0, 8)}...</TableCell>
+                        <TableCell>{user.email || "N/A"}</TableCell>
+                        <TableCell>{user.username || "N/A"}</TableCell>
+                        <TableCell>
+                          <span className={`px-2 py-1 rounded-full text-xs ${
+                            user.role === 'ADMIN' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'
+                          }`}>
+                            {user.role || "USER"}
+                          </span>
+                        </TableCell>
+                        <TableCell>{new Date(user.created_at).toLocaleDateString()}</TableCell>
+                        <TableCell className="text-right">
+                          <Button variant="outline" size="sm" className="mr-2">
+                            Edit
+                          </Button>
+                          <Button variant="destructive" size="sm">
+                            Delete
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
             </div>
           </TabsContent>
           
