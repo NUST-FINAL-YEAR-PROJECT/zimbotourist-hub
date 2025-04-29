@@ -47,12 +47,15 @@ export const useAuth = () => {
         if (error) {
           throw error;
         }
-        setSession(session);
-        setUser(session?.user ?? null);
         
-        // Check if user is admin
-        if (session?.user) {
-          await checkAdminStatus(session.user.id);
+        if (session) {
+          setSession(session);
+          setUser(session.user);
+          
+          // Check if user is admin
+          if (session.user) {
+            await checkAdminStatus(session.user.id);
+          }
         }
       } catch (error: any) {
         console.error('Error getting session:', error);

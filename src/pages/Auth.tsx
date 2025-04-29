@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +16,6 @@ import {
 import { Label } from "@/components/ui/label";
 import { Loader2, ArrowRight, Mail, Lock, ArrowLeft, Globe, CheckCircle2, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { toast } from "sonner";
 import { SplashScreen } from "@/components/SplashScreen";
 
 type AuthMode = "signin" | "signup" | "forgot-password" | "reset-password" | "admin-signin";
@@ -31,7 +30,6 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [formSuccess, setFormSuccess] = useState(false);
   const navigate = useNavigate();
-  const { toast } = useToast();
   const { user, showSplash, setShowSplash, isAdmin } = useAuth();
   
   useEffect(() => {
@@ -49,38 +47,22 @@ const Auth = () => {
 
   const validateForm = () => {
     if (!email) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Please enter your email",
-      });
+      toast.error("Please enter your email");
       return false;
     }
 
     if (mode !== "forgot-password" && !password) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Please enter your password",
-      });
+      toast.error("Please enter your password");
       return false;
     }
 
     if (mode !== "forgot-password" && password.length < 6) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Password must be at least 6 characters long",
-      });
+      toast.error("Password must be at least 6 characters long");
       return false;
     }
 
     if (!email.includes("@")) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Please enter a valid email address",
-      });
+      toast.error("Please enter a valid email address");
       return false;
     }
 
@@ -101,6 +83,7 @@ const Auth = () => {
         });
         
         if (error) throw error;
+        
         if (data.session) {
           // Check if user is admin for admin sign-in mode
           if (mode === "admin-signin") {
@@ -111,11 +94,7 @@ const Auth = () => {
               .single();
               
             if (profileError) {
-              toast({
-                variant: "destructive",
-                title: "Access denied",
-                description: "Could not verify admin status.",
-              });
+              toast.error("Could not verify admin status.");
               // Sign out the user if they're not an admin
               await supabase.auth.signOut();
               setLoading(false);
@@ -126,28 +105,18 @@ const Auth = () => {
             console.log("Auth page - Admin login check:", isUserAdmin, "Profile data:", profileData);
             
             if (!isUserAdmin) {
-              toast({
-                variant: "destructive",
-                title: "Access denied",
-                description: "You do not have administrator privileges.",
-              });
+              toast.error("You do not have administrator privileges.");
               // Sign out the user if they're not an admin
               await supabase.auth.signOut();
               setLoading(false);
               return;
             }
             
-            toast({
-              title: "Welcome, Administrator!",
-              description: "You have been successfully logged in.",
-            });
+            toast.success("Welcome, Administrator!");
             setShowSplash(true); // Show splash screen and it will redirect to admin dashboard
             console.log("Admin login successful, showing splash screen");
           } else {
-            toast({
-              title: "Welcome back!",
-              description: "You have been successfully logged in.",
-            });
+            toast.success("Welcome back!");
             setShowSplash(true); // Show splash screen and it will redirect to dashboard
             console.log("Regular user login successful, showing splash screen");
           }
@@ -164,18 +133,11 @@ const Auth = () => {
         if (error) throw error;
         
         if (data.user?.identities?.length === 0) {
-          toast({
-            variant: "destructive",
-            title: "Account exists",
-            description: "An account with this email already exists. Please sign in instead.",
-          });
+          toast.error("Account exists");
           setMode("signin");
         } else {
           setFormSuccess(true);
-          toast({
-            title: "Account created!",
-            description: "Please check your email to verify your account.",
-          });
+          toast.success("Account created!");
         }
       } else if (mode === "forgot-password") {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -185,18 +147,11 @@ const Auth = () => {
         if (error) throw error;
         
         setFormSuccess(true);
-        toast({
-          title: "Check your email",
-          description: "We've sent you instructions to reset your password.",
-        });
+        toast.success("Check your email");
       }
     } catch (error: any) {
       console.error("Auth error:", error);
-      toast({
-        variant: "destructive",
-        title: "Authentication Error",
-        description: error.message || "An error occurred during authentication.",
-      });
+      toast.error(error.message || "An error occurred during authentication.");
     } finally {
       setLoading(false);
     }
