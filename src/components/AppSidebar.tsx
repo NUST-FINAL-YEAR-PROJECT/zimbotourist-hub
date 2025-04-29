@@ -83,11 +83,11 @@ export function AppSidebar() {
   }
 
   return (
-    <Sidebar className="bg-white border-r border-gray-100">
+    <Sidebar className="bg-white border-r border-gray-100 shadow-sm">
       <SidebarHeader className="border-b border-gray-100 p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center justify-center">
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 flex items-center justify-center">
               <Sparkles className="h-5 w-5 text-white" />
             </div>
             <h2 className={cn(

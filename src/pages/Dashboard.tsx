@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, Routes, Route } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -18,14 +19,12 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { TravelRecommendations } from "@/components/TravelRecommendations";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useNotifications } from "@/hooks/useNotifications";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { motion, AnimatePresence } from "framer-motion";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { MyBookings } from "./MyBookings";
 
@@ -53,7 +52,7 @@ const StatCard = ({
 }) => (
   <motion.div 
     whileHover={{ y: -5 }} 
-    className="bg-white rounded-xl border border-gray-200/50 shadow-lg p-4 sm:p-6 transition-all duration-300"
+    className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-6 transition-all duration-300"
   >
     <div className="flex items-center space-x-2 sm:space-x-4">
       <div className="p-2 sm:p-3 bg-indigo-50 rounded-lg">
@@ -117,7 +116,6 @@ const DashboardHome = ({
   const navigate = useNavigate();
   const unreadCount = notifications?.filter(n => !n.is_read).length || 0;
   const isMobile = useIsMobile();
-  const [activeTab, setActiveTab] = useState("overview");
   
   const stats = [
     {
@@ -154,390 +152,138 @@ const DashboardHome = ({
   };
 
   return (
-    <div className="space-y-3 sm:space-y-6">
-      <div className="flex flex-col space-y-3 sm:space-y-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="bg-gradient-to-r from-purple-600 to-indigo-600 p-3 sm:p-6 rounded-xl text-white shadow-lg"
-        >
-          <h1 className="text-lg sm:text-3xl font-bold">
-            {getGreeting()}, {profile.username || profile.email.split('@')[0]}!
-          </h1>
-          <p className="text-sm opacity-90 mt-1">
-            Here's what's happening with your travel plans
-          </p>
-        </motion.div>
+    <div className="space-y-4 sm:space-y-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="bg-gradient-to-r from-indigo-500 to-purple-500 p-4 sm:p-6 rounded-xl text-white shadow-md"
+      >
+        <h1 className="text-lg sm:text-3xl font-bold">
+          {getGreeting()}, {profile.username || profile.email.split('@')[0]}!
+        </h1>
+        <p className="text-sm opacity-90 mt-1">
+          Here's what's happening with your travel plans
+        </p>
+      </motion.div>
 
-        <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="outline" size={isMobile ? "sm" : "default"} className="relative bg-white/80 backdrop-blur-sm hover:bg-indigo-50">
-                {unreadCount > 0 ? <BellDot className="h-4 w-4 sm:h-5 sm:w-5 text-indigo-600 mr-2" /> : <Bell className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />}
-                {isMobile ? "" : "Notifications"}
-                {unreadCount > 0 && (
-                  <motion.span
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-indigo-600 text-xs text-white flex items-center justify-center"
-                  >
-                    {unreadCount}
-                  </motion.span>
-                )}
-              </Button>
-            </SheetTrigger>
-            <SheetContent side={isMobile ? "bottom" : "right"} className={isMobile ? "mobile-sheet-content" : "w-full sm:max-w-md"}>
-              <SheetHeader className="pb-4 border-b">
-                <SheetTitle className="text-xl">Notifications</SheetTitle>
-              </SheetHeader>
-              <ScrollArea className="mt-6 pr-4 h-[calc(100vh-8rem)]">
-                <AnimatePresence mode="popLayout">
-                  {isLoadingNotifications ? (
-                    Array.from({ length: 3 }).map((_, i) => (
-                      <div key={i} className="p-4 space-y-2 mb-2 border rounded-lg">
-                        <Skeleton className="h-4 w-3/4" />
-                        <Skeleton className="h-4 w-full" />
-                      </div>
-                    ))
-                  ) : notifications?.length === 0 ? (
-                    <div className="p-8 text-center text-muted-foreground">
-                      <Bell className="h-10 w-10 mx-auto mb-3 opacity-20" />
-                      No notifications yet
+      <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="outline" size={isMobile ? "sm" : "default"} className="relative bg-white hover:bg-indigo-50">
+              {unreadCount > 0 ? <BellDot className="h-4 w-4 sm:h-5 sm:w-5 text-indigo-600 mr-2" /> : <Bell className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />}
+              {isMobile ? "" : "Notifications"}
+              {unreadCount > 0 && (
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-indigo-600 text-xs text-white flex items-center justify-center"
+                >
+                  {unreadCount}
+                </motion.span>
+              )}
+            </Button>
+          </SheetTrigger>
+          <SheetContent side={isMobile ? "bottom" : "right"} className={isMobile ? "mobile-sheet-content" : "w-full sm:max-w-md"}>
+            <SheetHeader className="pb-4 border-b">
+              <SheetTitle className="text-xl">Notifications</SheetTitle>
+            </SheetHeader>
+            <ScrollArea className="mt-6 pr-4 h-[calc(100vh-8rem)]">
+              <AnimatePresence mode="popLayout">
+                {isLoadingNotifications ? (
+                  Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="p-4 space-y-2 mb-2 border rounded-lg">
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-4 w-full" />
                     </div>
-                  ) : (
-                    notifications?.map(notification => (
-                      <NotificationItem
-                        key={notification.id}
-                        notification={notification}
-                        onRead={id => markAsRead.mutate(id)}
-                      />
-                    ))
-                  )}
-                </AnimatePresence>
-              </ScrollArea>
-            </SheetContent>
-          </Sheet>
-        </div>
-
-        <Tabs defaultValue="overview" className="w-full" onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-2 bg-white/50 backdrop-blur-sm p-1 rounded-xl">
-            <TabsTrigger value="overview" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white">Overview</TabsTrigger>
-            <TabsTrigger value="recommendations" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white">Recommendations</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="overview" className="space-y-3 sm:space-y-6 pt-3 sm:pt-4">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
-              <AnimatePresence>
-                {stats.map((stat, index) => (
-                  <motion.div
-                    key={stat.title}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1, duration: 0.5 }}
-                    className={isMobile && index > 1 ? "col-span-1" : ""}
-                  >
-                    <StatCard {...stat} />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
-
-            {bookings.length > 0 && (
-              <Card className="overflow-hidden border-0 shadow-lg bg-white/70 backdrop-blur-sm">
-                <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 p-3 sm:p-6">
-                  <CardTitle className="flex items-center text-sm sm:text-lg">
-                    <Activity className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-indigo-600" />
-                    Recent Bookings
-                  </CardTitle>
-                  <CardDescription>Your latest travel arrangements</CardDescription>
-                </CardHeader>
-                <CardContent className="p-2 sm:p-6">
-                  <div className="space-y-2 sm:space-y-4">
-                    {bookings.slice(0, 3).map((booking, index) => (
-                      <motion.div
-                        key={booking.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 + (index * 0.1), duration: 0.4 }}
-                        whileHover={{ scale: isMobile ? 1 : 1.02 }}
-                        className="p-3 rounded-lg border bg-card text-card-foreground hover:border-indigo-200 shadow-sm transition-all duration-200"
-                      >
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <h3 className="font-semibold text-sm">
-                              {booking.destinations?.name || booking.events?.title}
-                            </h3>
-                            <p className="text-xs text-muted-foreground">
-                              {new Date(booking.booking_date).toLocaleDateString()}
-                            </p>
-                          </div>
-                          <Badge variant={booking.status === 'confirmed' ? 'default' : 'secondary'} className="capitalize text-xs">
-                            {booking.status}
-                          </Badge>
-                        </div>
-                      </motion.div>
-                    ))}
+                  ))
+                ) : notifications?.length === 0 ? (
+                  <div className="p-8 text-center text-muted-foreground">
+                    <Bell className="h-10 w-10 mx-auto mb-3 opacity-20" />
+                    No notifications yet
                   </div>
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
-
-          <TabsContent value="recommendations">
-            <TravelRecommendations />
-          </TabsContent>
-        </Tabs>
-      </div>
-    </div>
-  );
-};
-
-const DestinationCard = ({
-  id,
-  image,
-  title,
-  description,
-  price
-}: {
-  id: string;
-  image: string;
-  title: string;
-  description: string;
-  price: string;
-}) => {
-  const navigate = useNavigate();
-  const isMobile = useIsMobile();
-  
-  return (
-    <motion.div 
-      whileHover={{
-        scale: isMobile ? 1 : 1.05
-      }} 
-      transition={{
-        duration: 0.2
-      }} 
-      className="relative rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer bg-white" 
-      onClick={() => navigate(`/destinations/${id}`)}
-    >
-      <div className="relative h-36 sm:h-48 overflow-hidden">
-        <img src={image} alt={title} className="w-full h-full object-cover transition-transform duration-500 hover:scale-110" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-        <div className="absolute bottom-2 right-2">
-          <Badge className="bg-primary text-white">{price}</Badge>
-        </div>
-      </div>
-      <div className="p-3 sm:p-4">
-        <h3 className="font-semibold text-base sm:text-lg text-gray-800">{title}</h3>
-        <p className="text-xs sm:text-sm text-gray-500 mt-1 sm:mt-2 line-clamp-2">{description}</p>
-      </div>
-    </motion.div>
-  );
-};
-
-const BookingsList = ({
-  bookings
-}: {
-  bookings: BookingWithRelations[];
-}) => {
-  const {
-    toast
-  } = useToast();
-  const queryClient = useQueryClient();
-  const navigate = useNavigate();
-  const isMobile = useIsMobile();
-  
-  const deleteBookingMutation = useMutation({
-    mutationFn: async (bookingId: string) => {
-      const {
-        error
-      } = await supabase.from("bookings").delete().eq("id", bookingId);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["bookings"]
-      });
-      toast({
-        title: "Booking deleted",
-        description: "Your booking has been successfully deleted."
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message
-      });
-    }
-  });
-  
-  const handlePayNow = (bookingId: string) => {
-    navigate(`/dashboard/payment?booking_id=${bookingId}`);
-  };
-  
-  if (isMobile) {
-    return (
-      <div className="space-y-3">
-        <AnimatePresence>
-          {bookings.map((booking, index) => (
-            <motion.div 
-              key={booking.id} 
-              initial={{
-                opacity: 0,
-                y: 20
-              }} 
-              animate={{
-                opacity: 1,
-                y: 0
-              }}
-              exit={{
-                opacity: 0,
-                y: -20
-              }}
-              transition={{ delay: index * 0.05, duration: 0.3 }}
-              className="bg-white rounded-lg shadow-md p-3 space-y-3 border border-gray-200/50"
-            >
-              <div className="flex justify-between items-start">
-                <h3 className="font-medium text-sm">
-                  {booking.destinations?.name || booking.events?.title}
-                </h3>
-                <span className={cn(
-                  "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium capitalize",
-                  booking.status === 'confirmed' ? 'bg-green-100 text-green-800' : 
-                  booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
-                  'bg-red-100 text-red-800'
-                )}>
-                  {booking.status}
-                </span>
-              </div>
-              <div className="grid grid-cols-2 gap-2 text-xs sm:text-sm">
-                <div className="text-muted-foreground">Date</div>
-                <div>{new Date(booking.booking_date).toLocaleDateString()}</div>
-                <div className="text-muted-foreground">People</div>
-                <div>{booking.number_of_people}</div>
-                <div className="text-muted-foreground">Price</div>
-                <div>${booking.total_price.toFixed(2)}</div>
-              </div>
-              <div className="flex gap-2 pt-2">
-                {booking.status === 'pending' && (
-                  <Button variant="default" size="sm" className="flex-1 bg-primary hover:bg-primary/90 text-xs" onClick={() => handlePayNow(booking.id)}>
-                    Pay Now
-                  </Button>
+                ) : (
+                  notifications?.map(notification => (
+                    <NotificationItem
+                      key={notification.id}
+                      notification={notification}
+                      onRead={id => markAsRead.mutate(id)}
+                    />
+                  ))
                 )}
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="destructive" size="sm" className="flex-1 text-xs">
-                      Delete
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent className="w-[95%] max-w-md mx-auto">
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This action cannot be undone. This will permanently delete your booking.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter className="flex-col sm:flex-row gap-2">
-                      <AlertDialogCancel className="flex-1">Cancel</AlertDialogCancel>
-                      <AlertDialogAction className="flex-1" onClick={() => deleteBookingMutation.mutate(booking.id)}>
-                        Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
+              </AnimatePresence>
+            </ScrollArea>
+          </SheetContent>
+        </Sheet>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+        <AnimatePresence>
+          {stats.map((stat, index) => (
+            <motion.div
+              key={stat.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1, duration: 0.5 }}
+              className={isMobile && index > 1 ? "col-span-1" : ""}
+            >
+              <StatCard {...stat} />
             </motion.div>
           ))}
         </AnimatePresence>
       </div>
-    );
-  }
-  
-  return (
-    <Card className="overflow-hidden border-0 shadow-lg bg-white/80 backdrop-blur-sm">
-      <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100">
-        <CardTitle>Your Bookings</CardTitle>
-        <CardDescription>Manage your travel plans</CardDescription>
-      </CardHeader>
-      <div className="rounded-b-xl overflow-hidden">
-        <Table>
-          <TableHeader className="bg-gray-50/80">
-            <TableRow>
-              <TableHead>Destination/Event</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>People</TableHead>
-              <TableHead>Price</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <AnimatePresence>
-              {bookings.map((booking, index) => (
-                <motion.tr 
+
+      {bookings.length > 0 && (
+        <Card className="overflow-hidden border bg-white shadow-sm">
+          <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 p-3 sm:p-6">
+            <CardTitle className="flex items-center text-sm sm:text-lg">
+              <Activity className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-indigo-600" />
+              Recent Bookings
+            </CardTitle>
+            <CardDescription>Your latest travel arrangements</CardDescription>
+          </CardHeader>
+          <CardContent className="p-2 sm:p-6">
+            <div className="space-y-2 sm:space-y-4">
+              {bookings.slice(0, 3).map((booking, index) => (
+                <motion.div
                   key={booking.id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: index * 0.05, duration: 0.3 }}
-                  className="border-b border-gray-100"
-                  style={{ display: 'table-row' }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 + (index * 0.1), duration: 0.4 }}
+                  whileHover={{ scale: isMobile ? 1 : 1.02 }}
+                  className="p-3 rounded-lg border bg-card text-card-foreground hover:border-indigo-200 shadow-sm transition-all duration-200"
                 >
-                  <TableCell className="font-medium">
-                    {booking.destinations?.name || booking.events?.title}
-                  </TableCell>
-                  <TableCell>
-                    {new Date(booking.booking_date).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>
-                    <span className={cn(
-                      "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize",
-                      booking.status === 'confirmed' ? 'bg-green-100 text-green-800' : 
-                      booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
-                      'bg-red-100 text-red-800'
-                    )}>
-                      {booking.status}
-                    </span>
-                  </TableCell>
-                  <TableCell>{booking.number_of_people}</TableCell>
-                  <TableCell>${booking.total_price.toFixed(2)}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      {booking.status === 'pending' && (
-                        <Button variant="default" size="sm" className="bg-primary hover:bg-primary/90" onClick={() => handlePayNow(booking.id)}>
-                          Pay Now
-                        </Button>
-                      )}
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="destructive" size="sm">
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              This action cannot be undone. This will permanently delete your booking.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => deleteBookingMutation.mutate(booking.id)}>
-                              Delete
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h3 className="font-semibold text-sm">
+                        {booking.destinations?.name || booking.events?.title}
+                      </h3>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(booking.booking_date).toLocaleDateString()}
+                      </p>
                     </div>
-                  </TableCell>
-                </motion.tr>
+                    <Badge variant={booking.status === 'confirmed' ? 'default' : 'secondary'} className="capitalize text-xs">
+                      {booking.status}
+                    </Badge>
+                  </div>
+                </motion.div>
               ))}
-            </AnimatePresence>
-          </TableBody>
-        </Table>
-      </div>
-    </Card>
+              
+              {bookings.length > 3 && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => navigate("/dashboard/bookings")} 
+                  className="w-full mt-2 text-sm text-indigo-600 hover:bg-indigo-50 border-dashed"
+                >
+                  View all bookings
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
   );
 };
 
@@ -546,7 +292,6 @@ export const Dashboard = () => {
   const { toast } = useToast();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const queryClient = useQueryClient();
   const isMobile = useIsMobile();
 
   const { data: bookings = [], isLoading: isLoadingBookings } = useQuery({
@@ -624,7 +369,7 @@ export const Dashboard = () => {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen w-full bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+      <div className="flex min-h-screen w-full bg-gradient-to-br from-indigo-50 via-white to-purple-50">
         <div className="flex-1 p-3 sm:p-8">
           <div className="container mx-auto space-y-4 sm:space-y-8">
             <Skeleton className="h-12 w-full max-w-md rounded-xl mb-4 sm:mb-8" />
@@ -642,18 +387,18 @@ export const Dashboard = () => {
   }
 
   return (
-    <div className="flex min-h-screen w-full bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <div className="flex min-h-screen w-full bg-gradient-to-br from-indigo-50 via-white to-purple-50">
       {!isMobile && <AppSidebar />}
       <div className={cn(
         "flex-1 overflow-auto",
         isMobile && "mobile-dashboard-content pb-16"
       )}>
-        <div className="container mx-auto py-3 sm:py-6 px-0 sm:px-6 min-h-screen overflow-auto">
+        <div className="container mx-auto py-3 sm:py-6 px-3 sm:px-6 min-h-screen overflow-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="flex items-center justify-between mb-3 sm:mb-6 px-3"
+            className="flex items-center justify-between mb-3 sm:mb-6"
           >
             <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent flex items-center">
               <LayoutDashboard className="h-4 w-4 sm:h-6 sm:w-6 mr-2 text-indigo-600" />
@@ -664,7 +409,7 @@ export const Dashboard = () => {
             </div>
           </motion.div>
 
-          <div className="mobile-safe-scroll px-3">
+          <div className="mobile-safe-scroll">
             <Routes>
               <Route
                 path="/"
