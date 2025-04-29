@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Search, Menu, X, ChevronDown, Globe, MapPin, CalendarDays, Home, Users } from "lucide-react";
@@ -224,13 +225,14 @@ export const TopNavbar = () => {
             </NavigationMenuList>
           </NavigationMenu>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             {isLoadingAuth ? (
               <div className="h-9 w-16 bg-gray-200 animate-pulse rounded-md" />
             ) : user ? (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <Link to="/dashboard">
                   <Button variant="outline" size="sm" className={cn(
+                    "px-4 py-2 h-10",
                     isScrolled 
                       ? "bg-white text-foreground border-gray-200" 
                       : "bg-white/20 text-white hover:bg-white/30 border-white/30"
@@ -241,20 +243,25 @@ export const TopNavbar = () => {
                 <Button 
                   variant="default" 
                   size="sm" 
-                  className="bg-primary hover:bg-primary/90 text-white"
+                  className="bg-primary hover:bg-primary/90 text-white px-4 py-2 h-10"
                   onClick={handleLogout}
                 >
                   Sign Out
                 </Button>
               </div>
             ) : (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <Link to="/auth">
-                  <Button variant="outline" size="sm" className={cn(
-                    isScrolled 
-                      ? "bg-white text-foreground border-gray-200" 
-                      : "bg-white/20 text-white hover:bg-white/30 border-white/30"
-                  )}>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className={cn(
+                      "px-5 py-2 h-10 font-medium text-base",
+                      isScrolled 
+                        ? "bg-white text-foreground border-gray-200 hover:bg-gray-50" 
+                        : "bg-white/20 text-white hover:bg-white/30 border-white/30"
+                    )}
+                  >
                     Sign In
                   </Button>
                 </Link>
@@ -262,7 +269,7 @@ export const TopNavbar = () => {
                   <Button 
                     variant="default" 
                     size="sm"
-                    className="bg-primary hover:bg-primary/90 text-white"
+                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-5 py-2 h-10 font-medium text-base shadow-md hover:shadow-lg transition-all duration-300"
                   >
                     Sign Up
                   </Button>
