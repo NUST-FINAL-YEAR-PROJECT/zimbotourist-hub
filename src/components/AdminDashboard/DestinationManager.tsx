@@ -188,9 +188,26 @@ export const DestinationManager = () => {
   // Handle form submission
   const onSubmit = async (data: DestinationFormValues) => {
     try {
-      // Ensure additional_costs is included in the submission
+      // Prepare data for submission by ensuring all required fields are present
       const formData = {
-        ...data,
+        name: data.name,
+        location: data.location,
+        price: data.price,
+        // Provide default values for required fields in the Destination type
+        description: data.description || null,
+        image_url: data.image_url || null,
+        duration_recommended: data.duration_recommended || null,
+        best_time_to_visit: data.best_time_to_visit || null,
+        difficulty_level: data.difficulty_level || null,
+        getting_there: data.getting_there || null,
+        weather_info: data.weather_info || null,
+        is_featured: data.is_featured || false,
+        categories: data.categories || [],
+        additional_images: data.additional_images || [],
+        activities: data.activities || [],
+        amenities: data.amenities || [],
+        what_to_bring: data.what_to_bring || [],
+        highlights: data.highlights || [],
         additional_costs: data.additional_costs || null
       };
 
