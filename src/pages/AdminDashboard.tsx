@@ -14,32 +14,17 @@ import { AdminSettings } from "@/components/AdminDashboard/AdminSettings";
 import { DashboardStats } from "@/components/AdminDashboard/DashboardStats";
 
 const AdminDashboard = () => {
-  const { user, isAdmin } = useAuth();
-  const { toast } = useToast();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   const [loading, setLoading] = useState(true);
 
+  // Simplified loading - no authentication check
   useEffect(() => {
-    if (!user) {
-      navigate("/auth?admin=true", { replace: true });
-      return;
-    }
-
+    // Just set loading to false immediately - no auth checks
     setLoading(false);
-  }, [user, navigate]);
-
-  useEffect(() => {
-    if (!isAdmin && !loading && user) {
-      toast({
-        title: "Access Denied",
-        description: "You don't have admin privileges.",
-        variant: "destructive",
-      });
-      navigate("/dashboard", { replace: true });
-    }
-  }, [isAdmin, loading, user, navigate, toast]);
+  }, []);
 
   // Get current page from path
   const getCurrentPage = () => {
