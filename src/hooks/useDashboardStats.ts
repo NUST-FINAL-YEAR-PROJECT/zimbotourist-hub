@@ -81,7 +81,7 @@ export const useDashboardStats = () => {
             }, {});
           
           popularDestinations = Object.values(destinationCounts)
-            .sort((a, b) => b.count - a.count)
+            .sort((a: any, b: any) => b.count - a.count)
             .slice(0, 5);
         }
         

@@ -48,6 +48,7 @@ const AdminDashboard = () => {
     if (path.includes("/destinations")) return "destinations";
     if (path.includes("/events")) return "events";
     if (path.includes("/settings")) return "settings";
+    if (path.includes("/analytics")) return "analytics";
     return "dashboard";
   };
 
