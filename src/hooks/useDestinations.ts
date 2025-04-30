@@ -51,12 +51,12 @@ export const useDestinations = () => {
     retryDelay: 1000,
   });
 
-  // Update type definition to make it more flexible
+  // Fixed type definition to match Destination type but make optional fields explicitly optional
   type CreateDestinationInput = {
     name: string;
     location: string;
     price: number;
-    description: string | null;
+    description: string | null; // Changed from optional to nullable
     image_url?: string | null;
     duration_recommended?: string | null;
     best_time_to_visit?: string | null;
@@ -78,7 +78,7 @@ export const useDestinations = () => {
       // Make sure we have null for empty values to satisfy Supabase types
       const destinationWithDefaults = {
         ...newDestination,
-        description: newDestination.description || null,
+        description: newDestination.description || null, // Ensure null not undefined
         image_url: newDestination.image_url || null,
         duration_recommended: newDestination.duration_recommended || null,
         best_time_to_visit: newDestination.best_time_to_visit || null,
@@ -94,6 +94,8 @@ export const useDestinations = () => {
         highlights: newDestination.highlights || [],
         additional_costs: newDestination.additional_costs || null
       };
+      
+      console.log("Creating destination with data:", destinationWithDefaults);
       
       const { data, error } = await supabase
         .from('destinations')
@@ -130,14 +132,14 @@ export const useDestinations = () => {
       // Ensure null values are properly handled
       const dataToUpdate = {
         ...updateData,
-        description: updateData.description || null,
+        description: updateData.description !== undefined ? updateData.description : null,
         image_url: updateData.image_url || null,
         duration_recommended: updateData.duration_recommended || null,
         best_time_to_visit: updateData.best_time_to_visit || null,
         difficulty_level: updateData.difficulty_level || null,
         getting_there: updateData.getting_there || null,
         weather_info: updateData.weather_info || null,
-        is_featured: updateData.is_featured || false,
+        is_featured: updateData.is_featured ?? false,
         categories: updateData.categories || [],
         additional_images: updateData.additional_images || [],
         activities: updateData.activities || [],
@@ -146,6 +148,8 @@ export const useDestinations = () => {
         highlights: updateData.highlights || [],
         additional_costs: updateData.additional_costs || null
       };
+      
+      console.log("Updating destination with ID:", id, "and data:", dataToUpdate);
       
       const { data, error } = await supabase
         .from('destinations')
