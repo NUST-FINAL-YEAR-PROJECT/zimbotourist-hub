@@ -3,6 +3,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { v4 as uuidv4 } from 'uuid';
 
 export type UserFormData = {
   email: string;
@@ -17,10 +18,14 @@ export const useUserOperations = () => {
   const createUser = async (userData: UserFormData) => {
     setIsLoading(true);
     try {
+      // Generate a UUID for the new user
+      const userId = uuidv4();
+      
       // Create a new user through profiles table
       const { data: profileData, error: profileError } = await supabase
         .from("profiles")
         .insert({
+          id: userId, // Add the required id field
           email: userData.email,
           username: userData.username,
           role: userData.role,
