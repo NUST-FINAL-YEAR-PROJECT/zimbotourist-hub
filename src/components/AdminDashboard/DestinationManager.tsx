@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import {
   Card,
@@ -82,6 +81,7 @@ const destinationFormSchema = z.object({
   amenities: z.array(z.string()).optional(),
   what_to_bring: z.array(z.string()).optional(),
   highlights: z.array(z.string()).optional(),
+  additional_costs: z.record(z.string(), z.any()).nullable().optional(),
 });
 
 type DestinationFormValues = z.infer<typeof destinationFormSchema>;
@@ -123,7 +123,8 @@ export const DestinationManager = () => {
       activities: [],
       amenities: [],
       what_to_bring: [],
-      highlights: []
+      highlights: [],
+      additional_costs: null,
     }
   });
 
@@ -148,7 +149,8 @@ export const DestinationManager = () => {
         activities: destination.activities || [],
         amenities: destination.amenities || [],
         what_to_bring: destination.what_to_bring || [],
-        highlights: destination.highlights || []
+        highlights: destination.highlights || [],
+        additional_costs: destination.additional_costs || null,
       });
       setSelectedDestination(destination);
     } else {
@@ -170,7 +172,8 @@ export const DestinationManager = () => {
         activities: [],
         amenities: [],
         what_to_bring: [],
-        highlights: []
+        highlights: [],
+        additional_costs: null,
       });
       setSelectedDestination(null);
     }
@@ -185,15 +188,21 @@ export const DestinationManager = () => {
   // Handle form submission
   const onSubmit = async (data: DestinationFormValues) => {
     try {
+      // Ensure additional_costs is included in the submission
+      const formData = {
+        ...data,
+        additional_costs: data.additional_costs || null
+      };
+
       if (selectedDestination) {
         // Update existing destination
         await updateDestination.mutateAsync({
           id: selectedDestination.id,
-          ...data
+          ...formData
         });
       } else {
         // Create new destination
-        await createDestination.mutateAsync(data);
+        await createDestination.mutateAsync(formData);
       }
       setIsFormDialogOpen(false);
     } catch (error) {
@@ -650,6 +659,38 @@ export const DestinationManager = () => {
                       />
                     </FormControl>
                     <FormDescription>Separate highlights with commas</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Add the additional_costs field */}
+              <FormField
+                control={form.control}
+                name="additional_costs"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Additional Costs</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Enter JSON format: {'Guide': 50, 'Equipment': 30}"
+                        value={field.value ? JSON.stringify(field.value) : ''}
+                        onChange={(e) => {
+                          try {
+                            // Try to parse as JSON if not empty
+                            const value = e.target.value.trim() 
+                              ? JSON.parse(e.target.value) 
+                              : null;
+                            field.onChange(value);
+                          } catch (error) {
+                            // If parsing fails, store as string to allow user to fix
+                            console.log("Invalid JSON, storing as string");
+                          }
+                        }}
+                        className="min-h-[80px]"
+                      />
+                    </FormControl>
+                    <FormDescription>Enter additional costs in JSON format (optional)</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

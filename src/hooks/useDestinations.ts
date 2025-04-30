@@ -53,9 +53,15 @@ export const useDestinations = () => {
 
   const createDestination = useMutation({
     mutationFn: async (newDestination: Omit<Destination, 'id' | 'created_at' | 'updated_at'>) => {
+      // Ensure additional_costs is set to null if not provided
+      const destinationWithDefaults = {
+        ...newDestination,
+        additional_costs: newDestination.additional_costs || null
+      };
+      
       const { data, error } = await supabase
         .from('destinations')
-        .insert(newDestination)
+        .insert(destinationWithDefaults)
         .select()
         .single();
         
@@ -83,9 +89,15 @@ export const useDestinations = () => {
 
   const updateDestination = useMutation({
     mutationFn: async ({ id, ...updateData }: Partial<Destination> & { id: string }) => {
+      // Ensure additional_costs is properly handled
+      const dataToUpdate = {
+        ...updateData,
+        additional_costs: updateData.additional_costs || null
+      };
+      
       const { data, error } = await supabase
         .from('destinations')
-        .update(updateData)
+        .update(dataToUpdate)
         .eq('id', id)
         .select()
         .single();
