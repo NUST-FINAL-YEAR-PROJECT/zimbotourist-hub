@@ -30,7 +30,7 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [formSuccess, setFormSuccess] = useState(false);
   const navigate = useNavigate();
-  const { user, showSplash, setShowSplash, isAdmin, loginAsAdmin } = useAuth();
+  const { user, showSplash, setShowSplash, isAdmin, loginWithCredentials } = useAuth();
   
   useEffect(() => {
     // If URL has admin=true param, switch to admin signin mode
@@ -46,11 +46,6 @@ const Auth = () => {
   }, [user, navigate, showSplash, isAdmin]);
 
   const validateForm = () => {
-    // For admin mode, don't validate anything - allow any input
-    if (mode === "admin-signin") {
-      return true;
-    }
-
     if (!email) {
       toast.error("Please enter your email");
       return false;
@@ -82,25 +77,10 @@ const Auth = () => {
 
     try {
       if (mode === "signin" || mode === "admin-signin") {
-        if (mode === "admin-signin") {
-          // Skip authentication for admin mode - automatically log in as admin
-          await loginAsAdmin();
-          setLoading(false);
-          return;
-        }
-        
-        // Regular user authentication
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        
-        if (error) throw error;
-        
-        if (data.session) {
-          toast.success("Welcome back!");
-          setShowSplash(true); // Show splash screen and it will redirect to dashboard
-        }
+        // Use the same authentication logic for both regular and admin signin
+        await loginWithCredentials(email, password);
+        // The loginWithCredentials function handles setting the session, user,
+        // isAdmin flag and showing the splash screen
       } else if (mode === "signup") {
         const { data, error } = await supabase.auth.signUp({
           email,
@@ -137,17 +117,11 @@ const Auth = () => {
     }
   };
 
-  // Handle quick admin login
-  const handleQuickAdminLogin = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    await loginAsAdmin();
-  };
-
   // Render splash screen if user has successfully authenticated
   if (showSplash) {
     return <SplashScreen 
-      redirectPath={mode === "admin-signin" ? "/admin/dashboard" : "/dashboard"} 
-      isAdmin={mode === "admin-signin"} 
+      redirectPath={isAdmin ? "/admin/dashboard" : "/dashboard"} 
+      isAdmin={isAdmin} 
     />;
   }
 
@@ -194,15 +168,15 @@ const Auth = () => {
           <div className="space-y-2">
             <Label htmlFor="email" className="text-base flex items-center">
               <Mail className="w-4 h-4 mr-2 text-muted-foreground" />
-              {isAdminMode ? "Email (any value works)" : "Email Address"}
+              Email Address
             </Label>
             <Input
               id="email"
               type="text"
-              placeholder={isAdminMode ? "Enter any text" : "you@example.com"}
+              placeholder="your@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required={!isAdminMode}
+              required
               disabled={loading}
               className="h-12 text-base bg-white shadow-sm"
             />
@@ -212,17 +186,17 @@ const Auth = () => {
             <div className="space-y-2">
               <Label htmlFor="password" className="text-base flex items-center">
                 <Lock className="w-4 h-4 mr-2 text-muted-foreground" />
-                {isAdminMode ? "Password (any value works)" : "Password"}
+                Password
               </Label>
               <Input
                 id="password"
                 type="password"
-                placeholder={isAdminMode ? "Enter any password" : mode === "signup" ? "Create a secure password" : "Enter your password"}
+                placeholder={mode === "signup" ? "Create a secure password" : "Enter your password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required={!isAdminMode}
+                required
                 disabled={loading}
-                minLength={isAdminMode ? 0 : 6}
+                minLength={6}
                 className="h-12 text-base bg-white shadow-sm"
               />
             </div>
@@ -243,7 +217,7 @@ const Auth = () => {
             {loading
               ? "Processing..."
               : isAdminMode
-              ? "Administrator Sign In (Any Credentials)"
+              ? "Administrator Sign In"
               : mode === "signin"
               ? "Sign In"
               : mode === "signup"
@@ -252,29 +226,6 @@ const Auth = () => {
             {!loading && <ArrowRight className="ml-2 h-5 w-5" />}
           </Button>
         </div>
-
-        {isAdminMode && (
-          <div className="pt-2">
-            <Button
-              type="button"
-              onClick={handleQuickAdminLogin}
-              className="w-full h-12 text-base font-semibold bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white"
-              disabled={loading}
-            >
-              {loading ? (
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-              ) : (
-                <>
-                  Quick Admin Access
-                  <ShieldCheck className="ml-2 h-5 w-5" />
-                </>
-              )}
-            </Button>
-            <p className="text-center text-sm text-muted-foreground mt-2">
-              Uses hardcoded admin credentials
-            </p>
-          </div>
-        )}
 
         <div className="flex flex-col items-center space-y-4 text-sm pt-2">
           {mode === "signin" ? (
@@ -392,7 +343,7 @@ const Auth = () => {
                   {formSuccess 
                     ? "Success!" 
                     : mode === "admin-signin"
-                    ? "Administrator Access - Any Details Work"
+                    ? "Administrator Access"
                     : mode === "signin"
                     ? "Welcome back"
                     : mode === "signup"
@@ -409,7 +360,7 @@ const Auth = () => {
                   {formSuccess 
                     ? "Please check your email" 
                     : mode === "admin-signin"
-                    ? "Enter any credentials to access the admin dashboard"
+                    ? "Sign in with your admin credentials"
                     : mode === "signin"
                     ? "Sign in to access your account"
                     : mode === "signup"

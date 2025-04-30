@@ -39,15 +39,12 @@ export const useAuth = () => {
     }
   };
 
-  // Login with hardcoded admin credentials
-  const loginAsAdmin = async () => {
+  // Login with email and password - now replaces the hardcoded admin login
+  const loginWithCredentials = async (email: string, password: string) => {
     try {
       setLoading(true);
-      // Use working admin credentials
-      const email = "kudzaiz@novatechzw.com";
-      const password = "admin123";
       
-      console.log("Attempting to log in as admin with email:", email);
+      console.log("Attempting to log in with email:", email);
       
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -55,21 +52,34 @@ export const useAuth = () => {
       });
 
       if (error) {
-        console.error("Admin login error:", error);
+        console.error("Login error:", error);
         throw error;
       }
       
       if (data.session) {
-        console.log("Admin login successful:", data.user);
+        console.log("Login successful:", data.user);
         setSession(data.session);
         setUser(data.session.user);
-        setIsAdmin(true);
-        setShowSplash(true);
-        toast.success("Successfully logged in as Administrator!");
+        
+        // Check if user is admin
+        if (data.user) {
+          const userIsAdmin = await checkAdminStatus(data.user.id);
+          setIsAdmin(userIsAdmin);
+          setShowSplash(true);
+          
+          if (userIsAdmin) {
+            toast.success("Successfully logged in as Administrator!");
+          } else {
+            toast.success("Successfully logged in!");
+          }
+        }
       }
+      
+      return { isAdmin };
     } catch (error: any) {
-      console.error('Error logging in as admin:', error);
-      toast.error(error.message || "Failed to login as admin");
+      console.error('Error logging in:', error);
+      toast.error(error.message || "Failed to login");
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -151,5 +161,5 @@ export const useAuth = () => {
     }
   };
 
-  return { user, session, loading, signOut, showSplash, setShowSplash, isAdmin, loginAsAdmin };
+  return { user, session, loading, signOut, showSplash, setShowSplash, isAdmin, loginWithCredentials };
 };
