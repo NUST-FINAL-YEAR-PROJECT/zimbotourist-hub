@@ -51,11 +51,47 @@ export const useDestinations = () => {
     retryDelay: 1000,
   });
 
+  // Update type definition to make it more flexible
+  type CreateDestinationInput = {
+    name: string;
+    location: string;
+    price: number;
+    description: string | null;
+    image_url?: string | null;
+    duration_recommended?: string | null;
+    best_time_to_visit?: string | null;
+    difficulty_level?: string | null;
+    getting_there?: string | null;
+    weather_info?: string | null;
+    is_featured?: boolean;
+    categories?: string[];
+    additional_images?: string[];
+    activities?: string[];
+    amenities?: string[];
+    what_to_bring?: string[];
+    highlights?: string[];
+    additional_costs?: Record<string, any> | null;
+  };
+
   const createDestination = useMutation({
-    mutationFn: async (newDestination: Omit<Destination, 'id' | 'created_at' | 'updated_at'>) => {
-      // Ensure additional_costs is set to null if not provided
+    mutationFn: async (newDestination: CreateDestinationInput) => {
+      // Make sure we have null for empty values to satisfy Supabase types
       const destinationWithDefaults = {
         ...newDestination,
+        description: newDestination.description || null,
+        image_url: newDestination.image_url || null,
+        duration_recommended: newDestination.duration_recommended || null,
+        best_time_to_visit: newDestination.best_time_to_visit || null,
+        difficulty_level: newDestination.difficulty_level || null,
+        getting_there: newDestination.getting_there || null,
+        weather_info: newDestination.weather_info || null,
+        is_featured: newDestination.is_featured || false,
+        categories: newDestination.categories || [],
+        additional_images: newDestination.additional_images || [],
+        activities: newDestination.activities || [],
+        amenities: newDestination.amenities || [],
+        what_to_bring: newDestination.what_to_bring || [],
+        highlights: newDestination.highlights || [],
         additional_costs: newDestination.additional_costs || null
       };
       
@@ -87,11 +123,27 @@ export const useDestinations = () => {
     }
   });
 
+  type UpdateDestinationInput = Partial<CreateDestinationInput> & { id: string };
+
   const updateDestination = useMutation({
-    mutationFn: async ({ id, ...updateData }: Partial<Destination> & { id: string }) => {
-      // Ensure additional_costs is properly handled
+    mutationFn: async ({ id, ...updateData }: UpdateDestinationInput) => {
+      // Ensure null values are properly handled
       const dataToUpdate = {
         ...updateData,
+        description: updateData.description || null,
+        image_url: updateData.image_url || null,
+        duration_recommended: updateData.duration_recommended || null,
+        best_time_to_visit: updateData.best_time_to_visit || null,
+        difficulty_level: updateData.difficulty_level || null,
+        getting_there: updateData.getting_there || null,
+        weather_info: updateData.weather_info || null,
+        is_featured: updateData.is_featured || false,
+        categories: updateData.categories || [],
+        additional_images: updateData.additional_images || [],
+        activities: updateData.activities || [],
+        amenities: updateData.amenities || [],
+        what_to_bring: updateData.what_to_bring || [],
+        highlights: updateData.highlights || [],
         additional_costs: updateData.additional_costs || null
       };
       

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import {
   Card,
@@ -188,38 +189,51 @@ export const DestinationManager = () => {
   // Handle form submission
   const onSubmit = async (data: DestinationFormValues) => {
     try {
-      // Prepare data for submission by ensuring all required fields are present
-      const formData = {
-        name: data.name,
-        location: data.location,
-        price: data.price,
-        // Provide default values for required fields in the Destination type
-        description: data.description || null,
-        image_url: data.image_url || null,
-        duration_recommended: data.duration_recommended || null,
-        best_time_to_visit: data.best_time_to_visit || null,
-        difficulty_level: data.difficulty_level || null,
-        getting_there: data.getting_there || null,
-        weather_info: data.weather_info || null,
-        is_featured: data.is_featured || false,
-        categories: data.categories || [],
-        additional_images: data.additional_images || [],
-        activities: data.activities || [],
-        amenities: data.amenities || [],
-        what_to_bring: data.what_to_bring || [],
-        highlights: data.highlights || [],
-        additional_costs: data.additional_costs || null
-      };
-
       if (selectedDestination) {
         // Update existing destination
         await updateDestination.mutateAsync({
           id: selectedDestination.id,
-          ...formData
+          name: data.name,
+          location: data.location,
+          price: data.price,
+          description: data.description || null,
+          image_url: data.image_url || null,
+          duration_recommended: data.duration_recommended || null,
+          best_time_to_visit: data.best_time_to_visit || null,
+          difficulty_level: data.difficulty_level || null,
+          getting_there: data.getting_there || null,
+          weather_info: data.weather_info || null,
+          is_featured: data.is_featured || false,
+          categories: data.categories || [],
+          additional_images: data.additional_images || [],
+          activities: data.activities || [],
+          amenities: data.amenities || [],
+          what_to_bring: data.what_to_bring || [],
+          highlights: data.highlights || [],
+          additional_costs: data.additional_costs || null
         });
       } else {
         // Create new destination
-        await createDestination.mutateAsync(formData);
+        await createDestination.mutateAsync({
+          name: data.name,
+          location: data.location,
+          price: data.price,
+          description: data.description || null,
+          image_url: data.image_url || null,
+          duration_recommended: data.duration_recommended || null,
+          best_time_to_visit: data.best_time_to_visit || null,
+          difficulty_level: data.difficulty_level || null,
+          getting_there: data.getting_there || null,
+          weather_info: data.weather_info || null,
+          is_featured: data.is_featured || false,
+          categories: data.categories || [],
+          additional_images: data.additional_images || [],
+          activities: data.activities || [],
+          amenities: data.amenities || [],
+          what_to_bring: data.what_to_bring || [],
+          highlights: data.highlights || [],
+          additional_costs: data.additional_costs || null
+        });
       }
       setIsFormDialogOpen(false);
     } catch (error) {
