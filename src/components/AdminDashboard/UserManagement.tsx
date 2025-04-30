@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useUsers, type User } from "@/hooks/useUsers";
 import { useUserOperations, type UserFormData } from "@/hooks/useUserOperations";
-import { Loader2, Pencil, Trash2, UserPlus, X } from "lucide-react";
+import { Loader2, Pencil, Trash2, UserPlus, X, Lock, Unlock } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 
 // Form schema for validation
 const userFormSchema = z.object({
@@ -25,11 +26,12 @@ const userFormSchema = z.object({
 
 export const UserManagement = () => {
   const { data: users, isLoading, error } = useUsers();
-  const { isLoading: isActionLoading, createUser, updateUser, deleteUser } = useUserOperations();
+  const { isLoading: isActionLoading, createUser, updateUser, deleteUser, lockUser, unlockUser } = useUserOperations();
   
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isLockDialogOpen, setIsLockDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   
   // Form setup for adding new users
@@ -82,6 +84,23 @@ export const UserManagement = () => {
       setSelectedUser(null);
     }
   };
+
+  // Handle lock/unlock user
+  const handleToggleLockUser = async () => {
+    if (!selectedUser) return;
+    
+    let result;
+    if (selectedUser.is_locked) {
+      result = await unlockUser(selectedUser.id);
+    } else {
+      result = await lockUser(selectedUser.id);
+    }
+    
+    if (result) {
+      setIsLockDialogOpen(false);
+      setSelectedUser(null);
+    }
+  };
   
   // Set up edit user dialog
   const openEditDialog = (user: User) => {
@@ -95,6 +114,12 @@ export const UserManagement = () => {
   const openDeleteDialog = (user: User) => {
     setSelectedUser(user);
     setIsDeleteDialogOpen(true);
+  };
+
+  // Set up lock/unlock user dialog
+  const openLockDialog = (user: User) => {
+    setSelectedUser(user);
+    setIsLockDialogOpen(true);
   };
   
   if (isLoading) {
@@ -144,13 +169,14 @@ export const UserManagement = () => {
                   <TableHead>User</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Role</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead>Joined</TableHead>
-                  <TableHead className="w-[100px]">Actions</TableHead>
+                  <TableHead className="w-[120px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {users && users.map((user) => (
-                  <TableRow key={user.id}>
+                  <TableRow key={user.id} className={user.is_locked ? "bg-gray-50" : ""}>
                     <TableCell className="font-medium">{user.username || 'Anonymous'}</TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>
@@ -159,21 +185,39 @@ export const UserManagement = () => {
                       </Badge>
                     </TableCell>
                     <TableCell>
+                      {user.is_locked ? (
+                        <Badge variant="amber">Locked</Badge>
+                      ) : (
+                        <Badge variant="green">Active</Badge>
+                      )}
+                    </TableCell>
+                    <TableCell>
                       {new Date(user.created_at).toLocaleDateString()}
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1">
                         <Button 
                           size="sm" 
                           variant="ghost" 
                           onClick={() => openEditDialog(user)}
+                          title="Edit user"
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
                         <Button 
                           size="sm" 
                           variant="ghost" 
+                          onClick={() => openLockDialog(user)}
+                          title={user.is_locked ? "Unlock user" : "Lock user"}
+                          className={user.is_locked ? "text-amber-500 hover:text-amber-700 hover:bg-amber-50" : "text-blue-500 hover:text-blue-700 hover:bg-blue-50"}
+                        >
+                          {user.is_locked ? <Unlock className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="ghost" 
                           onClick={() => openDeleteDialog(user)}
+                          title="Delete user"
                           className="text-red-500 hover:text-red-700 hover:bg-red-50"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -184,7 +228,7 @@ export const UserManagement = () => {
                 ))}
                 {users && users.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
+                    <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
                       No users found
                     </TableCell>
                   </TableRow>
@@ -367,6 +411,47 @@ export const UserManagement = () => {
             >
               {isActionLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Delete User
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Lock/Unlock User Confirmation Dialog */}
+      <Dialog open={isLockDialogOpen} onOpenChange={setIsLockDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className={selectedUser?.is_locked ? "text-amber-600" : "text-blue-600"}>
+              {selectedUser?.is_locked ? "Unlock User" : "Lock User"}
+            </DialogTitle>
+            <DialogDescription>
+              {selectedUser?.is_locked 
+                ? "Are you sure you want to unlock this user? They will regain access to the system."
+                : "Are you sure you want to lock this user? This will prevent them from accessing the system."}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <p><strong>User:</strong> {selectedUser?.username || selectedUser?.email || 'Unknown'}</p>
+            <p className="mt-2"><strong>Current status:</strong> {selectedUser?.is_locked ? 'Locked' : 'Active'}</p>
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsLockDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleToggleLockUser} 
+              variant={selectedUser?.is_locked ? "default" : "secondary"}
+              disabled={isActionLoading}
+            >
+              {isActionLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {selectedUser?.is_locked ? (
+                <><Unlock className="mr-2 h-4 w-4" /> Unlock User</>
+              ) : (
+                <><Lock className="mr-2 h-4 w-4" /> Lock User</>
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

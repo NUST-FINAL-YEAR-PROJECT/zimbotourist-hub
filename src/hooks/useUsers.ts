@@ -9,6 +9,7 @@ export interface User {
   role: string | null;
   avatar_url: string | null;
   created_at: string;
+  is_locked: boolean | null;
 }
 
 export const useUsers = () => {

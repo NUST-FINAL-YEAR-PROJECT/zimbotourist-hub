@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -100,10 +99,63 @@ export const useUserOperations = () => {
     }
   };
 
+  // New functions for locking and unlocking users
+  const lockUser = async (userId: string) => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .update({ is_locked: true })
+        .eq("id", userId)
+        .select();
+
+      if (error) {
+        toast.error(`Failed to lock user: ${error.message}`);
+        return false;
+      }
+
+      toast.success("User has been locked successfully");
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      return true;
+    } catch (err: any) {
+      toast.error(`An unexpected error occurred: ${err.message}`);
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const unlockUser = async (userId: string) => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .update({ is_locked: false })
+        .eq("id", userId)
+        .select();
+
+      if (error) {
+        toast.error(`Failed to unlock user: ${error.message}`);
+        return false;
+      }
+
+      toast.success("User has been unlocked successfully");
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      return true;
+    } catch (err: any) {
+      toast.error(`An unexpected error occurred: ${err.message}`);
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
     isLoading,
     createUser,
     updateUser,
     deleteUser,
+    lockUser,
+    unlockUser
   };
 };
