@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -35,72 +35,189 @@ import {
   ImageIcon, 
   Loader2,
   Check,
-  X  
+  X,
+  AlertTriangle
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import type { Destination } from "@/types/models";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { 
+  Form, 
+  FormControl, 
+  FormDescription, 
+  FormField, 
+  FormItem, 
+  FormLabel, 
+  FormMessage 
+} from "@/components/ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+
+// Form validation schema
+const destinationFormSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  location: z.string().min(1, "Location is required"),
+  price: z.coerce.number().min(0, "Price must be 0 or greater"),
+  description: z.string().optional(),
+  image_url: z.string().optional(),
+  duration_recommended: z.string().optional(),
+  best_time_to_visit: z.string().optional(),
+  difficulty_level: z.string().optional(),
+  getting_there: z.string().optional(),
+  weather_info: z.string().optional(),
+  is_featured: z.boolean().optional(),
+  categories: z.array(z.string()).optional(),
+  additional_images: z.array(z.string()).optional(),
+  activities: z.array(z.string()).optional(),
+  amenities: z.array(z.string()).optional(),
+  what_to_bring: z.array(z.string()).optional(),
+  highlights: z.array(z.string()).optional(),
+});
+
+type DestinationFormValues = z.infer<typeof destinationFormSchema>;
 
 export const DestinationManager = () => {
-  const { data: destinations, isLoading, error, refetch } = useDestinations();
+  const { 
+    data: destinations, 
+    isLoading, 
+    error, 
+    createDestination, 
+    updateDestination, 
+    deleteDestination 
+  } = useDestinations();
+  
   const [searchTerm, setSearchTerm] = useState("");
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isFormDialogOpen, setIsFormDialogOpen] = useState(false);
   const [selectedDestination, setSelectedDestination] = useState<Destination | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [destinationToDelete, setDestinationToDelete] = useState<Destination | null>(null);
   const { toast } = useToast();
   
-  // Form state
-  const [formData, setFormData] = useState<Partial<Destination>>({
-    name: "",
-    location: "",
-    price: 0,
-    description: "",
-    image_url: "",
-    duration_recommended: "",
-    best_time_to_visit: "",
-    difficulty_level: "",
-    getting_there: "",
-    weather_info: "",
-    is_featured: false,
-    categories: [],
+  // Create form with validation
+  const form = useForm<DestinationFormValues>({
+    resolver: zodResolver(destinationFormSchema),
+    defaultValues: {
+      name: "",
+      location: "",
+      price: 0,
+      description: "",
+      image_url: "",
+      duration_recommended: "",
+      best_time_to_visit: "",
+      difficulty_level: "",
+      getting_there: "",
+      weather_info: "",
+      is_featured: false,
+      categories: [],
+      additional_images: [],
+      activities: [],
+      amenities: [],
+      what_to_bring: [],
+      highlights: []
+    }
   });
 
-  // Reset form when opening/closing dialog
-  useEffect(() => {
-    if (isAddDialogOpen) {
+  // Reset and initialize form when opening dialog
+  const openFormDialog = (destination?: Destination) => {
+    if (destination) {
+      // Edit mode - populate form with destination data
+      form.reset({
+        name: destination.name,
+        location: destination.location,
+        price: destination.price,
+        description: destination.description || "",
+        image_url: destination.image_url || "",
+        duration_recommended: destination.duration_recommended || "",
+        best_time_to_visit: destination.best_time_to_visit || "",
+        difficulty_level: destination.difficulty_level || "",
+        getting_there: destination.getting_there || "",
+        weather_info: destination.weather_info || "",
+        is_featured: destination.is_featured || false,
+        categories: destination.categories || [],
+        additional_images: destination.additional_images || [],
+        activities: destination.activities || [],
+        amenities: destination.amenities || [],
+        what_to_bring: destination.what_to_bring || [],
+        highlights: destination.highlights || []
+      });
+      setSelectedDestination(destination);
+    } else {
+      // Create mode - reset form to defaults
+      form.reset({
+        name: "",
+        location: "",
+        price: 0,
+        description: "",
+        image_url: "",
+        duration_recommended: "",
+        best_time_to_visit: "",
+        difficulty_level: "",
+        getting_there: "",
+        weather_info: "",
+        is_featured: false,
+        categories: [],
+        additional_images: [],
+        activities: [],
+        amenities: [],
+        what_to_bring: [],
+        highlights: []
+      });
+      setSelectedDestination(null);
+    }
+    setIsFormDialogOpen(true);
+  };
+
+  // Convert comma-separated string to array
+  const stringToArray = (value: string): string[] => {
+    return value.split(',').map(item => item.trim()).filter(Boolean);
+  };
+
+  // Handle form submission
+  const onSubmit = async (data: DestinationFormValues) => {
+    try {
       if (selectedDestination) {
-        setFormData({
-          name: selectedDestination.name,
-          location: selectedDestination.location,
-          price: selectedDestination.price,
-          description: selectedDestination.description || "",
-          image_url: selectedDestination.image_url || "",
-          duration_recommended: selectedDestination.duration_recommended || "",
-          best_time_to_visit: selectedDestination.best_time_to_visit || "",
-          difficulty_level: selectedDestination.difficulty_level || "",
-          getting_there: selectedDestination.getting_there || "",
-          weather_info: selectedDestination.weather_info || "",
-          is_featured: selectedDestination.is_featured || false,
-          categories: selectedDestination.categories || [],
+        // Update existing destination
+        await updateDestination.mutateAsync({
+          id: selectedDestination.id,
+          ...data
         });
       } else {
-        setFormData({
-          name: "",
-          location: "",
-          price: 0,
-          description: "",
-          image_url: "",
-          duration_recommended: "",
-          best_time_to_visit: "",
-          difficulty_level: "",
-          getting_there: "",
-          weather_info: "",
-          is_featured: false,
-          categories: [],
-        });
+        // Create new destination
+        await createDestination.mutateAsync(data);
+      }
+      setIsFormDialogOpen(false);
+    } catch (error) {
+      console.error("Form submission error:", error);
+    }
+  };
+
+  // Confirm and handle destination deletion
+  const confirmDelete = (destination: Destination) => {
+    setDestinationToDelete(destination);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (destinationToDelete) {
+      try {
+        await deleteDestination.mutateAsync(destinationToDelete.id);
+        setDeleteDialogOpen(false);
+        setDestinationToDelete(null);
+      } catch (error) {
+        console.error("Error deleting:", error);
       }
     }
-  }, [isAddDialogOpen, selectedDestination]);
+  };
 
   // Filter destinations based on search term
   const filteredDestinations = destinations?.filter(destination => 
@@ -108,160 +225,8 @@ export const DestinationManager = () => {
     destination.location.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleEdit = (destination: Destination) => {
-    setSelectedDestination(destination);
-    setIsAddDialogOpen(true);
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { id, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [id]: value
-    }));
-  };
-
-  const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [id]: parseFloat(value) || 0
-    }));
-  };
-
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [id]: checked
-    }));
-  };
-
-  const handleCategoryInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-    // Split by comma and trim whitespace
-    const categoriesArray = value.split(',').map(cat => cat.trim()).filter(Boolean);
-    setFormData(prev => ({
-      ...prev,
-      categories: categoriesArray
-    }));
-  };
-
-  const handleSubmit = async () => {
-    try {
-      setIsSubmitting(true);
-
-      if (!formData.name || !formData.location || formData.price === undefined) {
-        toast({
-          title: "Validation Error",
-          description: "Please fill in all required fields",
-          variant: "destructive"
-        });
-        setIsSubmitting(false);
-        return;
-      }
-
-      let result;
-
-      if (selectedDestination) {
-        // Update existing destination
-        result = await supabase
-          .from('destinations')
-          .update({
-            name: formData.name,
-            location: formData.location,
-            price: formData.price,
-            description: formData.description,
-            image_url: formData.image_url,
-            duration_recommended: formData.duration_recommended,
-            best_time_to_visit: formData.best_time_to_visit,
-            difficulty_level: formData.difficulty_level,
-            getting_there: formData.getting_there,
-            weather_info: formData.weather_info,
-            is_featured: formData.is_featured,
-            categories: formData.categories,
-          })
-          .eq('id', selectedDestination.id);
-
-        if (result.error) throw result.error;
-        
-        toast({
-          title: "Destination updated",
-          description: `${formData.name} has been updated successfully`,
-          variant: "success"
-        });
-      } else {
-        // Add new destination
-        result = await supabase
-          .from('destinations')
-          .insert({
-            name: formData.name,
-            location: formData.location,
-            price: formData.price,
-            description: formData.description,
-            image_url: formData.image_url,
-            duration_recommended: formData.duration_recommended,
-            best_time_to_visit: formData.best_time_to_visit,
-            difficulty_level: formData.difficulty_level,
-            getting_there: formData.getting_there,
-            weather_info: formData.weather_info,
-            is_featured: formData.is_featured,
-            categories: formData.categories,
-          });
-
-        if (result.error) throw result.error;
-        
-        toast({
-          title: "Destination added",
-          description: `${formData.name} has been added successfully`,
-          variant: "success"
-        });
-      }
-
-      // Refetch destinations after adding/updating
-      await refetch();
-      
-      // Close the dialog
-      setIsAddDialogOpen(false);
-      setSelectedDestination(null);
-    } catch (error) {
-      console.error("Error saving destination:", error);
-      toast({
-        title: "Error",
-        description: "Failed to save destination. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleDelete = async (destination: Destination) => {
-    try {
-      const { error } = await supabase
-        .from('destinations')
-        .delete()
-        .eq('id', destination.id);
-
-      if (error) throw error;
-
-      toast({
-        title: "Destination deleted",
-        description: `${destination.name} has been removed`,
-        variant: "success"
-      });
-
-      // Refetch destinations after deleting
-      await refetch();
-    } catch (error) {
-      console.error("Error deleting destination:", error);
-      toast({
-        title: "Error",
-        description: "Failed to delete destination. Please try again.",
-        variant: "destructive"
-      });
-    }
-  };
+  const isSubmitting = createDestination.isPending || updateDestination.isPending;
+  const isDeleting = deleteDestination.isPending;
 
   return (
     <Card className="h-full">
@@ -271,7 +236,7 @@ export const DestinationManager = () => {
             <CardTitle>Destination Management</CardTitle>
             <CardDescription>Manage travel destinations in the system</CardDescription>
           </div>
-          <Button onClick={() => setIsAddDialogOpen(true)}>
+          <Button onClick={() => openFormDialog()} disabled={isLoading}>
             <PlusCircle className="h-4 w-4 mr-2" /> Add Destination
           </Button>
         </div>
@@ -292,8 +257,16 @@ export const DestinationManager = () => {
             <span className="ml-2 text-muted-foreground">Loading destinations...</span>
           </div>
         ) : error ? (
-          <div className="py-8 text-center text-red-500">
-            Error loading destinations: {error.message}
+          <div className="py-8 text-center text-red-500 flex flex-col items-center">
+            <AlertTriangle className="h-8 w-8 mb-2" />
+            <p>Error loading destinations: {error.message}</p>
+            <Button 
+              variant="outline" 
+              onClick={() => window.location.reload()} 
+              className="mt-4"
+            >
+              Retry
+            </Button>
           </div>
         ) : filteredDestinations?.length === 0 ? (
           <div className="py-8 text-center text-muted-foreground">
@@ -308,7 +281,6 @@ export const DestinationManager = () => {
                   <TableHead>Name</TableHead>
                   <TableHead>Location</TableHead>
                   <TableHead>Price</TableHead>
-                  <TableHead>Duration</TableHead>
                   <TableHead>Featured</TableHead>
                   <TableHead className="w-[120px]">Actions</TableHead>
                 </TableRow>
@@ -322,6 +294,9 @@ export const DestinationManager = () => {
                           src={destination.image_url} 
                           alt={destination.name} 
                           className="h-10 w-16 object-cover rounded" 
+                          onError={(e) => {
+                            e.currentTarget.src = "/placeholder.svg";
+                          }}
                         />
                       ) : (
                         <div className="h-10 w-16 bg-muted rounded flex items-center justify-center">
@@ -332,7 +307,6 @@ export const DestinationManager = () => {
                     <TableCell className="font-medium">{destination.name}</TableCell>
                     <TableCell>{destination.location}</TableCell>
                     <TableCell>${destination.price}</TableCell>
-                    <TableCell>{destination.duration_recommended || "—"}</TableCell>
                     <TableCell>
                       {destination.is_featured ? (
                         <Check className="h-5 w-5 text-green-500" />
@@ -345,7 +319,7 @@ export const DestinationManager = () => {
                         <Button
                           variant="ghost" 
                           size="icon"
-                          onClick={() => handleEdit(destination)}
+                          onClick={() => openFormDialog(destination)}
                         >
                           <Pencil className="h-4 w-4" />
                           <span className="sr-only">Edit</span>
@@ -354,7 +328,8 @@ export const DestinationManager = () => {
                           variant="ghost"
                           size="icon"
                           className="text-destructive hover:text-destructive"
-                          onClick={() => handleDelete(destination)}
+                          onClick={() => confirmDelete(destination)}
+                          disabled={isDeleting}
                         >
                           <Trash className="h-4 w-4" />
                           <span className="sr-only">Delete</span>
@@ -369,12 +344,12 @@ export const DestinationManager = () => {
         )}
       </CardContent>
 
-      {/* Add/Edit Destination Dialog */}
-      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+      {/* Destination Form Dialog */}
+      <Dialog open={isFormDialogOpen} onOpenChange={setIsFormDialogOpen}>
+        <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {selectedDestination ? "Edit Destination" : "Add New Destination"}
+              {selectedDestination ? `Edit ${selectedDestination.name}` : "Add New Destination"}
             </DialogTitle>
             <DialogDescription>
               {selectedDestination 
@@ -383,198 +358,356 @@ export const DestinationManager = () => {
             </DialogDescription>
           </DialogHeader>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="name" className="text-right">
-                  Name <span className="text-red-500">*</span>
-                </Label>
-                <Input 
-                  id="name"
-                  placeholder="Destination name" 
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  className="mt-1"
-                />
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Name <span className="text-red-500">*</span></FormLabel>
+                        <FormControl>
+                          <Input placeholder="Destination name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="location"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Location <span className="text-red-500">*</span></FormLabel>
+                        <FormControl>
+                          <Input placeholder="City, Country" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="price"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Price ($) <span className="text-red-500">*</span></FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            placeholder="0.00" 
+                            {...field}
+                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="image_url"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Image URL</FormLabel>
+                        <FormControl>
+                          <Input placeholder="https://example.com/image.jpg" {...field} value={field.value || ''} />
+                        </FormControl>
+                        <FormDescription>Direct link to the main image</FormDescription>
+                        {field.value && (
+                          <div className="mt-2 border rounded p-2">
+                            <img 
+                              src={field.value} 
+                              alt="Preview" 
+                              className="h-20 object-cover mx-auto"
+                              onError={(e) => {
+                                e.currentTarget.src = "/placeholder.svg";
+                              }}
+                            />
+                          </div>
+                        )}
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="duration_recommended"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Recommended Duration</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g., 3-5 days" {...field} value={field.value || ''} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="is_featured"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                        <FormControl>
+                          <input
+                            type="checkbox"
+                            checked={field.value || false}
+                            onChange={field.onChange}
+                            className="h-4 w-4"
+                          />
+                        </FormControl>
+                        <FormLabel>Featured Destination</FormLabel>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Description</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="Describe this destination..." 
+                            {...field} 
+                            value={field.value || ''} 
+                            className="min-h-[120px]"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="best_time_to_visit"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Best Time to Visit</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g., Summer (June-August)" {...field} value={field.value || ''} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="difficulty_level"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Difficulty Level</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g., Easy, Moderate, Challenging" {...field} value={field.value || ''} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="categories"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Categories</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="Adventure, Beach, Mountains, etc." 
+                            value={(field.value || []).join(', ')} 
+                            onChange={(e) => field.onChange(stringToArray(e.target.value))}
+                          />
+                        </FormControl>
+                        <FormDescription>Separate categories with commas</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
 
-              <div>
-                <Label htmlFor="location" className="text-right">
-                  Location <span className="text-red-500">*</span>
-                </Label>
-                <Input 
-                  id="location"
-                  placeholder="City, Country" 
-                  value={formData.location}
-                  onChange={handleInputChange}
-                  className="mt-1"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="price" className="text-right">
-                  Price ($) <span className="text-red-500">*</span>
-                </Label>
-                <Input 
-                  id="price"
-                  type="number" 
-                  placeholder="0.00" 
-                  value={formData.price}
-                  onChange={handleNumberInputChange}
-                  className="mt-1"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="image_url" className="text-right">Image URL</Label>
-                <Input 
-                  id="image_url"
-                  placeholder="https://example.com/image.jpg" 
-                  value={formData.image_url || ""}
-                  onChange={handleInputChange}
-                  className="mt-1"
-                />
-                {formData.image_url && (
-                  <div className="mt-2 border rounded p-2">
-                    <img 
-                      src={formData.image_url} 
-                      alt="Preview" 
-                      className="h-20 object-cover mx-auto"
-                      onError={(e) => {
-                        e.currentTarget.src = "/placeholder.svg";
-                      }}
-                    />
-                  </div>
+              <FormField
+                control={form.control}
+                name="getting_there"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Getting There</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Transportation options and directions..." 
+                        {...field} 
+                        value={field.value || ''} 
+                        className="min-h-[80px]"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
-              </div>
-
-              <div>
-                <Label htmlFor="categories" className="text-right">Categories (comma separated)</Label>
-                <Input 
-                  id="categories"
-                  placeholder="Adventure, Beach, Mountains, etc." 
-                  value={(formData.categories || []).join(', ')}
-                  onChange={handleCategoryInputChange}
-                  className="mt-1"
-                />
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <input 
-                  type="checkbox" 
-                  id="is_featured" 
-                  checked={!!formData.is_featured} 
-                  onChange={handleCheckboxChange}
-                  className="h-4 w-4" 
-                />
-                <Label htmlFor="is_featured">Featured Destination</Label>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="description" className="text-right">Description</Label>
-                <Textarea 
-                  id="description"
-                  placeholder="Describe this destination..." 
-                  value={formData.description || ""}
-                  onChange={handleInputChange}
-                  className="mt-1 min-h-[120px]"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="duration_recommended" className="text-right">Recommended Duration</Label>
-                <Input 
-                  id="duration_recommended"
-                  placeholder="e.g., 3-5 days" 
-                  value={formData.duration_recommended || ""}
-                  onChange={handleInputChange}
-                  className="mt-1"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="best_time_to_visit" className="text-right">Best Time to Visit</Label>
-                <Input 
-                  id="best_time_to_visit"
-                  placeholder="e.g., Summer (June-August)" 
-                  value={formData.best_time_to_visit || ""}
-                  onChange={handleInputChange}
-                  className="mt-1"
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="difficulty_level" className="text-right">Difficulty Level</Label>
-                <Input 
-                  id="difficulty_level"
-                  placeholder="e.g., Easy, Moderate, Challenging" 
-                  value={formData.difficulty_level || ""}
-                  onChange={handleInputChange}
-                  className="mt-1"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-6 mt-2">
-            <div>
-              <Label htmlFor="weather_info" className="text-right">Weather Information</Label>
-              <Textarea 
-                id="weather_info"
-                placeholder="Weather patterns and climate information..." 
-                value={formData.weather_info || ""}
-                onChange={handleInputChange}
-                className="mt-1 min-h-[80px]"
               />
-            </div>
 
-            <div>
-              <Label htmlFor="getting_there" className="text-right">Getting There</Label>
-              <Textarea 
-                id="getting_there"
-                placeholder="Transportation options and directions..." 
-                value={formData.getting_there || ""}
-                onChange={handleInputChange}
-                className="mt-1 min-h-[80px]"
-              />
-            </div>
-          </div>
-
-          <DialogFooter className="sm:justify-between flex-wrap gap-2">
-            <div className="text-sm text-muted-foreground">
-              <span className="text-red-500">*</span> Required fields
-            </div>
-            <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                onClick={() => {
-                  setIsAddDialogOpen(false);
-                  setSelectedDestination(null);
-                }}
-                disabled={isSubmitting}
-              >
-                Cancel
-              </Button>
-              <Button 
-                type="button" 
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {selectedDestination ? "Saving..." : "Adding..."}
-                  </>
-                ) : (
-                  <>{selectedDestination ? "Save Changes" : "Add Destination"}</>
+              <FormField
+                control={form.control}
+                name="weather_info"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Weather Information</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Weather patterns and climate information..." 
+                        {...field} 
+                        value={field.value || ''} 
+                        className="min-h-[80px]"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
-              </Button>
-            </div>
-          </DialogFooter>
+              />
+
+              <FormField
+                control={form.control}
+                name="activities"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Activities</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Hiking, Swimming, Photography, etc." 
+                        value={(field.value || []).join(', ')} 
+                        onChange={(e) => field.onChange(stringToArray(e.target.value))}
+                      />
+                    </FormControl>
+                    <FormDescription>Separate activities with commas</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                  control={form.control}
+                  name="amenities"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Amenities</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="WiFi, Restaurant, Parking, etc." 
+                          value={(field.value || []).join(', ')} 
+                          onChange={(e) => field.onChange(stringToArray(e.target.value))}
+                        />
+                      </FormControl>
+                      <FormDescription>Separate with commas</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="what_to_bring"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>What to Bring</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="Sunscreen, Hiking boots, Camera, etc." 
+                          value={(field.value || []).join(', ')} 
+                          onChange={(e) => field.onChange(stringToArray(e.target.value))}
+                        />
+                      </FormControl>
+                      <FormDescription>Separate with commas</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="highlights"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Highlights</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Key highlights of this destination (one per line or comma-separated)" 
+                        value={(field.value || []).join(', ')} 
+                        onChange={(e) => field.onChange(stringToArray(e.target.value))}
+                        className="min-h-[80px]"
+                      />
+                    </FormControl>
+                    <FormDescription>Separate highlights with commas</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <DialogFooter className="gap-2 flex-wrap">
+                <div className="flex gap-2 flex-wrap">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsFormDialogOpen(false)}
+                    disabled={isSubmitting}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {selectedDestination ? "Update Destination" : "Create Destination"}
+                  </Button>
+                </div>
+              </DialogFooter>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action will permanently delete "{destinationToDelete?.name}". 
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                handleDelete();
+              }}
+              disabled={isDeleting}
+              className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                "Delete"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 };
