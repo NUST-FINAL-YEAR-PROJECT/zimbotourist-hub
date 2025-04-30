@@ -39,7 +39,7 @@ export const useAuth = () => {
     }
   };
 
-  // Login with email and password - now replaces the hardcoded admin login
+  // Login with email and password
   const loginWithCredentials = async (email: string, password: string) => {
     try {
       setLoading(true);

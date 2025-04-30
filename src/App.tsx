@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -86,13 +87,43 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-// Admin route with no authentication check (allows direct access)
+// Admin route that checks for admin status
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
-  return <>{children}</>;
+  const { user, loading, isAdmin, showSplash } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // If user is loaded and not an admin, redirect them to the dashboard
+    if (!loading && user && !isAdmin && !showSplash) {
+      console.log("User is not an admin, redirecting to dashboard");
+      navigate("/dashboard");
+    }
+  }, [user, loading, isAdmin, navigate, showSplash]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (showSplash) {
+    // Don't redirect, let the splash screen handle it
+    return <>{children}</>;
+  }
+
+  if (!user) {
+    return <Navigate to="/auth?admin=true" replace state={{ from: location }} />;
+  }
+
+  // Allow rendering the admin dashboard only for admin users
+  return isAdmin ? <>{children}</> : null;
 };
 
 const AuthRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading, showSplash } = useAuth();
+  const { user, loading, showSplash, isAdmin } = useAuth();
   const location = useLocation();
 
   if (loading) {
@@ -109,8 +140,7 @@ const AuthRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (user) {
-    const redirectPath = sessionStorage.getItem('redirectAfterAuth') || '/dashboard';
-    sessionStorage.removeItem('redirectAfterAuth');
+    const redirectPath = isAdmin ? '/admin/dashboard' : '/dashboard';
     return <Navigate to={redirectPath} replace />;
   }
 
