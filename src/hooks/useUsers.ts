@@ -14,7 +14,7 @@ export interface User {
 export const useUsers = () => {
   return useQuery({
     queryKey: ["users"],
-    queryFn: async () => {
+    queryFn: async (): Promise<User[]> => {
       console.log("Fetching users from Supabase...");
       try {
         const { data, error } = await supabase
