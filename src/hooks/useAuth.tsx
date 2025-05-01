@@ -58,33 +58,31 @@ export const useAuth = () => {
         throw error;
       }
       
-      if (data.session) {
+      if (data.session && data.user) {
         console.log("Login successful:", data.user);
         setSession(data.session);
-        setUser(data.session.user);
+        setUser(data.user);
         
-        // Always check admin status after login success
-        if (data.user) {
-          const userIsAdmin = await checkAdminStatus(data.user.id);
-          console.log("Admin status after login:", userIsAdmin);
-          
-          // Set admin status explicitly
-          setIsAdmin(userIsAdmin);
-          
-          // Only show splash screen after we've confirmed admin status
-          setShowSplash(true);
-          
-          // Different toast messages based on admin status
-          if (userIsAdmin) {
-            toast.success("Successfully logged in as Administrator!");
-            console.log("User is admin, will redirect to admin dashboard");
-          } else {
-            toast.success("Successfully logged in!");
-            console.log("User is not admin, will redirect to regular dashboard");
-          }
-          
-          return { isAdmin: userIsAdmin };
+        // Check admin status after login success
+        const userIsAdmin = await checkAdminStatus(data.user.id);
+        console.log("Admin status after login:", userIsAdmin);
+        
+        // Set admin status explicitly
+        setIsAdmin(userIsAdmin);
+        
+        // Show splash screen with correct admin flag
+        setShowSplash(true);
+        
+        // Different toast messages based on admin status
+        if (userIsAdmin) {
+          toast.success("Successfully logged in as Administrator!");
+          console.log("User is admin, will redirect to admin dashboard");
+        } else {
+          toast.success("Successfully logged in!");
+          console.log("User is not admin, will redirect to regular dashboard");
         }
+        
+        return { isAdmin: userIsAdmin };
       }
       
       return { isAdmin: false };

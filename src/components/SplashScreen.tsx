@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Globe, CheckCircle2 } from "lucide-react";
@@ -28,8 +27,9 @@ export const SplashScreen = ({ redirectPath, isAdmin = false }: SplashScreenProp
       if (currentProgress >= 100) {
         clearInterval(timer);
         setTimeout(() => {
-          // Ensure we're using triple equals for strict equality check
-          const finalPath = isAdmin === true ? "/admin/dashboard" : redirectPath;
+          // Force admin path to be '/admin/dashboard' when isAdmin is true
+          const adminPath = "/admin/dashboard";
+          const finalPath = isAdmin === true ? adminPath : redirectPath;
           console.log("SplashScreen redirecting to:", finalPath, "isAdmin:", isAdmin);
           navigate(finalPath);
         }, 300);
