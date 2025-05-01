@@ -28,7 +28,7 @@ export const SplashScreen = ({ redirectPath, isAdmin = false }: SplashScreenProp
       if (currentProgress >= 100) {
         clearInterval(timer);
         setTimeout(() => {
-          // Hard-code the admin path to ensure it's correct
+          // Ensure we're using triple equals for strict equality check
           const finalPath = isAdmin === true ? "/admin/dashboard" : redirectPath;
           console.log("SplashScreen redirecting to:", finalPath, "isAdmin:", isAdmin);
           navigate(finalPath);
