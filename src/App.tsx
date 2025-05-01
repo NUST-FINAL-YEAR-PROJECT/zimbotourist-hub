@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -58,7 +57,7 @@ const EventsPage = () => (
 );
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading, showSplash } = useAuth();
+  const { user, loading } = useAuth();
   const location = useLocation();
 
   useEffect(() => {
@@ -75,11 +74,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  if (showSplash) {
-    // Don't redirect, let the splash screen handle it
-    return <>{children}</>;
-  }
-
   if (!user) {
     return <Navigate to="/auth" replace state={{ from: location }} />;
   }
@@ -89,17 +83,17 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 // Admin route that checks for admin status
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading, isAdmin, showSplash } = useAuth();
+  const { user, loading, isAdmin } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
     // If user is loaded and not an admin, redirect them to the dashboard
-    if (!loading && user && !isAdmin && !showSplash) {
+    if (!loading && user && !isAdmin) {
       console.log("User is not an admin, redirecting to dashboard");
       navigate("/dashboard");
     }
-  }, [user, loading, isAdmin, navigate, showSplash]);
+  }, [user, loading, isAdmin, navigate]);
 
   if (loading) {
     return (
@@ -107,11 +101,6 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
-  }
-
-  if (showSplash) {
-    // Don't redirect, let the splash screen handle it
-    return <>{children}</>;
   }
 
   if (!user) {
@@ -123,7 +112,7 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const AuthRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading, showSplash, isAdmin } = useAuth();
+  const { user, loading, isAdmin } = useAuth();
   const location = useLocation();
 
   if (loading) {
@@ -132,11 +121,6 @@ const AuthRoute = ({ children }: { children: React.ReactNode }) => {
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
-  }
-
-  if (showSplash) {
-    // Don't redirect, let the splash screen handle it
-    return <>{children}</>;
   }
 
   if (user) {

@@ -9,7 +9,6 @@ export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [showSplash, setShowSplash] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
 
@@ -70,16 +69,15 @@ export const useAuth = () => {
         // Set admin status explicitly
         setIsAdmin(userIsAdmin);
         
-        // Show splash screen with correct admin flag
-        setShowSplash(true);
-        
         // Different toast messages based on admin status
         if (userIsAdmin) {
           toast.success("Successfully logged in as Administrator!");
           console.log("User is admin, will redirect to admin dashboard");
+          navigate('/admin/dashboard');
         } else {
           toast.success("Successfully logged in!");
           console.log("User is not admin, will redirect to regular dashboard");
+          navigate('/dashboard');
         }
         
         return { isAdmin: userIsAdmin };
@@ -150,11 +148,14 @@ export const useAuth = () => {
             // Ensure isAdmin is set correctly
             setIsAdmin(userIsAdmin);
             
-            // Show splash screen and let it handle the navigation
-            setShowSplash(true);
-            
-            toast.success(userIsAdmin ? "Successfully signed in as administrator" : "Successfully signed in");
-            console.log("User signed in as admin:", userIsAdmin, "will redirect to:", userIsAdmin ? "/admin/dashboard" : "/dashboard");
+            // Handle navigation based on user role
+            if (userIsAdmin) {
+              toast.success("Successfully signed in as administrator");
+              navigate('/admin/dashboard');
+            } else {
+              toast.success("Successfully signed in");
+              navigate('/dashboard');
+            }
           }
         }
       }
@@ -177,5 +178,5 @@ export const useAuth = () => {
     }
   };
 
-  return { user, session, loading, signOut, showSplash, setShowSplash, isAdmin, loginWithCredentials };
+  return { user, session, loading, signOut, isAdmin, loginWithCredentials };
 };

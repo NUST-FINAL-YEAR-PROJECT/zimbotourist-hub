@@ -16,7 +16,6 @@ import {
 import { Label } from "@/components/ui/label";
 import { Loader2, ArrowRight, Mail, Lock, ArrowLeft, Globe, CheckCircle2, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { SplashScreen } from "@/components/SplashScreen";
 
 type AuthMode = "signin" | "signup" | "forgot-password" | "reset-password" | "admin-signin";
 
@@ -30,7 +29,7 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [formSuccess, setFormSuccess] = useState(false);
   const navigate = useNavigate();
-  const { user, showSplash, setShowSplash, isAdmin, loginWithCredentials } = useAuth();
+  const { user, isAdmin, loginWithCredentials } = useAuth();
   
   useEffect(() => {
     // If URL has admin=true param, switch to admin signin mode
@@ -40,10 +39,10 @@ const Auth = () => {
   }, [isAdminPage]);
 
   useEffect(() => {
-    if (user && !showSplash) {
+    if (user) {
       navigate(isAdmin ? "/admin/dashboard" : "/dashboard");
     }
-  }, [user, navigate, showSplash, isAdmin]);
+  }, [user, navigate, isAdmin]);
 
   const validateForm = () => {
     if (!email) {
@@ -77,10 +76,10 @@ const Auth = () => {
 
     try {
       if (mode === "signin" || mode === "admin-signin") {
-        // Use the same authentication logic for both regular and admin signin
+        // Use the authentication logic for both regular and admin signin
         await loginWithCredentials(email, password);
         // The loginWithCredentials function handles setting the session, user,
-        // isAdmin flag and showing the splash screen
+        // isAdmin flag and navigation
       } else if (mode === "signup") {
         const { data, error } = await supabase.auth.signUp({
           email,
@@ -116,14 +115,6 @@ const Auth = () => {
       setLoading(false);
     }
   };
-
-  // Render splash screen if user has successfully authenticated
-  if (showSplash) {
-    return <SplashScreen 
-      redirectPath={isAdmin ? "/admin/dashboard" : "/dashboard"} 
-      isAdmin={isAdmin} 
-    />;
-  }
 
   const renderSuccessMessage = () => {
     return (
