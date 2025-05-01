@@ -1,8 +1,6 @@
 
 import { useState, useEffect } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
-import { useToast } from "@/components/ui/use-toast";
 import { Layout, LayoutHeader, LayoutContent, LayoutTitle } from "@/components/ui/layout";
 import { SidebarNav } from "@/components/ui/sidebar-nav";
 import { Button } from "@/components/ui/button";
@@ -14,17 +12,11 @@ import { AdminSettings } from "@/components/AdminDashboard/AdminSettings";
 import { DashboardStats } from "@/components/AdminDashboard/DashboardStats";
 
 const AdminDashboard = () => {
-  const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [loading, setLoading] = useState(true);
-
-  // Simplified loading - no authentication check
-  useEffect(() => {
-    // Just set loading to false immediately - no auth checks
-    setLoading(false);
-  }, []);
+  // Remove loading state since we're bypassing authentication
+  const [loading, setLoading] = useState(false);
 
   // Get current page from path
   const getCurrentPage = () => {

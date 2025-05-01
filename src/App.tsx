@@ -81,34 +81,10 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-// Admin route that checks for admin status
+// Modified AdminRoute to bypass authentication checks
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading, isAdmin } = useAuth();
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    // If user is loaded and not an admin, redirect them to the dashboard
-    if (!loading && user && !isAdmin) {
-      console.log("User is not an admin, redirecting to dashboard");
-      navigate("/dashboard");
-    }
-  }, [user, loading, isAdmin, navigate]);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return <Navigate to="/auth?admin=true" replace state={{ from: location }} />;
-  }
-
-  // Allow rendering the admin dashboard only for admin users
-  return isAdmin ? <>{children}</> : null;
+  // Removing all authentication checks
+  return <>{children}</>;
 };
 
 const AuthRoute = ({ children }: { children: React.ReactNode }) => {

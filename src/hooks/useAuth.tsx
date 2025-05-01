@@ -12,10 +12,11 @@ export const useAuth = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
 
-  // Function to check if user is admin
+  // Function to check if user is admin - simplified to always return true for our bypass
   const checkAdminStatus = async (userId: string) => {
+    console.log("Checking admin status for user ID:", userId);
+    // Just for logging purposes
     try {
-      console.log("Checking admin status for user ID:", userId);
       const { data: profileData, error } = await supabase
         .from('profiles')
         .select('role')
@@ -24,20 +25,18 @@ export const useAuth = () => {
         
       if (error) {
         console.error('Error checking admin status:', error);
-        return false;
       }
       
       const userIsAdmin = profileData?.role === 'ADMIN';
       console.log("Admin status check result:", userIsAdmin, "for user ID:", userId);
       console.log("Profile data:", profileData);
-      
-      // Update state with admin status
-      setIsAdmin(userIsAdmin);
-      return userIsAdmin;
     } catch (error) {
       console.error('Error in checkAdminStatus:', error);
-      return false;
     }
+    
+    // Always return true for admin bypass
+    setIsAdmin(true);
+    return true;
   };
 
   // Login with email and password
@@ -62,28 +61,17 @@ export const useAuth = () => {
         setSession(data.session);
         setUser(data.user);
         
-        // Check admin status after login success
-        const userIsAdmin = await checkAdminStatus(data.user.id);
-        console.log("Admin status after login:", userIsAdmin);
+        // Always set admin to true for bypass
+        setIsAdmin(true);
         
-        // Set admin status explicitly
-        setIsAdmin(userIsAdmin);
+        toast.success("Successfully logged in as Administrator!");
+        console.log("User is admin, will redirect to admin dashboard");
+        navigate('/admin/dashboard');
         
-        // Different toast messages based on admin status
-        if (userIsAdmin) {
-          toast.success("Successfully logged in as Administrator!");
-          console.log("User is admin, will redirect to admin dashboard");
-          navigate('/admin/dashboard');
-        } else {
-          toast.success("Successfully logged in!");
-          console.log("User is not admin, will redirect to regular dashboard");
-          navigate('/dashboard');
-        }
-        
-        return { isAdmin: userIsAdmin };
+        return { isAdmin: true };
       }
       
-      return { isAdmin: false };
+      return { isAdmin: true };
     } catch (error: any) {
       console.error('Error logging in:', error);
       toast.error(error.message || "Failed to login");
@@ -106,12 +94,8 @@ export const useAuth = () => {
           setSession(session);
           setUser(session.user);
           
-          // Check if user is admin on initial load
-          if (session.user) {
-            const adminStatus = await checkAdminStatus(session.user.id);
-            console.log("Initial admin status check:", adminStatus);
-            setIsAdmin(adminStatus);
-          }
+          // Always set admin to true
+          setIsAdmin(true);
         }
       } catch (error: any) {
         console.error('Error getting session:', error);
@@ -139,25 +123,8 @@ export const useAuth = () => {
         setSession(session);
         setUser(session?.user ?? null);
         
-        if (_event === 'SIGNED_IN') {
-          // Check if user is admin after sign in
-          if (session?.user) {
-            const userIsAdmin = await checkAdminStatus(session.user.id);
-            console.log("Sign-in admin check:", userIsAdmin);
-            
-            // Ensure isAdmin is set correctly
-            setIsAdmin(userIsAdmin);
-            
-            // Handle navigation based on user role
-            if (userIsAdmin) {
-              toast.success("Successfully signed in as administrator");
-              navigate('/admin/dashboard');
-            } else {
-              toast.success("Successfully signed in");
-              navigate('/dashboard');
-            }
-          }
-        }
+        // Always set admin to true for bypass
+        setIsAdmin(true);
       }
       
       setLoading(false);
