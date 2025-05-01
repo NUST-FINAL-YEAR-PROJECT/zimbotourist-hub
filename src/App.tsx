@@ -81,9 +81,9 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-// Modified AdminRoute to bypass authentication checks
+// Modified AdminRoute to completely bypass authentication checks
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
-  // Removing all authentication checks
+  // Always render children without any authentication checks
   return <>{children}</>;
 };
 
@@ -161,9 +161,7 @@ const App = () => (
           }
         />
         <Route path="*" element={
-          <ProtectedRoute>
-            <Navigate to="/dashboard" replace />
-          </ProtectedRoute>
+          <Navigate to="/dashboard" replace />
         } />
       </Routes>
     </div>

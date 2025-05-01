@@ -1,10 +1,10 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { Layout, LayoutHeader, LayoutContent, LayoutTitle } from "@/components/ui/layout";
 import { SidebarNav } from "@/components/ui/sidebar-nav";
 import { Button } from "@/components/ui/button";
-import { Loader2, Users, BookOpen, Calendar, Settings, Home, BarChart3 } from "lucide-react";
+import { Users, BookOpen, Calendar, Settings, Home, BarChart3 } from "lucide-react";
 import { UserManagement } from "@/components/AdminDashboard/UserManagement";
 import { DestinationManager } from "@/components/AdminDashboard/DestinationManager";
 import { EventManager } from "@/components/AdminDashboard/EventManager";
@@ -14,9 +14,6 @@ import { DashboardStats } from "@/components/AdminDashboard/DashboardStats";
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
-
-  // Remove loading state since we're bypassing authentication
-  const [loading, setLoading] = useState(false);
 
   // Get current page from path
   const getCurrentPage = () => {
@@ -63,15 +60,6 @@ const AdminDashboard = () => {
       icon: <Settings className="h-5 w-5" />,
     },
   ];
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin mr-2" />
-        <p>Loading admin dashboard...</p>
-      </div>
-    );
-  }
 
   return (
     <div className="flex min-h-screen bg-muted/30">

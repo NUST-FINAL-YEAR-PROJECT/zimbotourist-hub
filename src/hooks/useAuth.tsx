@@ -9,32 +9,12 @@ export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(true); // Always set to true for admin bypass
   const navigate = useNavigate();
 
   // Function to check if user is admin - simplified to always return true for our bypass
   const checkAdminStatus = async (userId: string) => {
-    console.log("Checking admin status for user ID:", userId);
-    // Just for logging purposes
-    try {
-      const { data: profileData, error } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', userId)
-        .maybeSingle();
-        
-      if (error) {
-        console.error('Error checking admin status:', error);
-      }
-      
-      const userIsAdmin = profileData?.role === 'ADMIN';
-      console.log("Admin status check result:", userIsAdmin, "for user ID:", userId);
-      console.log("Profile data:", profileData);
-    } catch (error) {
-      console.error('Error in checkAdminStatus:', error);
-    }
-    
-    // Always return true for admin bypass
+    console.log("Admin bypass enabled - always returns true");
     setIsAdmin(true);
     return true;
   };
