@@ -31,6 +31,8 @@ export const useAuth = () => {
       const userIsAdmin = profileData?.role === 'ADMIN';
       console.log("Admin status check result:", userIsAdmin, "for user ID:", userId);
       console.log("Profile data:", profileData);
+      
+      // Update state with admin status
       setIsAdmin(userIsAdmin);
       return userIsAdmin;
     } catch (error) {
@@ -61,9 +63,10 @@ export const useAuth = () => {
         setSession(data.session);
         setUser(data.session.user);
         
-        // Check if user is admin
+        // Always check admin status after login success
         if (data.user) {
           const userIsAdmin = await checkAdminStatus(data.user.id);
+          console.log("Admin status after login:", userIsAdmin);
           
           // Set admin status explicitly
           setIsAdmin(userIsAdmin);
@@ -71,6 +74,7 @@ export const useAuth = () => {
           // Only show splash screen after we've confirmed admin status
           setShowSplash(true);
           
+          // Different toast messages based on admin status
           if (userIsAdmin) {
             toast.success("Successfully logged in as Administrator!");
             console.log("User is admin, will redirect to admin dashboard");
@@ -78,10 +82,12 @@ export const useAuth = () => {
             toast.success("Successfully logged in!");
             console.log("User is not admin, will redirect to regular dashboard");
           }
+          
+          return { isAdmin: userIsAdmin };
         }
       }
       
-      return { isAdmin };
+      return { isAdmin: false };
     } catch (error: any) {
       console.error('Error logging in:', error);
       toast.error(error.message || "Failed to login");
@@ -104,9 +110,11 @@ export const useAuth = () => {
           setSession(session);
           setUser(session.user);
           
-          // Check if user is admin
+          // Check if user is admin on initial load
           if (session.user) {
-            await checkAdminStatus(session.user.id);
+            const adminStatus = await checkAdminStatus(session.user.id);
+            console.log("Initial admin status check:", adminStatus);
+            setIsAdmin(adminStatus);
           }
         }
       } catch (error: any) {
@@ -139,12 +147,15 @@ export const useAuth = () => {
           // Check if user is admin after sign in
           if (session?.user) {
             const userIsAdmin = await checkAdminStatus(session.user.id);
-            setIsAdmin(userIsAdmin); // Ensure isAdmin is set correctly
+            console.log("Sign-in admin check:", userIsAdmin);
+            
+            // Ensure isAdmin is set correctly
+            setIsAdmin(userIsAdmin);
             
             // Show splash screen and let it handle the navigation
             setShowSplash(true);
-            toast.success(userIsAdmin ? "Successfully signed in as administrator" : "Successfully signed in");
             
+            toast.success(userIsAdmin ? "Successfully signed in as administrator" : "Successfully signed in");
             console.log("User signed in as admin:", userIsAdmin, "will redirect to:", userIsAdmin ? "/admin/dashboard" : "/dashboard");
           }
         }

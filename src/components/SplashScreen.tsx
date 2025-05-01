@@ -14,7 +14,7 @@ export const SplashScreen = ({ redirectPath, isAdmin = false }: SplashScreenProp
   const [progress, setProgress] = useState(0);
   
   useEffect(() => {
-    console.log("SplashScreen mounted, will redirect to:", redirectPath, "isAdmin:", isAdmin);
+    console.log("SplashScreen mounted with params:", { redirectPath, isAdmin });
     const duration = 1500; // 1.5 seconds for the animation
     const interval = 15; // Update every 15ms
     const steps = duration / interval;
@@ -28,9 +28,9 @@ export const SplashScreen = ({ redirectPath, isAdmin = false }: SplashScreenProp
       if (currentProgress >= 100) {
         clearInterval(timer);
         setTimeout(() => {
-          // Always respect the isAdmin flag for redirection
-          const finalPath = isAdmin ? "/admin/dashboard" : redirectPath;
-          console.log("SplashScreen redirecting to:", finalPath);
+          // Hard-code the admin path to ensure it's correct
+          const finalPath = isAdmin === true ? "/admin/dashboard" : redirectPath;
+          console.log("SplashScreen redirecting to:", finalPath, "isAdmin:", isAdmin);
           navigate(finalPath);
         }, 300);
       }
