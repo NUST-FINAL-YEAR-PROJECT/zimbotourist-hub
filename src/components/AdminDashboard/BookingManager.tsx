@@ -64,6 +64,7 @@ export const BookingManager = () => {
         throw new Error(error.message);
       }
       
+      console.log("Fetched bookings:", data);
       return data as BookingWithRelations[];
     },
   });
@@ -130,6 +131,7 @@ export const BookingManager = () => {
   });
 
   const handleViewDetails = (booking: BookingWithRelations) => {
+    console.log("Viewing booking details:", booking);
     setSelectedBooking(booking);
     setIsViewDialogOpen(true);
   };
