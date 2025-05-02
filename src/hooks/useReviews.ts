@@ -85,9 +85,15 @@ export const useCreateReview = () => {
       // Upload images first if any
       const uploadedImageURLs: string[] = [];
       
-      if (images.length > 0) {
+      if (images && images.length > 0) {
         for (const image of images) {
-          const fileName = `${review.user_id}-${Date.now()}-${image.name}`;
+          // Make sure the file is valid before attempting upload
+          if (!image || !image.name) {
+            console.warn("Invalid image file detected, skipping");
+            continue;
+          }
+
+          const fileName = `${review.user_id}-${Date.now()}-${image.name.replace(/[^a-zA-Z0-9.-_]/g, '_')}`;
           
           const { data: uploadResult, error: uploadError } = await supabase
             .storage
@@ -100,13 +106,15 @@ export const useCreateReview = () => {
             throw uploadError;
           }
           
-          // Get public URL for the uploaded image
-          const { data: { publicUrl } } = supabase
-            .storage
-            .from('review-images')
-            .getPublicUrl(uploadResult.path);
-            
-          uploadedImageURLs.push(publicUrl);
+          if (uploadResult) {
+            // Get public URL for the uploaded image
+            const { data: { publicUrl } } = supabase
+              .storage
+              .from('review-images')
+              .getPublicUrl(uploadResult.path);
+              
+            uploadedImageURLs.push(publicUrl);
+          }
         }
       }
       
@@ -166,14 +174,21 @@ export const useUpdateReview = () => {
         throw fetchError;
       }
       
+      // Handle existing images - ensure it's an array
       const existingImages = existingReview?.images || [];
       
       // Upload any new images
       const uploadedImageURLs: string[] = [];
       
-      if (newImages.length > 0) {
+      if (newImages && newImages.length > 0) {
         for (const image of newImages) {
-          const fileName = `${Date.now()}-${image.name}`;
+          // Validate image before upload
+          if (!image || !image.name) {
+            console.warn("Invalid image file detected, skipping");
+            continue;
+          }
+
+          const fileName = `update-${Date.now()}-${image.name.replace(/[^a-zA-Z0-9.-_]/g, '_')}`;
           
           const { data: uploadResult, error: uploadError } = await supabase
             .storage
@@ -186,13 +201,15 @@ export const useUpdateReview = () => {
             throw uploadError;
           }
           
-          // Get public URL for the uploaded image
-          const { data: { publicUrl } } = supabase
-            .storage
-            .from('review-images')
-            .getPublicUrl(uploadResult.path);
-            
-          uploadedImageURLs.push(publicUrl);
+          if (uploadResult) {
+            // Get public URL for the uploaded image
+            const { data: { publicUrl } } = supabase
+              .storage
+              .from('review-images')
+              .getPublicUrl(uploadResult.path);
+              
+            uploadedImageURLs.push(publicUrl);
+          }
         }
       }
       
