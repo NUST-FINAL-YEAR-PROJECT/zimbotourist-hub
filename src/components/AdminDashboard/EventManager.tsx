@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import {
   Card,
@@ -53,14 +54,15 @@ export const EventManager = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
+  // This formData contains Date objects which will be converted to ISO strings in useEventOperations
   const handleCreateSubmit = (formData: EventFormValues) => {
     createEvent.mutate({
       title: formData.title,
       description: formData.description || null,
       location: formData.location || null,
       price: formData.price || null,
-      start_date: formData.start_date, // Will be converted to ISO string in useEventOperations
-      end_date: formData.end_date, // Will be converted to ISO string in useEventOperations
+      start_date: formData.start_date as any, // TypeScript workaround, conversion handled in hook
+      end_date: formData.end_date as any, // TypeScript workaround, conversion handled in hook
       image_url: formData.image_url || null,
       event_type: formData.event_type || null,
       program_url: formData.program_url || null,
@@ -83,8 +85,8 @@ export const EventManager = () => {
             description: formData.description || null,
             location: formData.location || null,
             price: formData.price || null,
-            start_date: formData.start_date, // Will be converted to ISO string in useEventOperations
-            end_date: formData.end_date, // Will be converted to ISO string in useEventOperations
+            start_date: formData.start_date as any, // TypeScript workaround, conversion handled in hook
+            end_date: formData.end_date as any, // TypeScript workaround, conversion handled in hook
             image_url: formData.image_url || null,
             event_type: formData.event_type || null,
             program_url: formData.program_url || null,

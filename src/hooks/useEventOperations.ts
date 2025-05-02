@@ -42,10 +42,10 @@ export const useEventOperations = () => {
           ...newEvent,
           start_date: newEvent.start_date && typeof newEvent.start_date === 'object'
             ? newEvent.start_date.toISOString()
-            : newEvent.start_date,
+            : newEvent.start_date ?? null,
           end_date: newEvent.end_date && typeof newEvent.end_date === 'object'
             ? newEvent.end_date.toISOString()
-            : newEvent.end_date,
+            : newEvent.end_date ?? null,
         };
 
         const { data, error } = await supabase
@@ -84,10 +84,10 @@ export const useEventOperations = () => {
           ...data,
           start_date: data.start_date && typeof data.start_date === 'object'
             ? data.start_date.toISOString()
-            : data.start_date,
+            : data.start_date ?? null,
           end_date: data.end_date && typeof data.end_date === 'object'
             ? data.end_date.toISOString()
-            : data.end_date,
+            : data.end_date ?? null,
         };
 
         const { data: updatedEvent, error } = await supabase
