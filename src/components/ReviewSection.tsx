@@ -381,7 +381,7 @@ export const ReviewSection = ({ destinationId }: ReviewSectionProps) => {
           {viewingReview && reviews?.find(r => r.id === viewingReview)?.images && (
             <Carousel 
               className="w-full max-h-[80vh]"
-              defaultIndex={viewImageIndex || 0}
+              opts={{ startIndex: viewImageIndex || 0 }}
             >
               <CarouselContent>
                 {reviews.find(r => r.id === viewingReview)?.images?.map((image, index) => (

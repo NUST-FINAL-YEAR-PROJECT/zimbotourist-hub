@@ -115,7 +115,7 @@ export const useCreateReview = () => {
         .from("reviews")
         .insert({
           ...review,
-          images: uploadedImageURLs
+          images: uploadedImageURLs.length > 0 ? uploadedImageURLs : null
         })
         .select()
         .single();
