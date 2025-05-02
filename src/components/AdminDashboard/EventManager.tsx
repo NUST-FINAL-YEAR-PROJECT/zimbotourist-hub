@@ -155,6 +155,7 @@ export const EventManager = () => {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Image</TableHead>
                   <TableHead>Title</TableHead>
                   <TableHead>Location</TableHead>
                   <TableHead>Date</TableHead>
@@ -166,6 +167,24 @@ export const EventManager = () => {
               <TableBody>
                 {events.map((event) => (
                   <TableRow key={event.id}>
+                    <TableCell>
+                      {event.image_url ? (
+                        <div className="relative h-12 w-16 rounded overflow-hidden">
+                          <img 
+                            src={event.image_url} 
+                            alt={event.title}
+                            className="h-full w-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=100&h=100&fit=crop";
+                            }}
+                          />
+                        </div>
+                      ) : (
+                        <div className="h-12 w-16 bg-muted flex items-center justify-center rounded">
+                          <span className="text-xs text-muted-foreground">No image</span>
+                        </div>
+                      )}
+                    </TableCell>
                     <TableCell className="font-medium">{event.title}</TableCell>
                     <TableCell>{event.location || "-"}</TableCell>
                     <TableCell>
