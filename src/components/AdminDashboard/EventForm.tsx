@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -43,7 +42,7 @@ const eventFormSchema = z.object({
   program_type: z.string().optional().nullable(),
 });
 
-type EventFormValues = z.infer<typeof eventFormSchema>;
+export type EventFormValues = z.infer<typeof eventFormSchema>;
 
 interface EventFormProps {
   event?: Event;
@@ -184,6 +183,7 @@ export function EventForm({ event, onSubmit, isLoading }: EventFormProps) {
                         setStartDate(date);
                       }}
                       initialFocus
+                      className="p-3 pointer-events-auto"
                     />
                   </PopoverContent>
                 </Popover>
@@ -228,6 +228,7 @@ export function EventForm({ event, onSubmit, isLoading }: EventFormProps) {
                       disabled={(date) =>
                         startDate ? date < startDate : false
                       }
+                      className="p-3 pointer-events-auto"
                     />
                   </PopoverContent>
                 </Popover>

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import {
   Card,
@@ -33,7 +32,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { EventForm } from "./EventForm";
+import { EventForm, EventFormValues } from "./EventForm";
 import { useEventOperations } from "@/hooks/useEventOperations";
 import { format } from "date-fns";
 import { Pencil, Plus, Trash } from "lucide-react";
@@ -54,20 +53,44 @@ export const EventManager = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
-  const handleCreateSubmit = (data: Partial<Event>) => {
-    createEvent.mutate(data, {
+  const handleCreateSubmit = (formData: EventFormValues) => {
+    createEvent.mutate({
+      title: formData.title,
+      description: formData.description || null,
+      location: formData.location || null,
+      price: formData.price || null,
+      start_date: formData.start_date,
+      end_date: formData.end_date,
+      image_url: formData.image_url || null,
+      event_type: formData.event_type || null,
+      program_url: formData.program_url || null,
+      program_name: formData.program_name || null,
+      program_type: formData.program_type || null,
+    }, {
       onSuccess: () => {
         setIsCreateDialogOpen(false);
       },
     });
   };
 
-  const handleEditSubmit = (data: Partial<Event>) => {
+  const handleEditSubmit = (formData: EventFormValues) => {
     if (selectedEvent) {
       updateEvent.mutate(
         {
           id: selectedEvent.id,
-          data: data,
+          data: {
+            title: formData.title,
+            description: formData.description || null,
+            location: formData.location || null,
+            price: formData.price || null,
+            start_date: formData.start_date,
+            end_date: formData.end_date,
+            image_url: formData.image_url || null,
+            event_type: formData.event_type || null,
+            program_url: formData.program_url || null,
+            program_name: formData.program_name || null,
+            program_type: formData.program_type || null,
+          },
         },
         {
           onSuccess: () => {

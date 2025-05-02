@@ -34,12 +34,23 @@ export const useEventOperations = () => {
 
   // Create event mutation
   const createEvent = useMutation({
-    mutationFn: async (newEvent: Partial<Event>) => {
+    mutationFn: async (newEvent: Partial<Event> & { title: string }) => {
       setIsLoading(true);
       try {
+        // Convert Date objects to ISO strings if they exist
+        const eventData = {
+          ...newEvent,
+          start_date: newEvent.start_date instanceof Date 
+            ? newEvent.start_date.toISOString() 
+            : newEvent.start_date,
+          end_date: newEvent.end_date instanceof Date 
+            ? newEvent.end_date.toISOString() 
+            : newEvent.end_date,
+        };
+
         const { data, error } = await supabase
           .from("events")
-          .insert([newEvent])
+          .insert(eventData)
           .select()
           .single();
 
@@ -68,9 +79,20 @@ export const useEventOperations = () => {
     mutationFn: async ({ id, data }: { id: string; data: Partial<Event> }) => {
       setIsLoading(true);
       try {
+        // Convert Date objects to ISO strings if they exist
+        const eventData = {
+          ...data,
+          start_date: data.start_date instanceof Date 
+            ? data.start_date.toISOString() 
+            : data.start_date,
+          end_date: data.end_date instanceof Date 
+            ? data.end_date.toISOString() 
+            : data.end_date,
+        };
+
         const { data: updatedEvent, error } = await supabase
           .from("events")
-          .update(data)
+          .update(eventData)
           .eq("id", id)
           .select()
           .single();
