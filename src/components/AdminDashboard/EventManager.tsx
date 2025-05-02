@@ -38,7 +38,6 @@ import { useEventOperations } from "@/hooks/useEventOperations";
 import { format } from "date-fns";
 import { Pencil, Plus, Trash } from "lucide-react";
 import type { Event } from "@/types/models";
-import { BookingManager } from "./BookingManager";
 
 export const EventManager = () => {
   const {
@@ -127,184 +126,179 @@ export const EventManager = () => {
   };
 
   return (
-    <>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle>Event Management</CardTitle>
-            <CardDescription>
-              Create, update, and delete travel events and programs
-            </CardDescription>
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+          <CardTitle>Event Management</CardTitle>
+          <CardDescription>
+            Create, update, and delete travel events and programs
+          </CardDescription>
+        </div>
+        <Button onClick={() => setIsCreateDialogOpen(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Add Event
+        </Button>
+      </CardHeader>
+      <CardContent>
+        {isFetchingEvents ? (
+          <div className="flex justify-center py-8">
+            <p>Loading events...</p>
           </div>
-          <Button onClick={() => setIsCreateDialogOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Event
-          </Button>
-        </CardHeader>
-        <CardContent>
-          {isFetchingEvents ? (
-            <div className="flex justify-center py-8">
-              <p>Loading events...</p>
-            </div>
-          ) : !events || events.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">
-                No events found. Create your first event to get started.
-              </p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Image</TableHead>
-                    <TableHead>Title</TableHead>
-                    <TableHead>Location</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Price</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead className="w-[100px]">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {events.map((event) => (
-                    <TableRow key={event.id}>
-                      <TableCell>
-                        {event.image_url ? (
-                          <div className="relative h-12 w-16 rounded overflow-hidden">
-                            <img 
-                              src={event.image_url} 
-                              alt={event.title}
-                              className="h-full w-full object-cover"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=100&h=100&fit=crop";
-                              }}
-                            />
-                          </div>
-                        ) : (
-                          <div className="h-12 w-16 bg-muted flex items-center justify-center rounded">
-                            <span className="text-xs text-muted-foreground">No image</span>
-                          </div>
-                        )}
-                      </TableCell>
-                      <TableCell className="font-medium">{event.title}</TableCell>
-                      <TableCell>{event.location || "-"}</TableCell>
-                      <TableCell>
-                        {event.start_date ? (
-                          <span>
-                            {format(new Date(event.start_date), "MMM d, yyyy")}
-                          </span>
-                        ) : (
-                          "-"
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {event.price ? `$${event.price}` : "Free"}
-                      </TableCell>
-                      <TableCell>{event.event_type || "-"}</TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEditClick(event)}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDeleteClick(event)}
-                          >
-                            <Trash className="h-4 w-4" />
-                          </Button>
+        ) : !events || events.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">
+              No events found. Create your first event to get started.
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Image</TableHead>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Location</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Price</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead className="w-[100px]">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {events.map((event) => (
+                  <TableRow key={event.id}>
+                    <TableCell>
+                      {event.image_url ? (
+                        <div className="relative h-12 w-16 rounded overflow-hidden">
+                          <img 
+                            src={event.image_url} 
+                            alt={event.title}
+                            className="h-full w-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=100&h=100&fit=crop";
+                            }}
+                          />
                         </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
+                      ) : (
+                        <div className="h-12 w-16 bg-muted flex items-center justify-center rounded">
+                          <span className="text-xs text-muted-foreground">No image</span>
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell className="font-medium">{event.title}</TableCell>
+                    <TableCell>{event.location || "-"}</TableCell>
+                    <TableCell>
+                      {event.start_date ? (
+                        <span>
+                          {format(new Date(event.start_date), "MMM d, yyyy")}
+                        </span>
+                      ) : (
+                        "-"
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {event.price ? `$${event.price}` : "Free"}
+                    </TableCell>
+                    <TableCell>{event.event_type || "-"}</TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEditClick(event)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteClick(event)}
+                        >
+                          <Trash className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
 
-          {/* Create Event Dialog */}
-          <Dialog
-            open={isCreateDialogOpen}
-            onOpenChange={setIsCreateDialogOpen}
-          >
-            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Create New Event</DialogTitle>
-                <DialogDescription>
-                  Fill out the form below to create a new event.
-                </DialogDescription>
-              </DialogHeader>
+        {/* Create Event Dialog */}
+        <Dialog
+          open={isCreateDialogOpen}
+          onOpenChange={setIsCreateDialogOpen}
+        >
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Create New Event</DialogTitle>
+              <DialogDescription>
+                Fill out the form below to create a new event.
+              </DialogDescription>
+            </DialogHeader>
+            <EventForm
+              onSubmit={handleCreateSubmit}
+              isLoading={isLoading || createEvent.isPending}
+            />
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Event Dialog */}
+        <Dialog
+          open={isEditDialogOpen}
+          onOpenChange={(open) => {
+            setIsEditDialogOpen(open);
+            if (!open) setSelectedEvent(null);
+          }}
+        >
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Edit Event</DialogTitle>
+              <DialogDescription>
+                Update the event details below.
+              </DialogDescription>
+            </DialogHeader>
+            {selectedEvent && (
               <EventForm
-                onSubmit={handleCreateSubmit}
-                isLoading={isLoading || createEvent.isPending}
+                event={selectedEvent}
+                onSubmit={handleEditSubmit}
+                isLoading={isLoading || updateEvent.isPending}
               />
-            </DialogContent>
-          </Dialog>
+            )}
+          </DialogContent>
+        </Dialog>
 
-          {/* Edit Event Dialog */}
-          <Dialog
-            open={isEditDialogOpen}
-            onOpenChange={(open) => {
-              setIsEditDialogOpen(open);
-              if (!open) setSelectedEvent(null);
-            }}
-          >
-            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Edit Event</DialogTitle>
-                <DialogDescription>
-                  Update the event details below.
-                </DialogDescription>
-              </DialogHeader>
-              {selectedEvent && (
-                <EventForm
-                  event={selectedEvent}
-                  onSubmit={handleEditSubmit}
-                  isLoading={isLoading || updateEvent.isPending}
-                />
-              )}
-            </DialogContent>
-          </Dialog>
-
-          {/* Delete Confirmation Dialog */}
-          <AlertDialog
-            open={isDeleteDialogOpen}
-            onOpenChange={(open) => {
-              setIsDeleteDialogOpen(open);
-              if (!open) setSelectedEvent(null);
-            }}
-          >
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete the
-                  event "{selectedEvent?.title}" and all of its data.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  className="bg-destructive text-destructive-foreground"
-                  onClick={handleConfirmDelete}
-                >
-                  {isLoading || deleteEvent.isPending
-                    ? "Deleting..."
-                    : "Delete Event"}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </CardContent>
-      </Card>
-
-      {/* Event-related bookings section */}
-      <BookingManager />
-    </>
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog
+          open={isDeleteDialogOpen}
+          onOpenChange={(open) => {
+            setIsDeleteDialogOpen(open);
+            if (!open) setSelectedEvent(null);
+          }}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete the
+                event "{selectedEvent?.title}" and all of its data.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-destructive text-destructive-foreground"
+                onClick={handleConfirmDelete}
+              >
+                {isLoading || deleteEvent.isPending
+                  ? "Deleting..."
+                  : "Delete Event"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </CardContent>
+    </Card>
   );
 };

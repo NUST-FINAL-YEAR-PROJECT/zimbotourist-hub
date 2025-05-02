@@ -39,7 +39,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { Check, X } from "lucide-react";
-import type { Booking } from "@/types/models";
+import type { BookingWithRelations } from "@/types/models";
 
 export const BookingManager = () => {
   const { toast } = useToast();
@@ -47,7 +47,7 @@ export const BookingManager = () => {
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
-  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [selectedBooking, setSelectedBooking] = useState<BookingWithRelations | null>(null);
 
   const { data: bookings = [], isLoading: isLoadingBookings } = useQuery({
     queryKey: ["admin-bookings"],
@@ -65,7 +65,7 @@ export const BookingManager = () => {
         throw new Error(error.message);
       }
       
-      return data as Booking[];
+      return data as BookingWithRelations[];
     },
   });
 
@@ -130,17 +130,17 @@ export const BookingManager = () => {
     },
   });
 
-  const handleViewDetails = (booking: Booking) => {
+  const handleViewDetails = (booking: BookingWithRelations) => {
     setSelectedBooking(booking);
     setIsViewDialogOpen(true);
   };
 
-  const handleConfirmClick = (booking: Booking) => {
+  const handleConfirmClick = (booking: BookingWithRelations) => {
     setSelectedBooking(booking);
     setIsConfirmDialogOpen(true);
   };
 
-  const handleCancelClick = (booking: Booking) => {
+  const handleCancelClick = (booking: BookingWithRelations) => {
     setSelectedBooking(booking);
     setIsCancelDialogOpen(true);
   };

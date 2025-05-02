@@ -42,6 +42,8 @@ export interface Booking {
   payment_status: 'pending' | 'processing' | 'completed' | 'failed' | 'refunded';
   payment_proof_url: string | null;
   payment_proof_uploaded_at: string | null;
+  confirmation_date: string | null;
+  cancellation_date: string | null;
 }
 
 export interface Profile {
