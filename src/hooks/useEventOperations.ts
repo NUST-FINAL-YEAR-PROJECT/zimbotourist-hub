@@ -40,11 +40,11 @@ export const useEventOperations = () => {
         // Convert Date objects to ISO strings if they exist
         const eventData = {
           ...newEvent,
-          start_date: newEvent.start_date instanceof Date 
-            ? newEvent.start_date.toISOString() 
+          start_date: typeof newEvent.start_date === 'object' && newEvent.start_date !== null
+            ? newEvent.start_date.toISOString()
             : newEvent.start_date,
-          end_date: newEvent.end_date instanceof Date 
-            ? newEvent.end_date.toISOString() 
+          end_date: typeof newEvent.end_date === 'object' && newEvent.end_date !== null
+            ? newEvent.end_date.toISOString()
             : newEvent.end_date,
         };
 
@@ -82,11 +82,11 @@ export const useEventOperations = () => {
         // Convert Date objects to ISO strings if they exist
         const eventData = {
           ...data,
-          start_date: data.start_date instanceof Date 
-            ? data.start_date.toISOString() 
+          start_date: typeof data.start_date === 'object' && data.start_date !== null
+            ? data.start_date.toISOString()
             : data.start_date,
-          end_date: data.end_date instanceof Date 
-            ? data.end_date.toISOString() 
+          end_date: typeof data.end_date === 'object' && data.end_date !== null
+            ? data.end_date.toISOString()
             : data.end_date,
         };
 

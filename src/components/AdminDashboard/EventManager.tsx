@@ -59,8 +59,8 @@ export const EventManager = () => {
       description: formData.description || null,
       location: formData.location || null,
       price: formData.price || null,
-      start_date: formData.start_date,
-      end_date: formData.end_date,
+      start_date: formData.start_date, // Date object will be converted in useEventOperations
+      end_date: formData.end_date, // Date object will be converted in useEventOperations
       image_url: formData.image_url || null,
       event_type: formData.event_type || null,
       program_url: formData.program_url || null,
@@ -83,8 +83,8 @@ export const EventManager = () => {
             description: formData.description || null,
             location: formData.location || null,
             price: formData.price || null,
-            start_date: formData.start_date,
-            end_date: formData.end_date,
+            start_date: formData.start_date, // Date object will be converted in useEventOperations
+            end_date: formData.end_date, // Date object will be converted in useEventOperations
             image_url: formData.image_url || null,
             event_type: formData.event_type || null,
             program_url: formData.program_url || null,
