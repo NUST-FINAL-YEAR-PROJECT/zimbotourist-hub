@@ -1,20 +1,31 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { Layout, LayoutHeader, LayoutContent, LayoutTitle } from "@/components/ui/layout";
 import { SidebarNav } from "@/components/ui/sidebar-nav";
 import { Button } from "@/components/ui/button";
-import { Users, BookOpen, Calendar, Settings, Home, BarChart3, Download } from "lucide-react";
+import { Users, BookOpen, Calendar, Settings, Home, BarChart3, Download, AlertTriangle } from "lucide-react";
 import { UserManagement } from "@/components/AdminDashboard/UserManagement";
 import { DestinationManager } from "@/components/AdminDashboard/DestinationManager";
 import { EventManager } from "@/components/AdminDashboard/EventManager";
 import { BookingManager } from "@/components/AdminDashboard/BookingManager";
 import { AdminSettings } from "@/components/AdminDashboard/AdminSettings";
 import { DashboardStats } from "@/components/AdminDashboard/DashboardStats";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAdmin } = useAuth();
+  
+  // Check admin status on component mount
+  useEffect(() => {
+    if (!isAdmin) {
+      toast.error("You don't have permission to access the admin dashboard");
+      navigate("/dashboard");
+    }
+  }, [isAdmin, navigate]);
 
   // Get current page from path
   const getCurrentPage = () => {
@@ -67,6 +78,18 @@ const AdminDashboard = () => {
       icon: <Settings className="h-5 w-5" />,
     },
   ];
+
+  // If not admin, show an error message and don't render the admin dashboard
+  if (!isAdmin) {
+    return (
+      <div className="flex items-center justify-center min-h-screen flex-col">
+        <AlertTriangle className="h-16 w-16 text-amber-500 mb-4" />
+        <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
+        <p className="text-muted-foreground mb-4">You do not have permission to access the admin dashboard.</p>
+        <Button onClick={() => navigate('/dashboard')}>Go to User Dashboard</Button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-muted/30">

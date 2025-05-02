@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -81,9 +82,36 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-// Modified AdminRoute to completely bypass authentication checks
+// Modified AdminRoute to properly check if user is an admin
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
-  // Always render children without any authentication checks
+  const { user, loading, isAdmin } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // If user is loaded and not an admin, redirect them to regular dashboard
+    if (!loading && user && !isAdmin) {
+      toast.error("You don't have permission to access the admin dashboard");
+      navigate('/dashboard', { replace: true });
+    }
+  }, [loading, user, isAdmin, navigate]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/auth?admin=true" replace state={{ from: location }} />;
+  }
+
+  if (!isAdmin) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   return <>{children}</>;
 };
 

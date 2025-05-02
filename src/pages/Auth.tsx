@@ -79,7 +79,7 @@ const Auth = () => {
         // Use the authentication logic for both regular and admin signin
         await loginWithCredentials(email, password);
         // The loginWithCredentials function handles setting the session, user,
-        // isAdmin flag and navigation
+        // isAdmin flag and navigation to the appropriate dashboard
       } else if (mode === "signup") {
         const { data, error } = await supabase.auth.signUp({
           email,
