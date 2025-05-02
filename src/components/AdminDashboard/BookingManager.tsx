@@ -56,8 +56,8 @@ export const BookingManager = () => {
         .from("bookings")
         .select(`
           *,
-          events(title),
-          destinations(name)
+          events(title, image_url),
+          destinations(name, image_url)
         `)
         .order("created_at", { ascending: false });
 
@@ -160,7 +160,7 @@ export const BookingManager = () => {
 
   const getPaymentStatusBadge = (status: string) => {
     switch (status) {
-      case "paid":
+      case "completed":
         return <Badge className="bg-green-500">Paid</Badge>;
       case "pending":
         return <Badge className="bg-yellow-500">Pending</Badge>;
