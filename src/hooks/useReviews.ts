@@ -204,7 +204,7 @@ export const useUpdateReview = () => {
         .from("reviews")
         .update({ 
           ...reviewData, 
-          images: allImages,
+          images: allImages.length > 0 ? allImages : null,
           updated_at: new Date().toISOString()
         })
         .eq("id", reviewId);
