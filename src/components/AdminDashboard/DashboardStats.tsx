@@ -1,13 +1,46 @@
 
+import { useState } from "react";
 import { useDashboardStats } from "@/hooks/useDashboardStats";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
-import { Loader2, Activity, Users, MapPin, Calendar, AlertTriangle, DollarSign } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, PieChart, Pie, Cell, Tooltip, Legend, LineChart, Line } from "recharts";
+import { Loader2, Activity, Users, MapPin, Calendar, AlertTriangle, DollarSign, FileDown, PieChart as PieChartIcon, BarChart as BarChartIcon, LineChart as LineChartIcon } from "lucide-react";
 
 export const DashboardStats = () => {
-  const { data: stats, isLoading, error } = useDashboardStats();
+  const [confirmedOnly, setConfirmedOnly] = useState(true);
+  const { data: stats, isLoading, error } = useDashboardStats(confirmedOnly);
+
+  // Function to export data as CSV
+  const exportToCSV = (data: any[], filename: string) => {
+    // Convert data to CSV format
+    const headers = Object.keys(data[0]).join(',');
+    const rows = data.map(row => 
+      Object.values(row).map(value => 
+        typeof value === 'string' ? `"${value.replace(/"/g, '""')}"` : value
+      ).join(',')
+    );
+    
+    const csvContent = [headers, ...rows].join('\n');
+    
+    // Create a blob and download link
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    
+    // Set up download link properties
+    link.setAttribute('href', url);
+    link.setAttribute('download', `${filename}-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    
+    // Append, click and remove link
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   if (isLoading) {
     return (
@@ -67,17 +100,61 @@ export const DashboardStats = () => {
     }
   ];
 
-  const bookingStatusData = [
-    { name: 'Pending', value: stats?.pendingBookings || 0 },
-    { name: 'Confirmed', value: stats?.confirmedBookings || 0 }
-  ];
-
+  const bookingStatusData = stats?.bookingsByStatus || [];
   const popularDestinationsData = stats?.popularDestinations || [];
+  const monthlyRevenueData = stats?.monthlyRevenue || [];
 
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658'];
 
   return (
     <div className="space-y-6">
+      {/* Data Filter Control */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg">Analytics Dashboard</CardTitle>
+          <CardDescription>
+            Comprehensive analytics and reporting for regulatory compliance
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Switch 
+                id="confirmedOnly" 
+                checked={confirmedOnly}
+                onCheckedChange={setConfirmedOnly}
+              />
+              <Label htmlFor="confirmedOnly">
+                Show only confirmed bookings in analytics
+              </Label>
+            </div>
+            <div className="flex space-x-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => exportToCSV(stats?.recentBookings || [], 'bookings-report')}
+                className="flex items-center gap-1"
+              >
+                <FileDown className="h-4 w-4" />
+                Export Bookings
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => exportToCSV(
+                  stats?.monthlyRevenue.map(m => ({ month: m.month, revenue: m.revenue })) || [], 
+                  'revenue-report'
+                )}
+                className="flex items-center gap-1"
+              >
+                <FileDown className="h-4 w-4" />
+                Export Revenue
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {overviewCards.map((card, index) => (
           <Card key={index}>
@@ -89,6 +166,11 @@ export const DashboardStats = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{card.value}</div>
+              {card.title === "Total Revenue" && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  {confirmedOnly ? 'From confirmed bookings only' : 'From all bookings'}
+                </p>
+              )}
             </CardContent>
           </Card>
         ))}
@@ -96,8 +178,18 @@ export const DashboardStats = () => {
 
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="destinations">Popular Destinations</TabsTrigger>
+          <TabsTrigger value="overview" className="flex items-center gap-1">
+            <PieChartIcon className="h-4 w-4" />
+            Booking Status
+          </TabsTrigger>
+          <TabsTrigger value="destinations" className="flex items-center gap-1">
+            <BarChartIcon className="h-4 w-4" />
+            Popular Destinations
+          </TabsTrigger>
+          <TabsTrigger value="revenue" className="flex items-center gap-1">
+            <LineChartIcon className="h-4 w-4" />
+            Monthly Revenue
+          </TabsTrigger>
         </TabsList>
         
         <TabsContent value="overview" className="space-y-4">
@@ -167,6 +259,20 @@ export const DashboardStats = () => {
                 </ChartContainer>
               </div>
             </CardContent>
+            <CardFooter>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="ml-auto"
+                onClick={() => exportToCSV(
+                  bookingStatusData.map(item => ({ status: item.name, count: item.value })) || [], 
+                  'booking-status-report'
+                )}
+              >
+                <FileDown className="h-4 w-4 mr-1" />
+                Export as CSV
+              </Button>
+            </CardFooter>
           </Card>
         </TabsContent>
         
@@ -175,7 +281,7 @@ export const DashboardStats = () => {
             <CardHeader>
               <CardTitle>Popular Destinations</CardTitle>
               <CardDescription>
-                Top destinations by booking count
+                Top destinations by booking count {confirmedOnly ? '(confirmed bookings only)' : ''}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -208,11 +314,94 @@ export const DashboardStats = () => {
                         }
                       />
                       <Bar dataKey="bookings" fill="#8884d8" name="Bookings" />
+                      <Bar dataKey="revenue" fill="#82ca9d" name="Revenue ($)" />
                     </BarChart>
                   </ResponsiveContainer>
                 </ChartContainer>
               </div>
             </CardContent>
+            <CardFooter>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="ml-auto"
+                onClick={() => exportToCSV(
+                  popularDestinationsData.map(d => ({ 
+                    destination: d.name, 
+                    bookings: d.count, 
+                    revenue: d.revenue 
+                  })) || [], 
+                  'popular-destinations-report'
+                )}
+              >
+                <FileDown className="h-4 w-4 mr-1" />
+                Export as CSV
+              </Button>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="revenue" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Monthly Revenue Trends</CardTitle>
+              <CardDescription>
+                Revenue collected over the past 12 months {confirmedOnly ? '(confirmed bookings only)' : ''}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-96">
+                <ChartContainer
+                  config={{
+                    revenue: { color: "#82ca9d" }
+                  }}
+                >
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart
+                      data={monthlyRevenueData}
+                      margin={{ top: 10, right: 30, left: 0, bottom: 20 }}
+                    >
+                      <XAxis 
+                        dataKey="month" 
+                        angle={-45} 
+                        textAnchor="end"
+                        height={60}
+                      />
+                      <YAxis />
+                      <Tooltip 
+                        formatter={(value) => [`$${value}`, 'Revenue']}
+                        labelFormatter={(label) => `Month: ${label}`}
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="revenue" 
+                        stroke="#82ca9d" 
+                        activeDot={{ r: 8 }}
+                        strokeWidth={2}
+                        name="Revenue"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="ml-auto"
+                onClick={() => exportToCSV(
+                  monthlyRevenueData.map(item => ({ 
+                    month: item.month, 
+                    revenue: item.revenue 
+                  })) || [], 
+                  'monthly-revenue-report'
+                )}
+              >
+                <FileDown className="h-4 w-4 mr-1" />
+                Export as CSV
+              </Button>
+            </CardFooter>
           </Card>
         </TabsContent>
       </Tabs>
@@ -224,7 +413,7 @@ export const DashboardStats = () => {
             Recent Bookings
           </CardTitle>
           <CardDescription>
-            The latest 5 bookings across all destinations and events
+            The latest 5 bookings {confirmedOnly ? 'with confirmed status' : 'across all statuses'}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -248,7 +437,7 @@ export const DashboardStats = () => {
                           {booking.destinations?.name || booking.events?.title || "N/A"}
                         </td>
                         <td className="py-3 px-4">
-                          {new Date(booking.booking_date).toLocaleDateString()}
+                          {booking.booking_date ? new Date(booking.booking_date).toLocaleDateString() : "-"}
                         </td>
                         <td className="py-3 px-4">{booking.number_of_people}</td>
                         <td className="py-3 px-4">${Number(booking.total_price).toLocaleString()}</td>
@@ -273,6 +462,28 @@ export const DashboardStats = () => {
             )}
           </div>
         </CardContent>
+        <CardFooter>
+          <Button 
+            variant="outline" 
+            className="ml-auto"
+            onClick={() => exportToCSV(
+              stats?.recentBookings.map(b => ({
+                id: b.id,
+                destination: b.destinations?.name || b.events?.title || "N/A",
+                date: new Date(b.booking_date).toLocaleDateString(),
+                people: b.number_of_people,
+                amount: b.total_price,
+                status: b.status,
+                contact: b.contact_name,
+                email: b.contact_email
+              })) || [],
+              'recent-bookings-report'
+            )}
+          >
+            <FileDown className="h-4 w-4 mr-1" />
+            Export Full Booking Data
+          </Button>
+        </CardFooter>
       </Card>
     </div>
   );

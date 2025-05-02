@@ -4,7 +4,7 @@ import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { Layout, LayoutHeader, LayoutContent, LayoutTitle } from "@/components/ui/layout";
 import { SidebarNav } from "@/components/ui/sidebar-nav";
 import { Button } from "@/components/ui/button";
-import { Users, BookOpen, Calendar, Settings, Home, BarChart3 } from "lucide-react";
+import { Users, BookOpen, Calendar, Settings, Home, BarChart3, Download } from "lucide-react";
 import { UserManagement } from "@/components/AdminDashboard/UserManagement";
 import { DestinationManager } from "@/components/AdminDashboard/DestinationManager";
 import { EventManager } from "@/components/AdminDashboard/EventManager";
@@ -57,7 +57,7 @@ const AdminDashboard = () => {
       icon: <BookOpen className="h-5 w-5" />,
     },
     {
-      title: "Analytics",
+      title: "Analytics & Reports",
       href: "/admin/dashboard/analytics",
       icon: <BarChart3 className="h-5 w-5" />,
     },
@@ -87,11 +87,24 @@ const AdminDashboard = () => {
               {currentPage === "destinations" && "Destinations Management"}
               {currentPage === "events" && "Events Management"}
               {currentPage === "bookings" && "Bookings Management"}
-              {currentPage === "analytics" && "Analytics"}
+              {currentPage === "analytics" && "Analytics & Reports"}
               {currentPage === "settings" && "Admin Settings"}
             </LayoutTitle>
             
             <div className="flex items-center gap-4">
+              {currentPage === "analytics" && (
+                <Button 
+                  variant="outline"
+                  className="flex items-center gap-1"
+                  onClick={() => {
+                    // This is just a visual element; the actual export is handled in the DashboardStats component
+                    alert("Please use the export buttons in each section to download CSV reports");
+                  }}
+                >
+                  <Download className="h-4 w-4" />
+                  Export Reports
+                </Button>
+              )}
               <Button variant="ghost" onClick={() => navigate("/dashboard")}>
                 Exit Admin
               </Button>
