@@ -8,6 +8,7 @@ import { Users, BookOpen, Calendar, Settings, Home, BarChart3 } from "lucide-rea
 import { UserManagement } from "@/components/AdminDashboard/UserManagement";
 import { DestinationManager } from "@/components/AdminDashboard/DestinationManager";
 import { EventManager } from "@/components/AdminDashboard/EventManager";
+import { BookingManager } from "@/components/AdminDashboard/BookingManager";
 import { AdminSettings } from "@/components/AdminDashboard/AdminSettings";
 import { DashboardStats } from "@/components/AdminDashboard/DashboardStats";
 
@@ -21,6 +22,7 @@ const AdminDashboard = () => {
     if (path.includes("/users")) return "users";
     if (path.includes("/destinations")) return "destinations";
     if (path.includes("/events")) return "events";
+    if (path.includes("/bookings")) return "bookings";
     if (path.includes("/settings")) return "settings";
     if (path.includes("/analytics")) return "analytics";
     return "dashboard";
@@ -48,6 +50,11 @@ const AdminDashboard = () => {
       title: "Events",
       href: "/admin/dashboard/events",
       icon: <Calendar className="h-5 w-5" />,
+    },
+    {
+      title: "Bookings",
+      href: "/admin/dashboard/bookings",
+      icon: <BookOpen className="h-5 w-5" />,
     },
     {
       title: "Analytics",
@@ -79,6 +86,7 @@ const AdminDashboard = () => {
               {currentPage === "users" && "User Management"}
               {currentPage === "destinations" && "Destinations Management"}
               {currentPage === "events" && "Events Management"}
+              {currentPage === "bookings" && "Bookings Management"}
               {currentPage === "analytics" && "Analytics"}
               {currentPage === "settings" && "Admin Settings"}
             </LayoutTitle>
@@ -97,6 +105,7 @@ const AdminDashboard = () => {
             <Route path="/users" element={<UserManagement />} />
             <Route path="/destinations" element={<DestinationManager />} />
             <Route path="/events" element={<EventManager />} />
+            <Route path="/bookings" element={<BookingManager />} />
             <Route path="/analytics" element={<DashboardStats />} />
             <Route path="/settings" element={<AdminSettings />} />
           </Routes>
