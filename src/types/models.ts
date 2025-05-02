@@ -60,6 +60,7 @@ export interface Review {
   destination_id: string;
   rating: number;
   comment: string | null;
+  images?: string[] | null;
   created_at: string;
   updated_at: string;
   profiles?: {
