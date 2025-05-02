@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Filter, X, MapPin, Calendar, Clock } from "lucide-react";
+import { Search, Filter, X, MapPin, Calendar, Clock, SlidersHorizontal } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { DestinationCard } from "@/components/DestinationCard";
 import { Button } from "@/components/ui/button";
@@ -159,7 +159,7 @@ export const DestinationExplorer = () => {
                 showFilters ? "bg-primary text-white" : ""
               )}
             >
-              <Filter className="h-4 w-4" />
+              <SlidersHorizontal className="h-4 w-4" />
             </Button>
           </div>
         </div>
@@ -275,6 +275,7 @@ export const DestinationExplorer = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: index * 0.1 }}
+                className="h-full"
               >
                 <DestinationCard
                   id={destination.id}
@@ -282,7 +283,7 @@ export const DestinationExplorer = () => {
                   title={destination.name}
                   description={destination.description || ""}
                   price={`$${destination.price}`}
-                  showSimilar={true}
+                  showSimilar={false} // Removed similar destinations feature
                   isInWishlist={wishlist.includes(destination.id)}
                   onWishlistToggle={handleWishlistToggle}
                   categories={destination.categories || []}
