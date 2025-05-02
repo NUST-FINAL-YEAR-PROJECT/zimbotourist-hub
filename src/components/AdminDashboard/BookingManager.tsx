@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import {
   Card,
@@ -38,7 +37,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
-import { Check, X } from "lucide-react";
+import { Check, X, ExternalLink } from "lucide-react";
 import type { BookingWithRelations } from "@/types/models";
 
 export const BookingManager = () => {
@@ -317,15 +316,44 @@ export const BookingManager = () => {
                 {selectedBooking.payment_proof_url && (
                   <div>
                     <h3 className="font-medium">Payment Proof</h3>
-                    <div className="mt-1">
-                      <a 
-                        href={selectedBooking.payment_proof_url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-blue-500 underline"
-                      >
-                        View Payment Proof
-                      </a>
+                    <div className="mt-2 border rounded-md p-4 bg-muted/30">
+                      {/* Display image if it's an image type URL */}
+                      {selectedBooking.payment_proof_url.match(/\.(jpeg|jpg|gif|png)$/i) ? (
+                        <div className="flex flex-col gap-2">
+                          <img 
+                            src={selectedBooking.payment_proof_url} 
+                            alt="Payment Proof" 
+                            className="max-w-full h-auto max-h-64 rounded"
+                          />
+                          <a 
+                            href={selectedBooking.payment_proof_url}
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="flex items-center text-blue-600 hover:text-blue-800"
+                          >
+                            <ExternalLink className="h-4 w-4 mr-1" />
+                            View Full Size
+                          </a>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col gap-2">
+                          <a 
+                            href={selectedBooking.payment_proof_url}
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="flex items-center text-blue-600 hover:text-blue-800"
+                          >
+                            <ExternalLink className="h-4 w-4 mr-1" />
+                            View Payment Proof Document
+                          </a>
+                        </div>
+                      )}
+                      
+                      {selectedBooking.payment_proof_uploaded_at && (
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Uploaded: {format(new Date(selectedBooking.payment_proof_uploaded_at), "MMM d, yyyy HH:mm")}
+                        </p>
+                      )}
                     </div>
                   </div>
                 )}
