@@ -4,7 +4,7 @@ import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { Layout, LayoutHeader, LayoutContent, LayoutTitle } from "@/components/ui/layout";
 import { SidebarNav } from "@/components/ui/sidebar-nav";
 import { Button } from "@/components/ui/button";
-import { Users, BookOpen, Calendar, Settings, Home, BarChart3, Download, AlertTriangle } from "lucide-react";
+import { Users, BookOpen, Calendar, Settings, Home, BarChart3, Download, AlertTriangle, Loader2 } from "lucide-react";
 import { UserManagement } from "@/components/AdminDashboard/UserManagement";
 import { DestinationManager } from "@/components/AdminDashboard/DestinationManager";
 import { EventManager } from "@/components/AdminDashboard/EventManager";
@@ -17,15 +17,16 @@ import { toast } from "sonner";
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAdmin } = useAuth();
+  const { isAdmin, loading } = useAuth();
   
   // Check admin status on component mount
   useEffect(() => {
-    if (!isAdmin) {
+    console.log("AdminDashboard - Current admin status:", isAdmin);
+    if (!loading && isAdmin === false) {
       toast.error("You don't have permission to access the admin dashboard");
       navigate("/dashboard");
     }
-  }, [isAdmin, navigate]);
+  }, [isAdmin, navigate, loading]);
 
   // Get current page from path
   const getCurrentPage = () => {
@@ -79,7 +80,16 @@ const AdminDashboard = () => {
     },
   ];
 
-  // If not admin, show an error message and don't render the admin dashboard
+  // If still loading, show loading indicator
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  // If not admin, show access denied
   if (!isAdmin) {
     return (
       <div className="flex items-center justify-center min-h-screen flex-col">

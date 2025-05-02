@@ -16,8 +16,6 @@ export const useAuth = () => {
   const checkAdminStatus = async (userId: string) => {
     try {
       console.log("Checking admin status for user:", userId);
-      // For this application, we're assuming admin users have a specific email pattern
-      // In a production app, you would check against a role in the database
       const { data, error } = await supabase
         .from('profiles')
         .select('role')
@@ -63,14 +61,13 @@ export const useAuth = () => {
         
         // Check if user is admin
         const adminStatus = await checkAdminStatus(data.user.id);
+        console.log("Admin status after login:", adminStatus);
         
         if (adminStatus) {
           toast.success("Successfully logged in as Administrator!");
-          console.log("User is admin, will redirect to admin dashboard");
           navigate('/admin/dashboard');
         } else {
           toast.success("Successfully logged in!");
-          console.log("User is not admin, will redirect to user dashboard");
           navigate('/dashboard');
         }
         
