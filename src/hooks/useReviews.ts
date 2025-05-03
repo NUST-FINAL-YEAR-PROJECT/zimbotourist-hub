@@ -5,9 +5,8 @@ import { toast } from "sonner";
 import type { Review } from "@/types/models";
 
 // Helper function to check if storage bucket exists
-async function ensureStorageBucketExists(bucketName: string): Promise<boolean> {
+async function checkBucketExists(bucketName: string): Promise<boolean> {
   try {
-    // First check if bucket exists
     const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
     
     if (bucketsError) {
@@ -15,22 +14,9 @@ async function ensureStorageBucketExists(bucketName: string): Promise<boolean> {
       return false;
     }
     
-    // If bucket doesn't exist, create it
-    if (!buckets.find(b => b.name === bucketName)) {
-      const { error: createError } = await supabase.storage.createBucket(bucketName, {
-        public: true
-      });
-      
-      if (createError) {
-        console.error(`Error creating bucket ${bucketName}:`, createError);
-        return false;
-      }
-      console.log(`Created bucket: ${bucketName}`);
-    }
-    
-    return true;
+    return buckets.some(b => b.name === bucketName);
   } catch (error) {
-    console.error("Error ensuring bucket exists:", error);
+    console.error("Error checking if bucket exists:", error);
     return false;
   }
 }
@@ -117,59 +103,61 @@ export const useCreateReview = () => {
       const uploadedImageURLs: string[] = [];
       
       if (images && images.length > 0) {
-        // Ensure the storage bucket exists before attempting upload
-        const bucketExists = await ensureStorageBucketExists('review-images');
+        // Check if bucket exists before attempting to upload
+        const bucketExists = await checkBucketExists('review-images');
         
         if (!bucketExists) {
-          toast.error("Failed to access image storage. Please try again later.");
-          throw new Error("Storage bucket access error");
-        }
-        
-        for (const image of images) {
-          // Make sure the file is valid before attempting upload
-          if (!image || !image.name) {
-            console.warn("Invalid image file detected, skipping");
-            continue;
-          }
-
-          // Validate file size (max 5MB)
-          if (image.size > 5 * 1024 * 1024) {
-            toast.error(`Image ${image.name} exceeds the 5MB size limit`);
-            continue;
-          }
-
-          // Sanitize filename
-          const fileName = `${review.user_id}-${Date.now()}-${image.name.replace(/[^a-zA-Z0-9.-_]/g, '_')}`;
-          
-          try {
-            const { data: uploadResult, error: uploadError } = await supabase
-              .storage
-              .from('review-images')
-              .upload(fileName, image);
-              
-            if (uploadError) {
-              console.error("Error uploading image:", uploadError);
-              toast.error(`Failed to upload image: ${image.name}`);
-              continue; // Continue with other images instead of failing completely
+          console.error("Review images bucket does not exist. Please check storage policies.");
+          toast.error("Image storage not available. Your review text will still be submitted.");
+        } else {
+          // Try to upload each image
+          for (const image of images) {
+            // Validate the file
+            if (!image || !image.name) {
+              console.warn("Invalid image file detected, skipping");
+              continue;
             }
+
+            // Validate file size (max 5MB)
+            if (image.size > 5 * 1024 * 1024) {
+              toast.error(`Image ${image.name} exceeds the 5MB size limit`);
+              continue;
+            }
+
+            // Sanitize filename to prevent issues
+            const timestamp = Date.now();
+            const fileExt = image.name.split('.').pop();
+            const safeFileName = `${review.user_id.substring(0, 8)}-${timestamp}.${fileExt}`;
             
-            if (uploadResult) {
-              // Get public URL for the uploaded image
-              const { data: { publicUrl } } = supabase
+            try {
+              const { data: uploadResult, error: uploadError } = await supabase
                 .storage
                 .from('review-images')
-                .getPublicUrl(uploadResult.path);
+                .upload(safeFileName, image);
                 
-              uploadedImageURLs.push(publicUrl);
+              if (uploadError) {
+                console.error("Error uploading image:", uploadError);
+                toast.error(`Failed to upload an image, but your review will still be submitted`);
+                continue; // Continue with other images
+              }
+              
+              if (uploadResult) {
+                // Get public URL for the uploaded image
+                const { data: { publicUrl } } = supabase
+                  .storage
+                  .from('review-images')
+                  .getPublicUrl(uploadResult.path);
+                  
+                uploadedImageURLs.push(publicUrl);
+              }
+            } catch (err) {
+              console.error("Unexpected error during image upload:", err);
             }
-          } catch (err) {
-            console.error("Unexpected error during image upload:", err);
-            toast.error(`Error uploading image: ${image.name}`);
           }
         }
       }
       
-      // Then create the review with image URLs
+      // Create the review, even if image uploads failed
       try {
         const { data, error } = await supabase
           .from("reviews")
@@ -239,53 +227,55 @@ export const useUpdateReview = () => {
         const uploadedImageURLs: string[] = [];
         
         if (newImages && newImages.length > 0) {
-          // Ensure the storage bucket exists before attempting upload
-          const bucketExists = await ensureStorageBucketExists('review-images');
+          // Check if bucket exists before attempting to upload
+          const bucketExists = await checkBucketExists('review-images');
           
           if (!bucketExists) {
-            toast.error("Failed to access image storage. Please try again later.");
-            throw new Error("Storage bucket access error");
-          }
-          
-          for (const image of newImages) {
-            // Validate image before upload
-            if (!image || !image.name) {
-              console.warn("Invalid image file detected, skipping");
-              continue;
-            }
-            
-            // Validate file size
-            if (image.size > 5 * 1024 * 1024) {
-              toast.error(`Image ${image.name} exceeds the 5MB size limit`);
-              continue;
-            }
-
-            const fileName = `update-${Date.now()}-${image.name.replace(/[^a-zA-Z0-9.-_]/g, '_')}`;
-            
-            try {
-              const { data: uploadResult, error: uploadError } = await supabase
-                .storage
-                .from('review-images')
-                .upload(fileName, image);
-                
-              if (uploadError) {
-                console.error("Error uploading image:", uploadError);
-                toast.error(`Failed to upload image: ${image.name}`);
+            console.error("Review images bucket does not exist. Please check storage policies.");
+            toast.error("Image storage not available. Your review text will still be updated.");
+          } else {
+            for (const image of newImages) {
+              // Validate image before upload
+              if (!image || !image.name) {
+                console.warn("Invalid image file detected, skipping");
                 continue;
               }
               
-              if (uploadResult) {
-                // Get public URL for the uploaded image
-                const { data: { publicUrl } } = supabase
+              // Validate file size
+              if (image.size > 5 * 1024 * 1024) {
+                toast.error(`Image ${image.name} exceeds the 5MB size limit`);
+                continue;
+              }
+
+              // Sanitize filename to prevent issues
+              const timestamp = Date.now();
+              const fileExt = image.name.split('.').pop();
+              const safeFileName = `update-${timestamp}.${fileExt}`;
+              
+              try {
+                const { data: uploadResult, error: uploadError } = await supabase
                   .storage
                   .from('review-images')
-                  .getPublicUrl(uploadResult.path);
+                  .upload(safeFileName, image);
                   
-                uploadedImageURLs.push(publicUrl);
+                if (uploadError) {
+                  console.error("Error uploading image:", uploadError);
+                  toast.error(`Failed to upload an image, but your review will still be updated`);
+                  continue;
+                }
+                
+                if (uploadResult) {
+                  // Get public URL for the uploaded image
+                  const { data: { publicUrl } } = supabase
+                    .storage
+                    .from('review-images')
+                    .getPublicUrl(uploadResult.path);
+                    
+                  uploadedImageURLs.push(publicUrl);
+                }
+              } catch (err) {
+                console.error("Unexpected error during image upload:", err);
               }
-            } catch (err) {
-              console.error("Unexpected error during image upload:", err);
-              toast.error(`Error uploading image: ${image.name}`);
             }
           }
         }
