@@ -79,7 +79,7 @@
   }
 
   .container-padding {
-    @apply px-6;
+    @apply px-4 md:px-6;
   }
   
   .animate-enter {
@@ -176,6 +176,31 @@
   .content-container {
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }
+
+  /* Mobile-specific improvements */
+  .mobile-safe-area {
+    @apply px-4 pb-20 pt-16 md:p-6;
+  }
+  
+  .mobile-bottom-spacing {
+    @apply pb-24 md:pb-0;
+  }
+  
+  .mobile-nav-bottom {
+    @apply fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-gray-100 py-2 px-2 z-50;
+  }
+  
+  .mobile-nav-item {
+    @apply flex flex-col items-center justify-center space-y-1 rounded-lg p-2 transition-colors;
+  }
+  
+  .mobile-drawer-content {
+    @apply max-h-[85vh] overflow-auto;
+  }
+  
+  .mobile-header {
+    @apply fixed top-0 left-0 right-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-100 py-3 px-4;
+  }
 }
 
 #root {
@@ -202,3 +227,59 @@
   margin-right: -50vw;
 }
 
+/* Touch-friendly interactions */
+@media (max-width: 768px) {
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+  
+  input, 
+  select, 
+  textarea, 
+  button {
+    @apply text-base;
+    font-size: 16px !important; /* Prevent zoom on iOS */
+  }
+  
+  .scrollable-container {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .mobile-card {
+    @apply rounded-xl shadow-md border-0;
+  }
+  
+  .mobile-nav-wrapper {
+    @apply fixed bottom-0 left-0 right-0 z-50 border-t border-gray-100 bg-white/95 backdrop-blur-md;
+  }
+}
+
+/* Improved mobile form elements */
+@media (max-width: 768px) {
+  .form-row {
+    @apply flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4;
+  }
+  
+  .mobile-full {
+    @apply w-full !important;
+  }
+  
+  .mobile-stack > * {
+    @apply w-full mb-4 last:mb-0;
+  }
+  
+  .mobile-p-adjust {
+    @apply p-4 md:p-6;
+  }
+}
+
+/* Better tap targets on mobile */
+@media (max-width: 768px) {
+  .mobile-menu-item {
+    @apply py-3 px-4;
+  }
+  
+  .mobile-button {
+    @apply py-3 px-5;
+  }
+}
