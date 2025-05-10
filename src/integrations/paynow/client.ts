@@ -36,8 +36,8 @@ export const createPayment = async (
 ): Promise<PaynowPaymentResponse> => {
   try {
     // Get authenticated user token
-    const { data } = await supabase.auth.getSession();
-    const token = data?.session?.access_token;
+    const { data: sessionData } = await supabase.auth.getSession();
+    const token = sessionData?.session?.access_token;
 
     if (!token) {
       throw new Error("Authentication required for payment");
@@ -72,12 +72,12 @@ export const createPayment = async (
       throw new Error(errorData.error || "Payment initiation failed");
     }
 
-    const data = await response.json();
+    const responseData = await response.json();
     return {
       success: true,
-      hash: data.hash,
-      redirectUrl: data.redirectUrl,
-      pollUrl: data.pollUrl,
+      hash: responseData.hash,
+      redirectUrl: responseData.redirectUrl,
+      pollUrl: responseData.pollUrl,
       reference
     };
   } catch (error: any) {
@@ -100,8 +100,8 @@ export const checkPaymentStatus = async (pollUrl: string): Promise<{
 }> => {
   try {
     // Get authenticated user token
-    const { data } = await supabase.auth.getSession();
-    const token = data?.session?.access_token;
+    const { data: sessionData } = await supabase.auth.getSession();
+    const token = sessionData?.session?.access_token;
 
     if (!token) {
       throw new Error("Authentication required for checking payment status");
@@ -128,10 +128,10 @@ export const checkPaymentStatus = async (pollUrl: string): Promise<{
       throw new Error("Failed to check payment status");
     }
 
-    const data = await response.json();
+    const responseData = await response.json();
     return {
-      paid: data.paid,
-      status: data.status,
+      paid: responseData.paid,
+      status: responseData.status,
     };
   } catch (error: any) {
     console.error("Error checking payment status:", error);
