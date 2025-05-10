@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { DuplicateBookingAlert } from "./DuplicateBookingAlert";
+import { createPayment } from "@/integrations/paynow/client";
 import type { Event } from "@/types/models";
 
 interface EventBookingFormProps {
@@ -115,15 +116,43 @@ export const EventBookingForm = ({ event, onSuccess }: EventBookingFormProps) =>
         className: "bg-green-50 border-green-200"
       });
       
-      // Redirect to payment page
-      navigate(`/dashboard/payment?booking_id=${booking.id}`);
+      // Try Paynow payment first
+      const bookingId = booking?.id;
+      if (bookingId) {
+        try {
+          const paymentResponse = await createPayment(
+            contactEmail,
+            contactPhone,
+            totalPrice,
+            bookingId,
+            [{ name: `Event Ticket: ${event.title} (${selectedTicketType.name})`, amount: totalPrice }]
+          );
+          
+          if (paymentResponse.success && paymentResponse.redirectUrl) {
+            // Store pollUrl in session storage for later verification
+            if (paymentResponse.pollUrl) {
+              sessionStorage.setItem(`payment_${bookingId}_pollUrl`, paymentResponse.pollUrl);
+            }
+            
+            // Redirect to Paynow for payment
+            window.location.href = paymentResponse.redirectUrl;
+          } else {
+            throw new Error(paymentResponse.error || "Payment initialization failed");
+          }
+        } catch (paymentError: any) {
+          console.error("Paynow payment error:", paymentError);
+          // Fallback to internal payment page
+          navigate(`/dashboard/payment?booking_id=${bookingId}`);
+        }
+      } else {
+        throw new Error("No booking ID returned from database");
+      }
     } catch (error: any) {
       toast({
         title: "Booking Creation Failed",
         description: error.message,
         variant: "destructive"
       });
-    } finally {
       setIsSubmitting(false);
     }
   };

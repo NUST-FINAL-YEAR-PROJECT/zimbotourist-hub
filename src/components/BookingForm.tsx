@@ -132,10 +132,34 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
         className: "bg-green-50 border-green-200"
       });
       
-      // Initialize Stripe payment instead of Paynow
+      // Initialize Paynow payment
       const bookingId = booking?.id;
       if (bookingId) {
-        window.location.href = `/dashboard/payment?booking_id=${bookingId}`;
+        try {
+          const paymentResponse = await createPayment(
+            contactEmail,
+            contactPhone,
+            booking.total_price,
+            bookingId,
+            [{ name: `Zimbabwe Travel: ${destination.name}`, amount: booking.total_price }]
+          );
+          
+          if (paymentResponse.success && paymentResponse.redirectUrl) {
+            // Store pollUrl in session storage for later verification
+            if (paymentResponse.pollUrl) {
+              sessionStorage.setItem(`payment_${bookingId}_pollUrl`, paymentResponse.pollUrl);
+            }
+            
+            // Redirect to Paynow for payment
+            window.location.href = paymentResponse.redirectUrl;
+          } else {
+            throw new Error(paymentResponse.error || "Payment initialization failed");
+          }
+        } catch (paymentError: any) {
+          console.error("Payment error:", paymentError);
+          // Fallback to Stripe payment if Paynow fails
+          window.location.href = `/dashboard/payment?booking_id=${bookingId}`;
+        }
       } else {
         throw new Error("No booking ID returned from database");
       }
@@ -146,7 +170,6 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
         description: error.message || "An error occurred while creating your booking. Please try again.",
         variant: "destructive"
       });
-    } finally {
       setIsSubmitting(false);
     }
   };
