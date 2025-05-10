@@ -37,9 +37,9 @@ export const createPayment = async (
   try {
     // Get authenticated user token
     const { data: sessionData } = await supabase.auth.getSession();
-    const token = sessionData?.session?.access_token;
+    const accessToken = sessionData?.session?.access_token;
 
-    if (!token) {
+    if (!accessToken) {
       throw new Error("Authentication required for payment");
     }
 
@@ -48,7 +48,7 @@ export const createPayment = async (
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
+        'Authorization': `Bearer ${accessToken}`,
       },
       body: JSON.stringify({
         email,
@@ -101,9 +101,9 @@ export const checkPaymentStatus = async (pollUrl: string): Promise<{
   try {
     // Get authenticated user token
     const { data: sessionData } = await supabase.auth.getSession();
-    const token = sessionData?.session?.access_token;
+    const accessToken = sessionData?.session?.access_token;
 
-    if (!token) {
+    if (!accessToken) {
       throw new Error("Authentication required for checking payment status");
     }
 
@@ -112,7 +112,7 @@ export const checkPaymentStatus = async (pollUrl: string): Promise<{
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
+        'Authorization': `Bearer ${accessToken}`,
       },
       body: JSON.stringify({ pollUrl }),
     });
@@ -125,7 +125,8 @@ export const checkPaymentStatus = async (pollUrl: string): Promise<{
     }
 
     if (!response.ok) {
-      throw new Error("Failed to check payment status");
+      const errorJson = await response.json();
+      throw new Error(errorJson.error || "Failed to check payment status");
     }
 
     const responseData = await response.json();
