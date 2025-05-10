@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
@@ -133,25 +132,12 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
         className: "bg-green-50 border-green-200"
       });
       
-      // Initialize Paynow payment
-      const amount = destination.price * numberOfPeople;
-      const paymentResponse = await createPayment(
-        contactEmail,
-        contactPhone,
-        amount,
-        booking?.id || 'BOOKING',
-        [{ name: `Booking: ${destination.name}`, amount }]
-      );
-
-      if (!paymentResponse.success) {
-        throw new Error(paymentResponse.error || "Failed to initialize payment");
-      }
-
-      // Redirect to Paynow for payment
-      if (paymentResponse.redirectUrl) {
-        window.location.href = paymentResponse.redirectUrl;
+      // Initialize Stripe payment instead of Paynow
+      const bookingId = booking?.id;
+      if (bookingId) {
+        window.location.href = `/dashboard/payment?booking_id=${bookingId}`;
       } else {
-        throw new Error("No redirect URL provided by payment gateway");
+        throw new Error("No booking ID returned from database");
       }
       
     } catch (error: any) {

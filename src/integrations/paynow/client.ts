@@ -34,12 +34,20 @@ export const createPayment = async (
   items?: PaynowItem[]
 ): Promise<PaynowPaymentResponse> => {
   try {
+    // Get authenticated user token
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token;
+
+    if (!token) {
+      throw new Error("Authentication required for payment");
+    }
+
     // Send the payment request to our Supabase Edge Function
     const response = await fetch(`${import.meta.env.VITE_SUPABASE_FUNCTIONS_URL}/create-paynow-payment`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('supabase-auth-token')}`,
+        'Authorization': `Bearer ${token}`,
       },
       body: JSON.stringify({
         email,
@@ -50,6 +58,13 @@ export const createPayment = async (
         returnUrl: `${window.location.origin}/payment-status`,
       }),
     });
+
+    // Handle non-JSON responses (like HTML errors)
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      console.error('Non-JSON response received:', await response.text());
+      throw new Error('Invalid response from payment server');
+    }
 
     if (!response.ok) {
       const errorData = await response.json();
@@ -83,14 +98,30 @@ export const checkPaymentStatus = async (pollUrl: string): Promise<{
   status: string;
 }> => {
   try {
+    // Get authenticated user token
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token;
+
+    if (!token) {
+      throw new Error("Authentication required for checking payment status");
+    }
+
     // Call our Edge function to check the status
     const response = await fetch(`${import.meta.env.VITE_SUPABASE_FUNCTIONS_URL}/check-paynow-status`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
       },
       body: JSON.stringify({ pollUrl }),
     });
+
+    // Handle non-JSON responses
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      console.error('Non-JSON response received:', await response.text());
+      throw new Error('Invalid response from payment status server');
+    }
 
     if (!response.ok) {
       throw new Error("Failed to check payment status");
@@ -109,3 +140,6 @@ export const checkPaymentStatus = async (pollUrl: string): Promise<{
     };
   }
 };
+
+// Import required
+import { supabase } from "@/integrations/supabase/client";

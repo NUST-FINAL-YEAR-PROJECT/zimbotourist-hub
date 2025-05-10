@@ -12,7 +12,7 @@ export function Layout({ className, children, ...props }: LayoutProps) {
     <div 
       className={cn(
         "flex flex-col flex-1",
-        isMobile ? "mobile-safe-area" : "",
+        isMobile ? "mobile-safe-area pb-4" : "",
         className
       )} 
       {...props}
@@ -30,7 +30,7 @@ export function LayoutHeader({ className, children, ...props }: LayoutHeaderProp
   return (
     <div 
       className={cn(
-        isMobile ? "px-4 py-3" : "px-6 py-4", 
+        isMobile ? "px-4 py-3 sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b" : "px-6 py-4", 
         className
       )} 
       {...props}
@@ -43,10 +43,12 @@ export function LayoutHeader({ className, children, ...props }: LayoutHeaderProp
 interface LayoutTitleProps extends React.HTMLAttributes<HTMLHeadingElement> {}
 
 export function LayoutTitle({ className, children, ...props }: LayoutTitleProps) {
+  const isMobile = useIsMobile();
+  
   return (
     <h1 
       className={cn(
-        "text-xl md:text-2xl font-semibold tracking-tight", 
+        isMobile ? "text-lg font-semibold" : "text-xl md:text-2xl font-semibold tracking-tight", 
         className
       )} 
       {...props}
@@ -65,7 +67,7 @@ export function LayoutContent({ className, children, ...props }: LayoutContentPr
     <div 
       className={cn(
         "flex-1",
-        isMobile ? "mobile-bottom-spacing" : "", 
+        isMobile ? "px-4 mobile-bottom-spacing" : "", 
         className
       )} 
       {...props}
@@ -78,10 +80,13 @@ export function LayoutContent({ className, children, ...props }: LayoutContentPr
 interface LayoutContainerProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function LayoutContainer({ className, children, ...props }: LayoutContainerProps) {
+  const isMobile = useIsMobile();
+  
   return (
     <div 
       className={cn(
-        "max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8", 
+        "max-w-7xl mx-auto w-full",
+        isMobile ? "px-4" : "px-4 sm:px-6 lg:px-8", 
         className
       )} 
       {...props}
@@ -96,10 +101,12 @@ interface LayoutSectionProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export function LayoutSection({ className, tight = false, children, ...props }: LayoutSectionProps) {
+  const isMobile = useIsMobile();
+  
   return (
     <section 
       className={cn(
-        tight ? "py-4 md:py-6" : "py-6 md:py-10",
+        tight ? (isMobile ? "py-3 md:py-6" : "py-4 md:py-6") : (isMobile ? "py-4 md:py-10" : "py-6 md:py-10"),
         className
       )} 
       {...props}

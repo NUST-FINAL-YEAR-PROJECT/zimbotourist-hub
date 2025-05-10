@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, AlertCircle } from "lucide-react";
 import type { Booking } from "@/types/models";
 import { PaymentForm } from "@/components/PaymentForm";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 // Initialize Stripe with the publishable key
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
@@ -43,6 +44,7 @@ export const PaymentPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [clientSecret, setClientSecret] = useState<string>();
+  const isMobile = useIsMobile();
 
   const { data: booking, isLoading } = useQuery({
     queryKey: ["booking", bookingId],
@@ -133,7 +135,7 @@ export const PaymentPage = () => {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6 max-w-2xl">
+      <div className={cn("container mx-auto p-6", isMobile ? "max-w-full" : "max-w-2xl")}>
         <Skeleton className="h-[400px] w-full" />
       </div>
     );
@@ -141,7 +143,7 @@ export const PaymentPage = () => {
 
   if (!booking) {
     return (
-      <div className="container mx-auto p-6 max-w-2xl">
+      <div className={cn("container mx-auto p-6", isMobile ? "max-w-full" : "max-w-2xl")}>
         <Card>
           <CardContent className="pt-6">
             <div className="text-center space-y-4">
@@ -164,7 +166,7 @@ export const PaymentPage = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-2xl">
+    <div className={cn("container mx-auto p-6", isMobile ? "max-w-full" : "max-w-2xl")}>
       <Button 
         variant="outline" 
         onClick={() => navigate(-1)}
@@ -220,4 +222,9 @@ export const PaymentPage = () => {
       </Card>
     </div>
   );
+};
+
+// Helper function for class names
+const cn = (...classes: (string | undefined | boolean)[]) => {
+  return classes.filter(Boolean).join(' ');
 };
