@@ -10,6 +10,7 @@ import type { ViteDevServer } from 'vite';
 export default defineConfig(({ mode }) => ({
   server: {
     port: 8080,
+    historyApiFallback: true, // Enable SPA fallback for client-side routing
   },
   plugins: [
     react(),
@@ -30,23 +31,7 @@ export default defineConfig(({ mode }) => ({
         console.log('✅ _redirects file generated in dist folder');
       }
     },
-    // Handle history API fallback for SPA routing
-    {
-      name: 'spa-fallback',
-      configureServer(server: ViteDevServer) {
-        // Return index.html for any route
-        server.middlewares.use((req: any, res: any, next: any) => {
-          if (req.url?.includes('.')) {
-            // Skip for asset requests
-            next();
-          } else {
-            // This helps with client-side routing in dev mode
-            req.url = '/';
-            next();
-          }
-        });
-      }
-    }
+    // Remove custom SPA fallback as we now use Vite's built-in historyApiFallback
   ].filter(Boolean),
   resolve: {
     alias: {
