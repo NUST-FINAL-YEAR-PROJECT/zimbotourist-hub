@@ -17,7 +17,9 @@ export const PaymentStatusPage = () => {
 
   // Get payment details from URL
   const paymentReference = searchParams.get("reference");
-  const pollUrl = searchParams.get("pollUrl");
+  // Try to get pollUrl from URL or session storage
+  const pollUrl = searchParams.get("pollUrl") || 
+    (paymentReference ? sessionStorage.getItem(`payment_${paymentReference}_pollUrl`) : null);
 
   useEffect(() => {
     const verifyPayment = async () => {
@@ -50,7 +52,9 @@ export const PaymentStatusPage = () => {
 
         // If we have a poll URL, check the payment status
         if (pollUrl) {
+          console.log("Checking payment status with poll URL:", pollUrl);
           const paymentStatus = await checkPaymentStatus(pollUrl);
+          console.log("Payment status response:", paymentStatus);
           
           if (paymentStatus.paid) {
             // Update booking status
@@ -70,6 +74,9 @@ export const PaymentStatusPage = () => {
               description: "Your booking has been confirmed.",
               className: "bg-green-50 border-green-200",
             });
+            
+            // Clear the pollUrl from session storage
+            sessionStorage.removeItem(`payment_${paymentReference}_pollUrl`);
           } else {
             setStatus("failed");
             toast({
@@ -80,8 +87,22 @@ export const PaymentStatusPage = () => {
           }
         } else {
           // If no pollUrl, we'll just assume payment is being processed
-          // In a real app, you might want to handle this differently
-          setStatus("success");
+          // Check the booking status to see if it's already been confirmed
+          if (booking.payment_status === "completed" || booking.status === "confirmed") {
+            setStatus("success");
+            toast({
+              title: "Payment Confirmed",
+              description: "Your booking has been confirmed.",
+              className: "bg-green-50 border-green-200",
+            });
+          } else {
+            // In a real app, you might want to handle this differently
+            setStatus("loading");
+            toast({
+              title: "Payment Processing",
+              description: "Your payment is being processed.",
+            });
+          }
         }
       } catch (error: any) {
         console.error("Payment verification error:", error);

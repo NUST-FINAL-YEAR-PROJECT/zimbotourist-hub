@@ -43,8 +43,17 @@ export const createPayment = async (
       throw new Error("Authentication required for payment");
     }
 
+    // Check if the Supabase Functions URL is defined
+    const supabaseFunctionsUrl = import.meta.env.VITE_SUPABASE_FUNCTIONS_URL;
+    if (!supabaseFunctionsUrl) {
+      console.error("VITE_SUPABASE_FUNCTIONS_URL is not defined in environment variables");
+      throw new Error("Payment service configuration is missing");
+    }
+
+    console.log("Making payment request to:", `${supabaseFunctionsUrl}/create-paynow-payment`);
+
     // Send the payment request to our Supabase Edge Function
-    const response = await fetch(`${import.meta.env.VITE_SUPABASE_FUNCTIONS_URL}/create-paynow-payment`, {
+    const response = await fetch(`${supabaseFunctionsUrl}/create-paynow-payment`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -63,16 +72,17 @@ export const createPayment = async (
     // Handle non-JSON responses (like HTML errors)
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
-      console.error('Non-JSON response received:', await response.text());
+      const responseText = await response.text();
+      console.error('Non-JSON response received:', responseText);
       throw new Error('Invalid response from payment server');
     }
 
+    const responseData = await response.json();
+    
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || "Payment initiation failed");
+      throw new Error(responseData.error || "Payment initiation failed");
     }
 
-    const responseData = await response.json();
     return {
       success: true,
       hash: responseData.hash,
@@ -107,8 +117,15 @@ export const checkPaymentStatus = async (pollUrl: string): Promise<{
       throw new Error("Authentication required for checking payment status");
     }
 
+    // Check if the Supabase Functions URL is defined
+    const supabaseFunctionsUrl = import.meta.env.VITE_SUPABASE_FUNCTIONS_URL;
+    if (!supabaseFunctionsUrl) {
+      console.error("VITE_SUPABASE_FUNCTIONS_URL is not defined in environment variables");
+      throw new Error("Payment service configuration is missing");
+    }
+
     // Call our Edge function to check the status
-    const response = await fetch(`${import.meta.env.VITE_SUPABASE_FUNCTIONS_URL}/check-paynow-status`, {
+    const response = await fetch(`${supabaseFunctionsUrl}/check-paynow-status`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -120,7 +137,8 @@ export const checkPaymentStatus = async (pollUrl: string): Promise<{
     // Handle non-JSON responses
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
-      console.error('Non-JSON response received:', await response.text());
+      const responseText = await response.text();
+      console.error('Non-JSON response received:', responseText);
       throw new Error('Invalid response from payment status server');
     }
 

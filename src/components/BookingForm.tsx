@@ -136,6 +136,8 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
       const bookingId = booking?.id;
       if (bookingId) {
         try {
+          console.log("Attempting to create Paynow payment for booking:", bookingId);
+          
           const paymentResponse = await createPayment(
             contactEmail,
             contactPhone,
@@ -143,6 +145,8 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
             bookingId,
             [{ name: `Zimbabwe Travel: ${destination.name}`, amount: booking.total_price }]
           );
+          
+          console.log("Payment response:", paymentResponse);
           
           if (paymentResponse.success && paymentResponse.redirectUrl) {
             // Store pollUrl in session storage for later verification
@@ -157,8 +161,15 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
           }
         } catch (paymentError: any) {
           console.error("Payment error:", paymentError);
+          toast({
+            title: "Payment Gateway Error",
+            description: "Redirecting to alternate payment method...",
+            variant: "destructive"
+          });
           // Fallback to Stripe payment if Paynow fails
-          window.location.href = `/dashboard/payment?booking_id=${bookingId}`;
+          setTimeout(() => {
+            window.location.href = `/dashboard/payment?booking_id=${bookingId}`;
+          }, 2000);
         }
       } else {
         throw new Error("No booking ID returned from database");
