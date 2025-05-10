@@ -90,7 +90,7 @@ export const PaymentStatusPage = () => {
         toast({
           variant: "destructive",
           title: "Payment Verification Failed",
-          description: error.message,
+          description: error.message || "Failed to verify payment",
         });
       }
     };
@@ -163,25 +163,35 @@ export const PaymentStatusPage = () => {
             <div className="rounded-lg border p-4 space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium">Booking Reference</span>
-                <span className="text-sm text-muted-foreground">{bookingDetails.id.slice(0, 8)}</span>
+                <span className="text-sm text-muted-foreground">
+                  {bookingDetails.id ? bookingDetails.id.slice(0, 8) : 'N/A'}
+                </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium">Destination</span>
-                <span className="text-sm text-muted-foreground">{bookingDetails.destinations?.name}</span>
+                <span className="text-sm text-muted-foreground">
+                  {bookingDetails.destinations?.name || 'N/A'}
+                </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium">Travel Date</span>
                 <span className="text-sm text-muted-foreground">
-                  {bookingDetails && new Date(bookingDetails.preferred_date).toLocaleDateString()}
+                  {bookingDetails && bookingDetails.preferred_date 
+                    ? new Date(bookingDetails.preferred_date).toLocaleDateString()
+                    : 'N/A'}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium">Number of People</span>
-                <span className="text-sm text-muted-foreground">{bookingDetails.number_of_people}</span>
+                <span className="text-sm text-muted-foreground">
+                  {bookingDetails.number_of_people || 'N/A'}
+                </span>
               </div>
               <div className="flex justify-between items-center pt-3 border-t">
                 <span className="font-semibold">Total Amount</span>
-                <span className="font-semibold text-primary">${bookingDetails.total_price}</span>
+                <span className="font-semibold text-primary">
+                  ${bookingDetails.total_price || 0}
+                </span>
               </div>
             </div>
           )}
@@ -190,8 +200,8 @@ export const PaymentStatusPage = () => {
             <Button onClick={() => navigate('/dashboard/bookings')} variant="default">
               View My Bookings
             </Button>
-            {status === "failed" && (
-              <Button onClick={() => navigate(`/destination/${bookingDetails?.destination_id}`)} variant="outline">
+            {status === "failed" && bookingDetails?.destination_id && (
+              <Button onClick={() => navigate(`/destination/${bookingDetails.destination_id}`)} variant="outline">
                 Try Payment Again
               </Button>
             )}

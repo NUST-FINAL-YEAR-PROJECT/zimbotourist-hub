@@ -15,7 +15,9 @@ import { PaymentForm } from "@/components/PaymentForm";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
 // Initialize Stripe with the publishable key
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+const stripePromise = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY 
+  ? loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY) 
+  : null;
 
 // Configure Stripe Appearance
 const appearance: Parameters<typeof Elements>[0]['options']['appearance'] = {
@@ -84,18 +86,18 @@ export const PaymentPage = () => {
       const setupPayment = async () => {
         try {
           // Get the current session
-          const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+          const { data, error: sessionError } = await supabase.auth.getSession();
           
           if (sessionError) {
             throw new Error(sessionError.message);
           }
           
-          if (!session) {
+          if (!data?.session) {
             throw new Error("No active session found");
           }
 
           // Create a payment intent
-          const { data, error } = await supabase.functions.invoke(
+          const response = await supabase.functions.invoke(
             'create-payment-intent',
             {
               body: {
@@ -103,27 +105,27 @@ export const PaymentPage = () => {
                 amount: booking.total_price,
               },
               headers: {
-                Authorization: `Bearer ${session.access_token}`,
+                Authorization: `Bearer ${data.session.access_token}`,
               },
             }
           );
 
-          if (error) {
-            console.error("Payment intent error:", error);
-            throw new Error(error.message || 'Failed to create payment intent');
+          if (response.error) {
+            console.error("Payment intent error:", response.error);
+            throw new Error(response.error.message || 'Failed to create payment intent');
           }
           
-          if (!data?.clientSecret) {
+          if (!response.data?.clientSecret) {
             throw new Error("No client secret returned");
           }
 
-          setClientSecret(data.clientSecret);
+          setClientSecret(response.data.clientSecret);
         } catch (error: any) {
           console.error("Payment setup error:", error);
           toast({
             variant: "destructive",
             title: "Payment Setup Failed",
-            description: error.message,
+            description: error.message || "Failed to set up payment",
           });
           navigate("/dashboard");
         }
@@ -180,43 +182,52 @@ export const PaymentPage = () => {
         <CardHeader>
           <CardTitle>Complete Your Payment</CardTitle>
           <CardDescription>
-            Secure payment for your booking at {booking?.destinations?.name}
+            Secure payment for your booking at {booking?.destinations?.name || "selected destination"}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="rounded-lg border p-4 space-y-3">
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium">Booking Reference</span>
-              <span className="text-sm text-muted-foreground">{booking?.id.slice(0, 8)}</span>
+              <span className="text-sm text-muted-foreground">{booking?.id ? booking.id.slice(0, 8) : 'N/A'}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium">Travel Date</span>
               <span className="text-sm text-muted-foreground">
-                {booking && new Date(booking.booking_date).toLocaleDateString()}
+                {booking && booking.booking_date ? new Date(booking.booking_date).toLocaleDateString() : 'N/A'}
               </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium">Number of People</span>
-              <span className="text-sm text-muted-foreground">{booking?.number_of_people}</span>
+              <span className="text-sm text-muted-foreground">{booking?.number_of_people || 0}</span>
             </div>
             <div className="flex justify-between items-center pt-3 border-t">
               <span className="font-semibold">Total Amount</span>
-              <span className="font-semibold text-primary">${booking?.total_price}</span>
+              <span className="font-semibold text-primary">${booking?.total_price || 0}</span>
             </div>
           </div>
 
-          {clientSecret && (
+          {clientSecret && stripePromise && (
             <Elements 
               stripe={stripePromise} 
               options={{ 
                 clientSecret,
                 appearance,
                 paymentMethodCreation: 'manual',
-                payment_method_types: ['card', 'google_pay'],
+                payment_method_types: ['card'],
               }}
             >
               <PaymentForm bookingId={bookingId as string} />
             </Elements>
+          )}
+
+          {(!clientSecret || !stripePromise) && (
+            <div className="text-center p-4">
+              <Skeleton className="h-12 w-full mb-4" />
+              <p className="text-sm text-muted-foreground">
+                {!stripePromise ? "Stripe is not configured properly." : "Preparing payment options..."}
+              </p>
+            </div>
           )}
         </CardContent>
       </Card>

@@ -67,7 +67,7 @@ export function LayoutContent({ className, children, ...props }: LayoutContentPr
     <div 
       className={cn(
         "flex-1",
-        isMobile ? "px-4 mobile-bottom-spacing" : "", 
+        isMobile ? "px-4 mobile-bottom-spacing" : "px-0", 
         className
       )} 
       {...props}

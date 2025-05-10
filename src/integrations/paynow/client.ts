@@ -1,5 +1,6 @@
 
 // Paynow integration client for browser environments
+import { supabase } from "@/integrations/supabase/client";
 
 // Types
 export interface PaynowPaymentResponse {
@@ -35,8 +36,8 @@ export const createPayment = async (
 ): Promise<PaynowPaymentResponse> => {
   try {
     // Get authenticated user token
-    const { data: { session } } = await supabase.auth.getSession();
-    const token = session?.access_token;
+    const { data } = await supabase.auth.getSession();
+    const token = data?.session?.access_token;
 
     if (!token) {
       throw new Error("Authentication required for payment");
@@ -99,8 +100,8 @@ export const checkPaymentStatus = async (pollUrl: string): Promise<{
 }> => {
   try {
     // Get authenticated user token
-    const { data: { session } } = await supabase.auth.getSession();
-    const token = session?.access_token;
+    const { data } = await supabase.auth.getSession();
+    const token = data?.session?.access_token;
 
     if (!token) {
       throw new Error("Authentication required for checking payment status");
@@ -140,6 +141,3 @@ export const checkPaymentStatus = async (pollUrl: string): Promise<{
     };
   }
 };
-
-// Import required
-import { supabase } from "@/integrations/supabase/client";
