@@ -81,6 +81,11 @@ export const createPayment = async (
       throw new Error(responseData.error || "Payment initiation failed");
     }
 
+    // Store pollUrl in sessionStorage for retrieval on payment status page
+    if (responseData.pollUrl) {
+      sessionStorage.setItem(`payment_${reference}_pollUrl`, responseData.pollUrl);
+    }
+
     return {
       success: true,
       hash: responseData.hash,

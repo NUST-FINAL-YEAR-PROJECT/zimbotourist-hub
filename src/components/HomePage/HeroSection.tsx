@@ -58,7 +58,7 @@ export const HeroSection = ({
           className="text-center mb-4 w-full"
         >
           <h1 className="text-white font-display tracking-tighter leading-none mb-6">
-            <span className={`block ${isMobile ? "text-5xl" : "text-7xl md:text-8xl"} font-bold`}>Discover</span>
+            <span className={`block ${isMobile ? "text-5xl" : "text-7xl md:text-8xl"} font-bold`}>Explore</span>
             <span className={`block ${isMobile ? "text-6xl" : "text-9xl"} font-extrabold 
               bg-gradient-to-r from-amber-300 via-white to-amber-300 bg-clip-text text-transparent`}>
               Zimbabwe
@@ -84,7 +84,7 @@ export const HeroSection = ({
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/70" />
               <Input
                 type="text"
-                placeholder="Where do you want to explore?"
+                placeholder="Where in Zimbabwe do you want to explore?"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 py-6 h-14 text-lg bg-white/5 text-white border-white/10 placeholder:text-white/50 
@@ -126,7 +126,7 @@ export const HeroSection = ({
         className="absolute bottom-12 left-1/2 -translate-x-1/2 text-white"
       >
         <div className="flex flex-col items-center">
-          <span className="text-sm text-white/80 mb-2">Scroll to discover</span>
+          <span className="text-sm text-white/80 mb-2">Scroll to discover Zimbabwe</span>
           <motion.div
             animate={{ y: [0, 10, 0] }}
             transition={{

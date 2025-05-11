@@ -71,7 +71,7 @@ export const PaymentStatusPage = () => {
             setStatus("success");
             toast({
               title: "Payment Successful",
-              description: "Your booking has been confirmed.",
+              description: "Your Zimbabwe booking has been confirmed.",
               className: "bg-green-50 border-green-200",
             });
             
@@ -92,7 +92,7 @@ export const PaymentStatusPage = () => {
             setStatus("success");
             toast({
               title: "Payment Confirmed",
-              description: "Your booking has been confirmed.",
+              description: "Your Zimbabwe booking has been confirmed.",
               className: "bg-green-50 border-green-200",
             });
           } else {
@@ -100,7 +100,7 @@ export const PaymentStatusPage = () => {
             setStatus("loading");
             toast({
               title: "Payment Processing",
-              description: "Your payment is being processed.",
+              description: "Your payment for Zimbabwe travel is being processed.",
             });
           }
         }
@@ -123,7 +123,7 @@ export const PaymentStatusPage = () => {
       <div className="container mx-auto p-6 max-w-2xl">
         <Card>
           <CardHeader>
-            <CardTitle>Verifying Payment</CardTitle>
+            <CardTitle>Verifying Zimbabwe Travel Payment</CardTitle>
             <CardDescription>Please wait while we verify your payment</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col items-center justify-center py-10 space-y-4">
@@ -152,7 +152,7 @@ export const PaymentStatusPage = () => {
       <Card>
         <CardHeader>
           <CardTitle>
-            {status === "success" ? "Payment Successful" : "Payment Failed"}
+            {status === "success" ? "Zimbabwe Travel Payment Successful" : "Zimbabwe Travel Payment Failed"}
           </CardTitle>
           <CardDescription>
             {status === "success" 
@@ -218,7 +218,7 @@ export const PaymentStatusPage = () => {
 
           <div className="flex flex-col gap-3 pt-4">
             <Button onClick={() => navigate('/dashboard/bookings')} variant="default">
-              View My Bookings
+              View My Zimbabwe Bookings
             </Button>
             {status === "failed" && bookingDetails?.destination_id && (
               <Button onClick={() => navigate(`/destination/${bookingDetails.destination_id}`)} variant="outline">
