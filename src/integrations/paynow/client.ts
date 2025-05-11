@@ -50,8 +50,6 @@ export const createPayment = async (
       throw new Error("Payment service configuration is missing");
     }
 
-    console.log("Making payment request to:", `${supabaseFunctionsUrl}/create-paynow-payment`);
-
     // Send the payment request to our Supabase Edge Function
     const response = await fetch(`${supabaseFunctionsUrl}/create-paynow-payment`, {
       method: 'POST',
@@ -143,8 +141,8 @@ export const checkPaymentStatus = async (pollUrl: string): Promise<{
     }
 
     if (!response.ok) {
-      const errorJson = await response.json();
-      throw new Error(errorJson.error || "Failed to check payment status");
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to check payment status");
     }
 
     const responseData = await response.json();
