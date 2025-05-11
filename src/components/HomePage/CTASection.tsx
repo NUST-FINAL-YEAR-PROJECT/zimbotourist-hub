@@ -80,8 +80,8 @@ export const CTASection = () => {
             </Button>
             
             <Button
-              variant="outline"
-              className="text-white border-white/30 hover:bg-white/10 px-8 py-6 rounded-full transition-all duration-300"
+              variant="ghost"
+              className="text-white hover:bg-white/10 px-8 py-6 rounded-full transition-all duration-300"
               onClick={() => navigate('/destinations')}
             >
               Explore All Destinations

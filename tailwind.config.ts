@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -18,46 +19,46 @@ export default {
     },
     extend: {
       colors: {
-        border: "#E2E8F0",
-        input: "#E2E8F0",
-        ring: "#0EA5E9",
-        background: "#FFFFFF",
-        foreground: "#1A1F2C",
+        border: "#D1D5DB",
+        input: "#D1D5DB",
+        ring: "#6366F1",
+        background: "#F1F0FB", // Soft Gray background
+        foreground: "#1F2937",
         primary: {
-          DEFAULT: "#0EA5E9",
+          DEFAULT: "#6366F1", // Indigo
           foreground: "#FFFFFF",
-          dark: "#0284C7",
+          dark: "#4F46E5",
         },
         secondary: {
-          DEFAULT: "#F0F9FF",
-          foreground: "#1A1F2C",
+          DEFAULT: "#F3F4F6",
+          foreground: "#1F2937",
         },
         destructive: {
           DEFAULT: "#EF4444",
           foreground: "#FFFFFF",
         },
         muted: {
-          DEFAULT: "#F1F5F9",
-          foreground: "#64748B",
+          DEFAULT: "#F9FAFB",
+          foreground: "#6B7280",
         },
         accent: {
-          DEFAULT: "#F97316",
+          DEFAULT: "#8B5CF6", // Purple
           foreground: "#FFFFFF",
         },
         popover: {
           DEFAULT: "#FFFFFF",
-          foreground: "#1A1F2C",
+          foreground: "#1F2937",
         },
         card: {
           DEFAULT: "#FFFFFF",
-          foreground: "#1A1F2C",
+          foreground: "#1F2937",
         },
         sidebar: {
           DEFAULT: "#F8FAFC",
-          foreground: "#1A1F2C",
+          foreground: "#1F2937",
           border: "#E2E8F0",
           accent: "#EFF6FF",
-          "accent-foreground": "#0EA5E9",
+          "accent-foreground": "#6366F1",
           ring: "#BFDBFE",
         }
       },
