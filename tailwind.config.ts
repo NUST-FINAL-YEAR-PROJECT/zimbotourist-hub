@@ -117,6 +117,26 @@ export default {
             opacity: "1",
           },
         },
+        "float": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-10px)" }
+        },
+        "pulse-soft": {
+          "0%, 100%": { opacity: 1 },
+          "50%": { opacity: 0.7 }
+        },
+        "ripple": {
+          "0%": { transform: "scale(0)", opacity: 1 },
+          "100%": { transform: "scale(4)", opacity: 0 }
+        },
+        "shimmer": {
+          "0%": { backgroundPosition: "-500px 0" },
+          "100%": { backgroundPosition: "500px 0" }
+        },
+        "spin-slow": {
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(360deg)" }
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -128,6 +148,11 @@ export default {
         "slide-in-slow": "slide-in 1s ease-out",
         "fade-in-slow": "fade-in 1.5s ease-out",
         "zoom-in-slow": "zoom-in 1.2s ease-out",
+        "float": "float 3s ease-in-out infinite",
+        "pulse-soft": "pulse-soft 3s ease-in-out infinite",
+        "ripple": "ripple 1s linear infinite",
+        "shimmer": "shimmer 2s infinite linear",
+        "spin-slow": "spin-slow 15s linear infinite",
       },
       transitionDuration: {
         '1500': '1500ms',
@@ -136,6 +161,13 @@ export default {
       },
       transitionTimingFunction: {
         'smooth': 'cubic-bezier(0.4, 0, 0.2, 1)',
+      },
+      backdropBlur: {
+        xs: '2px',
+      },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
       },
     },
   },

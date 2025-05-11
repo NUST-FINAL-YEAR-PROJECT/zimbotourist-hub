@@ -17,6 +17,21 @@ export const CTASection = () => {
       <div className="absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1608638317448-83eed67f2738')] bg-cover bg-center opacity-20" />
         <div className="absolute inset-0 bg-gradient-to-br from-purple-600/90 via-indigo-600/80 to-blue-600/80" />
+        <motion.div 
+          animate={{ 
+            backgroundPosition: ["0% 0%", "100% 100%"], 
+          }} 
+          transition={{ 
+            duration: 20,
+            repeat: Infinity,
+            repeatType: "reverse"
+          }}
+          className="absolute inset-0 opacity-30"
+          style={{
+            backgroundImage: 'url("/grid.svg")',
+            backgroundSize: '30px 30px'
+          }}
+        />
         <div className="absolute bottom-0 left-0 w-full">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" className="w-full">
             <path fill="#ffffff" fillOpacity="1" d="M0,288L80,272C160,256,320,224,480,218.7C640,213,800,235,960,229.3C1120,224,1280,192,1360,176L1440,160L1440,320L1360,320C1280,320,1120,320,960,320C800,320,640,320,480,320C320,320,160,320,80,320L0,320Z"></path>
@@ -52,6 +67,7 @@ export const CTASection = () => {
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.4 }}
             viewport={{ once: true, margin: "-100px" }}
+            className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
             <Button
               size="2xl"
@@ -61,6 +77,14 @@ export const CTASection = () => {
             >
               Start Your Journey Today
               <ChevronRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+            </Button>
+            
+            <Button
+              variant="outline"
+              className="text-white border-white/30 hover:bg-white/10 px-8 py-6 rounded-full transition-all duration-300"
+              onClick={() => navigate('/destinations')}
+            >
+              Explore All Destinations
             </Button>
           </motion.div>
         </div>

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useState, useEffect } from "react";
+import { AnimatedWords } from "./AnimatedWords";
 
 interface HeroSectionProps {
   searchQuery: string;
@@ -30,14 +31,20 @@ export const HeroSection = ({
 
   return (
     <section className="relative h-screen w-full flex flex-col justify-center items-center overflow-hidden">
-      {/* Background layers */}
+      {/* Background layers with parallax effect */}
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1.5 }}
         className="absolute inset-0 z-0 w-full"
       >
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1601581975053-7c899da7d575')] bg-cover bg-center" />
+        <motion.div 
+          initial={{ scale: 1.1 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 2.5, ease: "easeOut" }}
+          style={{ y: scrollY * 0.3 }}
+          className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1601581975053-7c899da7d575')] bg-cover bg-center"
+        />
         <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-primary/30 to-black/70" />
         <div className="absolute inset-0 backdrop-blur-[1px]" />
         
@@ -48,6 +55,30 @@ export const HeroSection = ({
         
         <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-black to-transparent" />
       </motion.div>
+      
+      {/* Floating particles effect */}
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        {[...Array(8)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-2 h-2 rounded-full bg-white/20"
+            initial={{
+              x: Math.random() * 100 + "%",
+              y: Math.random() * 100 + "%",
+              scale: Math.random() * 0.5 + 0.5,
+            }}
+            animate={{
+              y: [Math.random() * 100 + "%", Math.random() * 100 + "%"],
+              opacity: [0.4, 0.8, 0.4],
+            }}
+            transition={{
+              duration: Math.random() * 10 + 20,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
+        ))}
+      </div>
       
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 flex flex-col items-center w-full">
@@ -65,10 +96,25 @@ export const HeroSection = ({
             </span>
           </h1>
           
-          <p className="text-white/90 text-xl md:text-2xl max-w-3xl mx-auto mb-10 leading-relaxed">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1, duration: 0.8 }}
+            className="text-2xl md:text-3xl font-display text-white/90 mb-8"
+          >
+            <span className="block mb-1">Discover</span>
+            <AnimatedWords />
+          </motion.div>
+          
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.3, duration: 0.8 }}
+            className="text-white/90 text-xl md:text-2xl max-w-3xl mx-auto mb-10 leading-relaxed"
+          >
             Experience the breathtaking beauty, rich culture, and unforgettable adventures.
             Your journey begins here.
-          </p>
+          </motion.p>
         </motion.div>
         
         {/* Search container with glass effect */}

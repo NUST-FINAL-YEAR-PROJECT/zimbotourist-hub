@@ -13,6 +13,13 @@ import { StatsSection } from "@/components/HomePage/StatsSection";
 import { VideoFeature } from "@/components/HomePage/VideoFeature";
 import { TestimonialsSection } from "@/components/HomePage/TestimonialsSection";
 import { CTASection } from "@/components/HomePage/CTASection";
+import { FeaturesSection } from "@/components/HomePage/FeaturesSection";
+
+// Animation variants
+const fadeIn = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.8 } }
+};
 
 const Index = () => {
   const { data: destinations } = useDestinations();
@@ -47,35 +54,112 @@ const Index = () => {
           handleSearch={handleSearch}
         />
         
-        <DestinationsSection />
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeIn}
+        >
+          <DestinationsSection />
+        </motion.div>
         
-        <ExperienceSection />
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeIn}
+        >
+          <FeaturesSection />
+        </motion.div>
         
-        <VideoFeature />
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeIn}
+        >
+          <ExperienceSection />
+        </motion.div>
         
-        <StatsSection />
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeIn}
+        >
+          <VideoFeature />
+        </motion.div>
         
-        <TestimonialsSection />
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeIn}
+        >
+          <StatsSection />
+        </motion.div>
         
-        <CTASection />
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeIn}
+        >
+          <TestimonialsSection />
+        </motion.div>
+        
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeIn}
+        >
+          <CTASection />
+        </motion.div>
       </main>
       
       {/* Footer with scroll to top */}
       <motion.footer 
-        className="bg-white py-8 border-t border-gray-200 w-full"
+        className="bg-gradient-to-b from-slate-100 to-white py-16 border-t border-gray-200 w-full"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
         viewport={{ once: true }}
       >
-        <div className="container mx-auto px-4 text-center text-muted-foreground">
-          <p>© 2025 Discover Zimbabwe. All rights reserved.</p>
-          <button 
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="mt-4 text-sm text-primary hover:text-primary/80 transition-colors"
-          >
-            Back to top
-          </button>
+        <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div>
+            <h3 className="text-xl font-bold mb-4">Explore Zimbabwe</h3>
+            <p className="text-muted-foreground">
+              Your gateway to Zimbabwe's breathtaking landscapes, rich cultural heritage, and unforgettable adventures.
+            </p>
+          </div>
+          
+          <div>
+            <h4 className="font-medium mb-4">Quick Links</h4>
+            <ul className="space-y-2">
+              <li><a href="/destinations" className="text-muted-foreground hover:text-primary transition-colors">All Destinations</a></li>
+              <li><a href="/events" className="text-muted-foreground hover:text-primary transition-colors">Upcoming Events</a></li>
+              <li><a href="/auth" className="text-muted-foreground hover:text-primary transition-colors">Sign Up / Login</a></li>
+              <li><a href="/documentation" className="text-muted-foreground hover:text-primary transition-colors">Travel Guide</a></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h4 className="font-medium mb-4">Contact</h4>
+            <p className="text-muted-foreground">
+              Have questions about your Zimbabwe journey? Reach out to our travel experts.
+            </p>
+            <button 
+              className="mt-4 inline-flex items-center text-sm text-primary hover:underline"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            >
+              Back to top
+            </button>
+          </div>
+        </div>
+        
+        <div className="container mx-auto px-4 mt-12 pt-6 border-t border-gray-100 text-center text-sm text-muted-foreground">
+          <p>© 2025 Explore Zimbabwe. All rights reserved.</p>
         </div>
       </motion.footer>
     </div>
