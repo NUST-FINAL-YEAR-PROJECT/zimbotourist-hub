@@ -11,7 +11,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-blue-600 text-white shadow hover:bg-blue-700",
+          "bg-blue-600 text-white shadow hover:bg-blue-700 transition-all duration-300",
         secondary:
           "bg-secondary text-secondary-foreground shadow hover:bg-secondary/80",
         destructive:
@@ -22,15 +22,17 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         amber: "bg-amber-500 text-white shadow-md hover:bg-amber-600",
         green: "bg-green-500 text-white shadow-md hover:bg-green-400",
-        blue: "bg-blue-600 text-white shadow-md hover:bg-blue-700",
+        blue: "bg-blue-600 text-white shadow-md hover:bg-blue-700 transition-all duration-300",
         icon: "h-9 w-9 p-0",
+        "blue-gradient": "bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-md hover:from-blue-700 hover:to-blue-900 transition-all duration-300",
       },
       size: {
-        default: "h-9 px-4",
+        default: "h-9 px-4 py-2",
         sm: "h-8 rounded-md px-3 text-xs",
         lg: "h-10 rounded-md px-8",
-        icon: "h-9 w-9 p-0",
+        xl: "h-11 rounded-md px-8 text-base",
         "2xl": "h-12 rounded-md px-10 text-lg",
+        icon: "h-9 w-9 p-0",
       },
     },
     defaultVariants: {
