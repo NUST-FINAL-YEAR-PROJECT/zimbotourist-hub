@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import type { Database } from '@/integrations/supabase/types';
-import { PostgrestFilterBuilder } from '@supabase/postgrest-js';
+import { PostgrestFilterBuilder } from '@supabase/supabase-js';
 
 /**
  * Example of state management using React Query
