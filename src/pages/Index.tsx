@@ -1,25 +1,16 @@
 
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import { useDestinations } from "@/hooks/useDestinations";
 import { TopNavbar } from "@/components/TopNavbar";
 
 // Import custom sections
 import { HeroSection } from "@/components/HomePage/HeroSection";
 import { DestinationsSection } from "@/components/HomePage/DestinationsSection";
-import { ExperienceSection } from "@/components/HomePage/ExperienceSection";
+import { FeaturesSection } from "@/components/HomePage/FeaturesSection";
 import { StatsSection } from "@/components/HomePage/StatsSection";
-import { VideoFeature } from "@/components/HomePage/VideoFeature";
 import { TestimonialsSection } from "@/components/HomePage/TestimonialsSection";
 import { CTASection } from "@/components/HomePage/CTASection";
-import { FeaturesSection } from "@/components/HomePage/FeaturesSection";
-
-// Animation variants
-const fadeIn = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.8 } }
-};
 
 const Index = () => {
   const { data: destinations } = useDestinations();
@@ -37,7 +28,7 @@ const Index = () => {
   }, [destinations, searchQuery]);
 
   const handleSearch = () => {
-    if (filteredDestinations.length > 0 && searchQuery) {
+    if (searchQuery) {
       navigate(`/destinations?search=${encodeURIComponent(searchQuery)}`);
     }
   };
@@ -46,7 +37,6 @@ const Index = () => {
     <div className="min-h-screen w-full overflow-x-hidden bg-white">
       <TopNavbar />
       
-      {/* Sections */}
       <main className="w-full">
         <HeroSection 
           searchQuery={searchQuery}
@@ -54,91 +44,31 @@ const Index = () => {
           handleSearch={handleSearch}
         />
         
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={fadeIn}
-        >
-          <DestinationsSection />
-        </motion.div>
+        <DestinationsSection />
         
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={fadeIn}
-          className="bg-gradient-to-br from-blue-50 to-blue-100"
-        >
+        <div className="bg-gray-50">
           <FeaturesSection />
-        </motion.div>
+        </div>
         
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={fadeIn}
-        >
-          <ExperienceSection />
-        </motion.div>
+        <StatsSection />
         
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={fadeIn}
-          className="bg-gradient-to-br from-blue-50 to-blue-100"
-        >
-          <VideoFeature />
-        </motion.div>
-        
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={fadeIn}
-        >
-          <StatsSection />
-        </motion.div>
-        
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={fadeIn}
-          className="bg-gradient-to-br from-amber-50 to-amber-100"
-        >
+        <div className="bg-gray-50">
           <TestimonialsSection />
-        </motion.div>
+        </div>
         
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={fadeIn}
-          className="bg-blue-900"
-        >
-          <CTASection />
-        </motion.div>
+        <CTASection />
       </main>
       
-      {/* Footer with modern styling */}
-      <motion.footer 
-        className="bg-white py-16 border-t border-gray-100 w-full"
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
-        viewport={{ once: true }}
-      >
+      <footer className="bg-white py-16 border-t border-gray-100 w-full">
         <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="transform hover:translate-y-[-8px] transition-transform duration-500">
+          <div>
             <h3 className="text-xl font-bold mb-4 text-blue-900">Explore Zimbabwe</h3>
             <p className="text-gray-600">
               Your gateway to Zimbabwe's breathtaking landscapes, rich cultural heritage, and unforgettable adventures.
             </p>
           </div>
           
-          <div className="transform hover:translate-y-[-8px] transition-transform duration-500">
+          <div>
             <h4 className="font-medium mb-4 text-gray-800">Quick Links</h4>
             <ul className="space-y-2">
               <li><a href="/destinations" className="text-gray-600 hover:text-amber-600 transition-colors">All Destinations</a></li>
@@ -148,7 +78,7 @@ const Index = () => {
             </ul>
           </div>
           
-          <div className="transform hover:translate-y-[-8px] transition-transform duration-500">
+          <div>
             <h4 className="font-medium mb-4 text-gray-800">Contact</h4>
             <p className="text-gray-600">
               Have questions about your Zimbabwe journey? Reach out to our travel experts.
@@ -165,7 +95,7 @@ const Index = () => {
         <div className="container mx-auto px-4 mt-12 pt-6 border-t border-gray-50 text-center text-sm text-gray-500">
           <p>© 2025 Explore Zimbabwe. All rights reserved.</p>
         </div>
-      </motion.footer>
+      </footer>
     </div>
   );
 };

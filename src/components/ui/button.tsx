@@ -20,7 +20,7 @@ const buttonVariants = cva(
           "border border-input bg-transparent hover:bg-accent hover:text-accent-foreground",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        amber: "bg-amber-500 text-white shadow-md hover:bg-amber-400",
+        amber: "bg-amber-500 text-white shadow-md hover:bg-amber-600",
         green: "bg-green-500 text-white shadow-md hover:bg-green-400",
         blue: "bg-blue-500 text-white shadow-md hover:bg-blue-400",
         icon: "h-9 w-9 p-0",

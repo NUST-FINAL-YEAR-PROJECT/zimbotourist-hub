@@ -1,11 +1,8 @@
 
-import { motion } from "framer-motion";
-import { ChevronDown, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import { useState, useEffect } from "react";
-import { AnimatedWords } from "./AnimatedWords";
 
 interface HeroSectionProps {
   searchQuery: string;
@@ -19,106 +16,31 @@ export const HeroSection = ({
   handleSearch,
 }: HeroSectionProps) => {
   const isMobile = useIsMobile();
-  const [scrollY, setScrollY] = useState(0);
-  
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   return (
-    <section className="relative h-screen w-full flex flex-col justify-center items-center overflow-hidden">
-      {/* Background with modern layout */}
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1.5 }}
-        className="absolute inset-0 z-0 w-full"
-      >
-        <motion.div 
-          initial={{ scale: 1.1 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 2.5, ease: "easeOut" }}
-          style={{ y: scrollY * 0.3 }}
-          className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1601581975053-7c899da7d575')] bg-cover bg-center"
-        />
+    <section className="relative min-h-screen flex flex-col justify-center items-center">
+      {/* Background with clean layout */}
+      <div className="absolute inset-0 z-0 w-full">
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1601581975053-7c899da7d575')] bg-cover bg-center" />
         <div className="absolute inset-0 bg-blue-900/70" />
-        
-        {/* Clean bottom fade */}
-        <div className="absolute bottom-0 left-0 w-full h-32 bg-blue-50" />
-      </motion.div>
-      
-      {/* Modern particle effect */}
-      <div className="absolute inset-0 z-0 overflow-hidden">
-        {[...Array(12)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-2 h-2 rounded-full bg-white/30"
-            initial={{
-              x: Math.random() * 100 + "%",
-              y: Math.random() * 100 + "%",
-              scale: Math.random() * 0.5 + 0.5,
-            }}
-            animate={{
-              y: [Math.random() * 100 + "%", Math.random() * 100 + "%"],
-              opacity: [0.3, 0.6, 0.3],
-            }}
-            transition={{
-              duration: Math.random() * 10 + 20,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          />
-        ))}
       </div>
       
-      {/* Content with refined typography */}
-      <div className="relative z-10 container mx-auto px-4 flex flex-col items-center w-full">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.8 }}
-          className="text-center mb-6 w-full"
-        >
-          <h1 className="text-white font-display tracking-tighter leading-none mb-8">
-            <span className={`block ${isMobile ? "text-5xl" : "text-7xl md:text-8xl"} font-bold`}>Explore</span>
-            <span className={`block ${isMobile ? "text-6xl" : "text-9xl"} font-extrabold text-white`}>
-              Zimbabwe
-            </span>
-          </h1>
-          
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1, duration: 0.8 }}
-            className="text-2xl md:text-3xl font-display text-white/90 mb-8"
-          >
-            <span className="block mb-1">Discover</span>
-            <AnimatedWords />
-          </motion.div>
-          
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.3, duration: 0.8 }}
-            className="text-white/90 text-xl md:text-2xl max-w-3xl mx-auto mb-12 leading-relaxed"
-          >
-            Experience the breathtaking beauty, rich culture, and unforgettable adventures.
-            Your journey begins here.
-          </motion.p>
-        </motion.div>
+      {/* Content with clean typography */}
+      <div className="relative z-10 container mx-auto px-4 flex flex-col items-center text-center max-w-5xl">
+        <h1 className="text-white font-display mb-6">
+          <span className={`block ${isMobile ? "text-5xl" : "text-7xl"} font-bold`}>Explore</span>
+          <span className={`block ${isMobile ? "text-6xl" : "text-8xl"} font-extrabold text-white`}>
+            Zimbabwe
+          </span>
+        </h1>
         
-        {/* Modern search container with improved visibility */}
-        <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8, duration: 0.8 }}
-          className="w-full max-w-3xl bg-white/20 backdrop-blur-md border border-white/30 
-            rounded-2xl p-6 shadow-xl"
-        >
+        <p className="text-white/90 text-xl max-w-3xl mx-auto mb-12">
+          Experience the breathtaking beauty, rich culture, and unforgettable adventures.
+          Your journey begins here.
+        </p>
+        
+        {/* Clean search container */}
+        <div className="w-full max-w-3xl bg-white/20 backdrop-blur-md rounded-lg p-6">
           <div className="flex flex-col md:flex-row gap-3">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white" />
@@ -134,9 +56,9 @@ export const HeroSection = ({
             </div>
             <Button 
               onClick={handleSearch}
-              variant="default"
-              className="h-14 px-8 font-medium text-lg rounded-xl bg-amber-500 hover:bg-amber-600 text-white 
-                transition-all duration-300 shadow-lg hover:shadow-xl border-2 border-amber-400"
+              variant="amber"
+              size="2xl"
+              className="rounded-xl bg-amber-500 hover:bg-amber-600 text-white shadow-lg"
             >
               Explore Now
             </Button>
@@ -144,42 +66,20 @@ export const HeroSection = ({
           
           <div className="flex flex-wrap gap-3 mt-4 justify-center">
             <span className="text-sm text-white/80">Popular:</span>
-            {["Victoria Falls", "Hwange National Park", "Great Zimbabwe", "Matobo Hills"].map((place) => (
+            {["Victoria Falls", "Hwange National Park", "Great Zimbabwe"].map((place) => (
               <Button 
                 key={place}
                 variant="ghost" 
                 size="sm" 
-                className="text-sm h-7 p-0 text-white hover:text-white hover:bg-white/20"
+                className="text-sm text-white hover:text-white hover:bg-white/20"
                 onClick={() => setSearchQuery(place)}
               >
                 {place}
               </Button>
             ))}
           </div>
-        </motion.div>
-      </div>
-      
-      {/* Modern scroll indicator */}
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: scrollY > 20 ? 0 : 1 }}
-        transition={{ duration: 0.3 }}
-        className="absolute bottom-12 left-1/2 -translate-x-1/2 text-white"
-      >
-        <div className="flex flex-col items-center">
-          <span className="text-sm font-light tracking-wider text-white/80 mb-2">Scroll to discover</span>
-          <motion.div
-            animate={{ y: [0, 10, 0] }}
-            transition={{
-              duration: 1.5,
-              repeat: Infinity,
-              repeatType: "loop"
-            }}
-          >
-            <ChevronDown className="h-6 w-6" />
-          </motion.div>
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 };
