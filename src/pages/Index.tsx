@@ -43,7 +43,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden bg-white">
+    <div className="min-h-screen w-full overflow-x-hidden bg-gray-50">
       <TopNavbar />
       
       {/* Sections */}
@@ -120,7 +120,7 @@ const Index = () => {
       
       {/* Footer with scroll to top */}
       <motion.footer 
-        className="bg-gradient-to-b from-slate-100 to-white py-16 border-t border-gray-200 w-full"
+        className="bg-white py-16 border-t border-gray-200 w-full"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
