@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, Routes, Route } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -51,11 +52,11 @@ const StatCard = ({
 }) => (
   <motion.div 
     whileHover={{ y: -5 }} 
-    className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-6 transition-all duration-300"
+    className="bg-white rounded-xl border border-blue-50 shadow-sm p-4 sm:p-6 transition-all duration-300"
   >
     <div className="flex items-center space-x-2 sm:space-x-4">
-      <div className="p-2 sm:p-3 bg-indigo-50 rounded-lg">
-        <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-indigo-600" />
+      <div className="p-2 sm:p-3 bg-blue-50 rounded-lg">
+        <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
       </div>
       <div>
         <p className="text-xs sm:text-sm font-medium text-muted-foreground">{title}</p>
@@ -110,7 +111,7 @@ const NotificationItem = ({
       className={cn(
         "p-4 transition-all cursor-pointer rounded-lg mb-3 border shadow-sm",
         getBgColor(),
-        isUnread ? "border-l-4 border-l-indigo-500" : "border-gray-100"
+        isUnread ? "border-l-4 border-l-blue-500" : "border-gray-100"
       )}
       onClick={() => onRead(notification.id)}
     >
@@ -207,7 +208,7 @@ const DashboardHome = ({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="bg-gradient-to-r from-indigo-500 to-purple-500 p-4 sm:p-6 rounded-xl text-white shadow-md"
+        className="bg-gradient-to-r from-blue-500 to-blue-700 p-4 sm:p-6 rounded-xl text-white shadow-md"
       >
         <h1 className="text-lg sm:text-3xl font-bold">
           {getGreeting()}, {profile.username || profile.email.split('@')[0]}!
@@ -220,9 +221,9 @@ const DashboardHome = ({
       <div className="flex flex-wrap items-center gap-2 sm:gap-4">
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="outline" size={isMobile ? "sm" : "default"} className="relative bg-white hover:bg-indigo-50 border-gray-200 shadow-sm">
+            <Button variant="outline" size={isMobile ? "sm" : "default"} className="relative bg-white hover:bg-blue-50 border-blue-200 shadow-sm">
               {unreadCount > 0 ? (
-                <BellDot className="h-4 w-4 sm:h-5 sm:w-5 text-indigo-600 mr-2" />
+                <BellDot className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 mr-2" />
               ) : (
                 <Bell className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
               )}
@@ -231,7 +232,7 @@ const DashboardHome = ({
                 <motion.span
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-indigo-600 text-xs text-white flex items-center justify-center"
+                  className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-blue-600 text-xs text-white flex items-center justify-center"
                 >
                   {unreadCount}
                 </motion.span>
@@ -241,7 +242,7 @@ const DashboardHome = ({
           <SheetContent side={isMobile ? "bottom" : "right"} className={isMobile ? "mobile-sheet-content" : "w-full sm:max-w-md"}>
             <SheetHeader className="pb-4 border-b">
               <SheetTitle className="flex items-center gap-2 text-xl">
-                <Bell className="h-5 w-5 text-indigo-600" /> Notifications
+                <Bell className="h-5 w-5 text-blue-600" /> Notifications
               </SheetTitle>
             </SheetHeader>
             <div className="flex justify-between items-center mt-4 mb-2 px-1">
@@ -253,7 +254,7 @@ const DashboardHome = ({
                   variant="ghost" 
                   size="sm" 
                   onClick={() => markAllAsRead.mutate()}
-                  className="text-xs hover:bg-indigo-50 text-indigo-600"
+                  className="text-xs hover:bg-blue-50 text-blue-600"
                 >
                   Mark all as read
                 </Button>
@@ -307,9 +308,9 @@ const DashboardHome = ({
 
       {bookings.length > 0 && (
         <Card className="overflow-hidden border bg-white shadow-sm">
-          <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 p-3 sm:p-6">
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 p-3 sm:p-6">
             <CardTitle className="flex items-center text-sm sm:text-lg">
-              <Activity className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-indigo-600" />
+              <Activity className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-blue-600" />
               Recent Bookings
             </CardTitle>
             <CardDescription>Your latest travel arrangements</CardDescription>
@@ -323,7 +324,7 @@ const DashboardHome = ({
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 + (index * 0.1), duration: 0.4 }}
                   whileHover={{ scale: isMobile ? 1 : 1.02 }}
-                  className="p-3 rounded-lg border bg-card text-card-foreground hover:border-indigo-200 shadow-sm transition-all duration-200"
+                  className="p-3 rounded-lg border bg-card text-card-foreground hover:border-blue-200 shadow-sm transition-all duration-200"
                 >
                   <div className="flex justify-between items-center">
                     <div>
@@ -346,7 +347,7 @@ const DashboardHome = ({
                   variant="outline" 
                   size="sm" 
                   onClick={() => navigate("/dashboard/bookings")} 
-                  className="w-full mt-2 text-sm text-indigo-600 hover:bg-indigo-50 border-dashed"
+                  className="w-full mt-2 text-sm text-blue-600 hover:bg-blue-50 border-dashed"
                 >
                   View all bookings
                 </Button>
@@ -441,7 +442,7 @@ export const Dashboard = () => {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen w-full bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+      <div className="flex min-h-screen w-full bg-gradient-to-br from-blue-50 via-white to-blue-50">
         <div className="flex-1 p-3 sm:p-8">
           <div className="container mx-auto space-y-4 sm:space-y-8">
             <Skeleton className="h-12 w-full max-w-md rounded-xl mb-4 sm:mb-8" />
@@ -459,7 +460,7 @@ export const Dashboard = () => {
   }
 
   return (
-    <div className="flex min-h-screen w-full bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+    <div className="flex min-h-screen w-full bg-gradient-to-br from-blue-50 via-white to-blue-50">
       {!isMobile && <AppSidebar />}
       <div className={cn(
         "flex-1 overflow-auto",
@@ -472,8 +473,8 @@ export const Dashboard = () => {
             transition={{ duration: 0.5 }}
             className="flex items-center justify-between mb-3 sm:mb-6"
           >
-            <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent flex items-center">
-              <LayoutDashboard className="h-4 w-4 sm:h-6 sm:w-6 mr-2 text-indigo-600" />
+            <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent flex items-center">
+              <LayoutDashboard className="h-4 w-4 sm:h-6 sm:w-6 mr-2 text-blue-600" />
               Dashboard
             </h1>
             <div className="flex items-center gap-4">

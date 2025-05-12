@@ -70,7 +70,7 @@ export function AppSidebar() {
               onClick={item.onClick}
               className={cn(
                 "flex flex-col items-center py-1 px-2 h-auto",
-                window.location.pathname === item.path ? "text-indigo-600" : "text-muted-foreground"
+                window.location.pathname === item.path ? "text-blue-600" : "text-muted-foreground"
               )}
             >
               <item.icon className="h-5 w-5" />
@@ -87,11 +87,11 @@ export function AppSidebar() {
       <SidebarHeader className="border-b border-gray-100 p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 flex items-center justify-center">
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-r from-blue-600 to-blue-800 flex items-center justify-center">
               <Sparkles className="h-5 w-5 text-white" />
             </div>
             <h2 className={cn(
-              "text-lg font-display font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent transition-opacity duration-300",
+              "text-lg font-display font-semibold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent transition-opacity duration-300",
               state === "collapsed" && "opacity-0"
             )}>
               Reserve.zw
@@ -116,7 +116,7 @@ export function AppSidebar() {
                   <SidebarMenuItem>
                     <SidebarMenuButton
                       onClick={item.onClick}
-                      className="hover:bg-indigo-50 hover:text-indigo-600 data-[active=true]:bg-indigo-100 data-[active=true]:text-indigo-600"
+                      className="hover:bg-blue-50 hover:text-blue-600 data-[active=true]:bg-blue-100 data-[active=true]:text-blue-600"
                       isActive={window.location.pathname === item.path}
                     >
                       <item.icon className="h-5 w-5" />
@@ -134,7 +134,7 @@ export function AppSidebar() {
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     onClick={() => navigate("/dashboard/settings")}
-                    className="hover:bg-indigo-50 hover:text-indigo-600 data-[active=true]:bg-indigo-100 data-[active=true]:text-indigo-600"
+                    className="hover:bg-blue-50 hover:text-blue-600 data-[active=true]:bg-blue-100 data-[active=true]:text-blue-600"
                     isActive={window.location.pathname === "/dashboard/settings"}
                   >
                     <Settings className="h-5 w-5" />
