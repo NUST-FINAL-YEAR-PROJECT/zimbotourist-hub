@@ -9,61 +9,6 @@ export const useProfile = (userId: string | undefined) => {
     queryFn: async () => {
       if (!userId) throw new Error("No user ID provided");
       
-      // Retry mechanism for session
-      let sessionAttempts = 0;
-      let session = null;
-      
-      while (sessionAttempts < 3 && !session) {
-        try {
-          // Make sure we have a valid session first
-          const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-          
-          if (sessionError) {
-            console.error("Session error attempt", sessionAttempts + 1, "in useProfile:", sessionError);
-            sessionAttempts++;
-            
-            if (sessionAttempts < 3) {
-              await new Promise(resolve => setTimeout(resolve, 1000 * sessionAttempts));
-              continue;
-            }
-            
-            throw sessionError;
-          }
-          
-          session = sessionData.session;
-          
-          if (!session) {
-            console.warn("No session found on attempt", sessionAttempts + 1);
-            sessionAttempts++;
-            
-            if (sessionAttempts < 3) {
-              // Try to refresh the session
-              const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
-              
-              if (!refreshError && refreshData.session) {
-                session = refreshData.session;
-                break;
-              }
-              
-              await new Promise(resolve => setTimeout(resolve, 1000 * sessionAttempts));
-              continue;
-            }
-            
-            throw new Error("No valid session found after multiple attempts");
-          }
-        } catch (error) {
-          console.error("Error in session handling:", error);
-          sessionAttempts++;
-          
-          if (sessionAttempts >= 3) {
-            throw error;
-          }
-          
-          await new Promise(resolve => setTimeout(resolve, 1000 * sessionAttempts));
-        }
-      }
-      
-      // Fetch profile with valid session
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
@@ -84,8 +29,6 @@ export const useProfile = (userId: string | undefined) => {
       return data as Profile;
     },
     enabled: !!userId,
-    retry: 3, // Retry up to 3 times if there's an error
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000), // Exponential backoff
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 1, // Only retry once if there's an error
   });
 };

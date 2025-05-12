@@ -150,51 +150,12 @@ export const useUserOperations = () => {
     }
   };
 
-  // New function to promote current user to admin
-  const promoteToAdmin = async () => {
-    setIsLoading(true);
-    try {
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        toast.error("No authenticated user found");
-        return false;
-      }
-      
-      // Update profile to ADMIN role
-      const { data, error } = await supabase
-        .from("profiles")
-        .update({ role: "ADMIN" })
-        .eq("id", user.id)
-        .select();
-
-      if (error) {
-        toast.error(`Failed to promote user to admin: ${error.message}`);
-        return false;
-      }
-
-      // Invalidate queries to refresh data
-      queryClient.invalidateQueries({ queryKey: ["profile", user.id] });
-      queryClient.invalidateQueries({ queryKey: ["users"] });
-      
-      toast.success("You've been promoted to Administrator!");
-      return true;
-    } catch (err: any) {
-      toast.error(`An unexpected error occurred: ${err.message}`);
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return {
     isLoading,
     createUser,
     updateUser,
     deleteUser,
     lockUser,
-    unlockUser,
-    promoteToAdmin
+    unlockUser
   };
 };

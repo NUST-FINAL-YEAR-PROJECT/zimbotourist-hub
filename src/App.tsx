@@ -1,10 +1,10 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { useState, useEffect } from "react";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import { Dashboard } from "./pages/Dashboard";
@@ -13,12 +13,12 @@ import { DestinationDetails } from "./pages/DestinationDetails";
 import { EventDetails } from "./pages/EventDetails";
 import Documentation from "./pages/Documentation";
 import { Loader2 } from "lucide-react";
+import { useEffect } from "react";
 import { InitializeData } from "./components/InitializeData";
 import { supabase } from "@/integrations/supabase/client";
 import { DestinationsPage } from "./pages/DestinationsPage";
 import { PaymentStatusPage } from "./pages/PaymentStatusPage";
 import { PaymentPage } from "./pages/PaymentPage";
-import { AdminPromotion } from "./components/AdminPromotion";
 
 // Rename to SimpleDestinationsPage to avoid conflict with the imported component
 const SimpleDestinationsPage = () => (
@@ -63,14 +63,12 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
 
-  // Store the path for redirect after auth
   useEffect(() => {
     if (!loading && !user) {
       sessionStorage.setItem('redirectAfterAuth', location.pathname);
     }
   }, [loading, user, location]);
 
-  // Simplified loading
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -79,7 +77,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  // Direct check without redirect animation
   if (!user) {
     return <Navigate to="/auth" replace state={{ from: location }} />;
   }
@@ -87,12 +84,21 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-// Updated AdminRoute with simplified checks
+// Modified AdminRoute to properly check if user is an admin
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading, isAdmin } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
-  // Simplified loading
+  useEffect(() => {
+    // Only show the toast and redirect if user is loaded and definitely not an admin
+    if (!loading && user && isAdmin === false) {
+      console.log("Access denied: User is not admin");
+      toast.error("You don't have permission to access the admin dashboard");
+      navigate('/dashboard', { replace: true });
+    }
+  }, [loading, user, isAdmin, navigate]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -101,32 +107,27 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  // Direct checks without animations
   if (!user) {
     return <Navigate to="/auth?admin=true" replace state={{ from: location }} />;
   }
 
-  // If user is not admin, show toast and redirect
-  if (!isAdmin) {
-    toast.error("You don't have permission to access the admin dashboard");
-    return <Navigate to="/dashboard" replace />;
+  // Only render admin content if user is confirmed as admin
+  if (isAdmin) {
+    return <>{children}</>;
   }
 
-  return <>{children}</>;
+  // Show loading while we're still determining if user is admin
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <Loader2 className="h-8 w-8 animate-spin" />
+    </div>
+  );
 };
 
-// Optimized AuthRoute to avoid unnecessary loading and redirects
 const AuthRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading, isAdmin } = useAuth();
-  const navigate = useNavigate();
+  const location = useLocation();
 
-  // If user is already authenticated, immediately redirect to the appropriate dashboard
-  if (user) {
-    const redirectPath = isAdmin ? '/admin/dashboard' : '/dashboard';
-    return <Navigate to={redirectPath} replace />;
-  }
-  
-  // Only show loader when actually loading
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -135,7 +136,11 @@ const AuthRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  // Otherwise, show the auth page
+  if (user) {
+    const redirectPath = isAdmin ? '/admin/dashboard' : '/dashboard';
+    return <Navigate to={redirectPath} replace />;
+  }
+
   return <>{children}</>;
 };
 
@@ -163,11 +168,6 @@ const App = () => (
         <Route path="/payment" element={
           <ProtectedRoute>
             <PaymentPage />
-          </ProtectedRoute>
-        } />
-        <Route path="/become-admin" element={
-          <ProtectedRoute>
-            <AdminPromotion />
           </ProtectedRoute>
         } />
         <Route

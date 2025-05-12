@@ -1,16 +1,16 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { MessageCircle, Loader2 } from "lucide-react";
+import { MessageCircle, X, Send, Loader2, ExternalLink, MapPin } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { v4 as uuidv4 } from 'uuid';
-import { useIsMobile } from "@/hooks/useIsMobile";
-import { ChatBubble } from "./chat/ChatBubble";
-import { ChatHeader } from "./chat/ChatHeader";
-import { ChatInput } from "./chat/ChatInput";
+import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import { useUpcomingEvents } from "@/hooks/useEvents";
+import type { Database } from "@/integrations/supabase/types";
 
 interface Message {
   id: string;
@@ -23,13 +23,15 @@ interface Message {
 
 export const ChatAssistant = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const isMobile = useIsMobile();
-  
-  // Scroll to bottom when messages change
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { data: upcomingEvents } = useUpcomingEvents(3);
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -41,16 +43,16 @@ export const ChatAssistant = () => {
     if (messages.length === 0) {
       setMessages([
         {
-          id: `assistant-${uuidv4()}`,
+          id: `assistant-${Date.now()}`,
           role: 'assistant',
-          content: "Hello! I'm your Zimbabwe travel assistant. How can I help you with your travel plans today?",
+          content: "Hello! I'm your Zimbabwe travel assistant. How can I help you with your travel plans or answer any general questions you might have?",
           timestamp: new Date()
         }
       ]);
     }
   }, []);
 
-  const sendMessage = async (message: string) => {
+  const sendMessage = async () => {
     if (!message.trim()) return;
     setError(null);
 
@@ -59,7 +61,7 @@ export const ChatAssistant = () => {
       
       // Create user message
       const userMessage: Message = {
-        id: `user-${uuidv4()}`,
+        id: `user-${Date.now()}`,
         role: 'user',
         content: message,
         timestamp: new Date()
@@ -67,8 +69,9 @@ export const ChatAssistant = () => {
       
       // Add user message to chat
       setMessages(prev => [...prev, userMessage]);
+      setMessage("");
       
-      // Prepare conversation history
+      // Prepare conversation history (excluding welcome message if it's the only message)
       const conversationHistory = messages
         .filter((msg, index) => index > 0 || messages.length === 1)
         .map(msg => ({
@@ -99,7 +102,7 @@ export const ChatAssistant = () => {
         throw new Error('Invalid response from the chat assistant');
       }
 
-      // Process the response for links and images
+      // Extract links and images if present in the response
       let assistantContent = data.response;
       const links: { text: string, url: string }[] = [];
       let image: string | null = null;
@@ -112,11 +115,7 @@ export const ChatAssistant = () => {
         'bookings': '/dashboard/bookings',
         'victoria falls': '/dashboard/destinations',
         'hwange': '/dashboard/destinations',
-        'safari': '/dashboard/destinations',
-        'great zimbabwe': '/dashboard/destinations',
-        'matobo hills': '/dashboard/destinations',
-        'eastern highlands': '/dashboard/destinations',
-        'lake kariba': '/dashboard/destinations'
+        'safari': '/dashboard/destinations'
       };
       
       // Check content for tourism keywords and add relevant links
@@ -140,9 +139,9 @@ export const ChatAssistant = () => {
         }
       });
       
-      // Fetch a relevant image based on content
-      try {
-        if (assistantContent.toLowerCase().includes("victoria falls")) {
+      // Try to fetch a relevant image based on content if it mentions specific destinations
+      if (assistantContent.toLowerCase().includes("victoria falls")) {
+        try {
           const { data: destinations } = await supabase
             .from("destinations")
             .select("image_url")
@@ -152,7 +151,11 @@ export const ChatAssistant = () => {
           if (destinations && destinations.length > 0) {
             image = destinations[0].image_url;
           }
-        } else if (assistantContent.toLowerCase().includes("hwange")) {
+        } catch (e) {
+          console.error("Error fetching destination image:", e);
+        }
+      } else if (assistantContent.toLowerCase().includes("hwange")) {
+        try {
           const { data: destinations } = await supabase
             .from("destinations")
             .select("image_url")
@@ -162,14 +165,14 @@ export const ChatAssistant = () => {
           if (destinations && destinations.length > 0) {
             image = destinations[0].image_url;
           }
+        } catch (e) {
+          console.error("Error fetching destination image:", e);
         }
-      } catch (e) {
-        console.error("Error fetching destination image:", e);
       }
       
       // Create assistant message
       const assistantMessage: Message = {
-        id: `assistant-${uuidv4()}`,
+        id: `assistant-${Date.now()}`,
         role: 'assistant',
         content: assistantContent,
         timestamp: new Date(),
@@ -189,16 +192,20 @@ export const ChatAssistant = () => {
     }
   };
 
+  const handleLinkClick = (url: string) => {
+    setIsOpen(false);
+    navigate(url);
+  };
+
   return (
     <>
-      <motion.button
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
+      <Button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-primary to-accent text-white z-50 flex items-center justify-center"
+        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 bg-primary text-white z-50"
+        size="icon"
       >
         <MessageCircle className="h-6 w-6" />
-      </motion.button>
+      </Button>
 
       <AnimatePresence>
         {isOpen && (
@@ -209,28 +216,69 @@ export const ChatAssistant = () => {
             transition={{ duration: 0.2 }}
             className="fixed bottom-24 right-6 w-[380px] h-[600px] bg-white rounded-2xl shadow-xl flex flex-col overflow-hidden border border-gray-100 dark:bg-gray-950 dark:border-gray-800 z-50"
           >
-            <ChatHeader onClose={() => setIsOpen(false)} />
+            <div className="p-4 border-b flex justify-between items-center bg-primary text-white">
+              <h3 className="font-semibold">Zimbabwe Travel Assistant</h3>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsOpen(false)}
+                className="hover:bg-white/10 text-white"
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
 
             <ScrollArea className="flex-1 p-4" ref={scrollRef}>
               <div className="space-y-4">
                 {messages.map((msg) => (
-                  <ChatBubble
+                  <div
                     key={msg.id}
-                    role={msg.role}
-                    content={msg.content}
-                    links={msg.links}
-                    image={msg.image}
-                  />
+                    className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div
+                      className={`max-w-[80%] rounded-2xl px-4 py-2 ${
+                        msg.role === 'user'
+                          ? 'bg-primary text-white'
+                          : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100'
+                      }`}
+                    >
+                      <div className="space-y-2">
+                        {msg.image && (
+                          <div className="rounded-lg overflow-hidden mb-2">
+                            <img 
+                              src={msg.image} 
+                              alt="Travel destination" 
+                              className="w-full h-auto object-cover"
+                            />
+                          </div>
+                        )}
+                        <p className="whitespace-pre-wrap">{msg.content}</p>
+                        
+                        {msg.links && msg.links.length > 0 && (
+                          <div className="pt-2 space-y-1">
+                            {msg.links.map((link, index) => (
+                              <button
+                                key={index}
+                                onClick={() => handleLinkClick(link.url)}
+                                className="flex items-center text-sm text-primary hover:underline w-full text-left"
+                              >
+                                <ExternalLink className="h-3 w-3 mr-1" />
+                                {link.text}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 ))}
-                
                 {isLoading && (
-                  <ChatBubble
-                    role="assistant"
-                    content=""
-                    isLoading={true}
-                  />
+                  <div className="flex justify-start">
+                    <div className="max-w-[80%] rounded-2xl px-4 py-2 bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    </div>
+                  </div>
                 )}
-                
                 {error && (
                   <div className="flex justify-center">
                     <div className="max-w-[90%] rounded-lg px-4 py-2 bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400 text-sm">
@@ -241,10 +289,34 @@ export const ChatAssistant = () => {
               </div>
             </ScrollArea>
 
-            <ChatInput
-              isLoading={isLoading}
-              onSend={sendMessage}
-            />
+            <div className="p-4 border-t bg-gray-50 dark:bg-gray-900 dark:border-gray-800">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  sendMessage();
+                }}
+                className="flex gap-2"
+              >
+                <Input
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="Ask me anything..."
+                  className="flex-1"
+                  disabled={isLoading}
+                />
+                <Button
+                  type="submit"
+                  disabled={isLoading || !message.trim()}
+                  className="bg-primary text-white hover:bg-primary/90"
+                >
+                  {isLoading ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <Send className="h-5 w-5" />
+                  )}
+                </Button>
+              </form>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

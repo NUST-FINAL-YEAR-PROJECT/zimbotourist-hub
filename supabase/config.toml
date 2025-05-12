@@ -44,9 +44,9 @@ file_size_limit = "50MiB"
 [auth]
 # The base URL of your website. Used as an allow-list for redirects and for constructing URLs used
 # in emails.
-site_url = "http://discoverzim.co.zw"
+site_url = "http://localhost:3000"
 # A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
-additional_redirect_urls = ["https://localhost:3000", "http://discoverzim.co.zw", "http://localhost:5173", "https://discoverzim.co.zw", "http://discoverzim.co.zw/dashboard", "http://discoverzim.co.zw/admin/dashboard"]
+additional_redirect_urls = ["https://localhost:3000"]
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
 jwt_expiry = 3600
 # If disabled, the refresh token will never expire.
@@ -81,6 +81,3 @@ verify_jwt = true
 
 [functions.check-paynow-status]
 verify_jwt = false
-
-[functions.send-gmail]
-verify_jwt = true
