@@ -13,10 +13,10 @@ export const CTASection = () => {
 
   return (
     <section className="relative py-32 overflow-hidden">
-      {/* Background elements */}
+      {/* Background elements - solid color instead of gradient */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1608638317448-83eed67f2738')] bg-cover bg-center opacity-20" />
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-600/90 via-indigo-600/80 to-blue-600/80" />
+        <div className="absolute inset-0 bg-primary/90" />
         <motion.div 
           animate={{ 
             backgroundPosition: ["0% 0%", "100% 100%"], 

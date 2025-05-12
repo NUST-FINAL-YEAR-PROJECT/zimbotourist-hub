@@ -31,7 +31,7 @@ export const HeroSection = ({
 
   return (
     <section className="relative h-screen w-full flex flex-col justify-center items-center overflow-hidden">
-      {/* Background layers with parallax effect */}
+      {/* Background with solid color */}
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -45,15 +45,10 @@ export const HeroSection = ({
           style={{ y: scrollY * 0.3 }}
           className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1601581975053-7c899da7d575')] bg-cover bg-center"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-blue-600/40 to-blue-900/70" />
-        <div className="absolute inset-0 backdrop-blur-[1px]" />
+        <div className="absolute inset-0 bg-primary/70" />
         
-        <div className="absolute inset-0">
-          <div className="h-full w-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))]
-            from-blue-400/20 via-transparent to-transparent opacity-70" />
-        </div>
-        
-        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-blue-50 to-transparent" />
+        {/* Solid color bottom fade instead of gradient */}
+        <div className="absolute bottom-0 left-0 w-full h-32 bg-blue-50" />
       </motion.div>
       
       {/* Floating particles effect */}
@@ -90,8 +85,7 @@ export const HeroSection = ({
         >
           <h1 className="text-white font-display tracking-tighter leading-none mb-6">
             <span className={`block ${isMobile ? "text-5xl" : "text-7xl md:text-8xl"} font-bold`}>Explore</span>
-            <span className={`block ${isMobile ? "text-6xl" : "text-9xl"} font-extrabold 
-              bg-gradient-to-r from-blue-300 via-white to-blue-300 bg-clip-text text-transparent`}>
+            <span className={`block ${isMobile ? "text-6xl" : "text-9xl"} font-extrabold text-white`}>
               Zimbabwe
             </span>
           </h1>
@@ -117,12 +111,12 @@ export const HeroSection = ({
           </motion.p>
         </motion.div>
         
-        {/* Search container with glass effect */}
+        {/* Search container with solid color instead of glass effect */}
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 0.8 }}
-          className="w-full max-w-4xl backdrop-blur-xl bg-white/10 border border-white/20 
+          className="w-full max-w-4xl bg-white/20 border border-white/20 
             rounded-2xl p-8 shadow-[0_8px_32px_rgba(0,0,0,0.12)]"
         >
           <div className="flex flex-col md:flex-row gap-3">
@@ -133,7 +127,7 @@ export const HeroSection = ({
                 placeholder="Where in Zimbabwe do you want to explore?"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 py-6 h-14 text-lg bg-white/5 text-white border-white/10 placeholder:text-white/50 
+                className="pl-10 py-6 h-14 text-lg bg-white/10 text-white border-white/10 placeholder:text-white/50 
                   focus:border-white/30 focus:ring-0 rounded-xl"
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
               />

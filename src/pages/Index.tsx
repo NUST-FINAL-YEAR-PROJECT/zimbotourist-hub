@@ -119,7 +119,7 @@ const Index = () => {
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeIn}
-          className="bg-gradient-to-br from-primary to-accent py-16"
+          className="bg-primary py-16"
         >
           <CTASection />
         </motion.div>
@@ -135,7 +135,7 @@ const Index = () => {
       >
         <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="transform hover:scale-105 transition-transform duration-300">
-            <h3 className="text-xl font-bold mb-4 text-gradient-primary">Explore Zimbabwe</h3>
+            <h3 className="text-xl font-bold mb-4 text-primary">Explore Zimbabwe</h3>
             <p className="text-muted-foreground">
               Your gateway to Zimbabwe's breathtaking landscapes, rich cultural heritage, and unforgettable adventures.
             </p>
