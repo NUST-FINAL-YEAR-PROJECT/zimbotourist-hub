@@ -571,8 +571,8 @@ function App() {
   alt={destination.name}
   loading="lazy"
   className="w-full h-auto object-cover"
-  srcSet={`${destination.image_url}?width=400 400w, 
-           ${destination.image_url}?width=800 800w`}
+  srcSet={\`\${destination.image_url}?width=400 400w, 
+           \${destination.image_url}?width=800 800w\`}
   sizes="(max-width: 600px) 400px, 800px"
 />`} />
                 </li>
