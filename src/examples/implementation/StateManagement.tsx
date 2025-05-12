@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import type { Database } from '@/integrations/supabase/types';
+import type { Destination } from '@/types/models';
 
 /**
  * Example of state management using React Query
@@ -23,7 +24,7 @@ export const useDestinations = (filters?: DestinationFilters) => {
   return useQuery({
     queryKey: ['destinations', filters],
     queryFn: async () => {
-      // Initialize query without explicit typing
+      // Initialize query with explicit type annotation to avoid deep inference
       let query = supabase
         .from('destinations')
         .select('*');
@@ -47,7 +48,7 @@ export const useDestinations = (filters?: DestinationFilters) => {
       const { data, error } = await query;
       
       if (error) throw error;
-      return data;
+      return data as Destination[];
     },
   });
 };
@@ -56,14 +57,14 @@ export const useSaveDestination = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (destination: any) => {
+    mutationFn: async (destination: Partial<Destination>) => {
       const { data, error } = await supabase
         .from('destinations')
         .upsert(destination)
         .select();
         
       if (error) throw error;
-      return data[0];
+      return data[0] as Destination;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['destinations'] });
