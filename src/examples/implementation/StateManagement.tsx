@@ -24,25 +24,25 @@ export const useDestinations = (filters?: DestinationFilters) => {
   return useQuery({
     queryKey: ['destinations', filters],
     queryFn: async () => {
-      // Initialize query with explicit type annotation to avoid deep inference
-      let query = supabase
+      // Use type assertion to avoid deep inference issues
+      const query = supabase
         .from('destinations')
         .select('*');
       
       if (filters?.region) {
-        query = query.eq('region', filters.region);
+        query.eq('region', filters.region);
       }
       
       if (filters?.minPrice !== undefined) {
-        query = query.gte('price', filters.minPrice);
+        query.gte('price', filters.minPrice);
       }
       
       if (filters?.maxPrice !== undefined) {
-        query = query.lte('price', filters.maxPrice);
+        query.lte('price', filters.maxPrice);
       }
 
       if (filters?.category) {
-        query = query.contains('categories', [filters.category]);
+        query.contains('categories', [filters.category]);
       }
       
       const { data, error } = await query;
@@ -53,11 +53,14 @@ export const useDestinations = (filters?: DestinationFilters) => {
   });
 };
 
+// Define the type for the destination insert/update operations
+type DestinationUpsert = Database['public']['Tables']['destinations']['Insert'];
+
 export const useSaveDestination = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (destination: Partial<Destination>) => {
+    mutationFn: async (destination: DestinationUpsert) => {
       const { data, error } = await supabase
         .from('destinations')
         .upsert(destination)
