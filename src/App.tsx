@@ -83,7 +83,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-// Completely remove the admin protection - just render the children directly
+// Directly render children without any auth checks for development
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
@@ -141,11 +141,8 @@ const App = () => (
             </ProtectedRoute>
           }
         />
-        {/* Remove admin route protection - any logged-in user can access */}
-        <Route
-          path="/admin/dashboard/*"
-          element={<AdminDashboard />}
-        />
+        {/* Remove all protection - make admin dashboard directly accessible without auth */}
+        <Route path="/admin/dashboard/*" element={<AdminDashboard />} />
         <Route
           path="/destination/:id"
           element={
