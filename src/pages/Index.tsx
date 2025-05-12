@@ -3,13 +3,9 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDestinations } from "@/hooks/useDestinations";
 import { TopNavbar } from "@/components/TopNavbar";
-
-// Import custom sections
 import { HeroSection } from "@/components/HomePage/HeroSection";
 import { DestinationsSection } from "@/components/HomePage/DestinationsSection";
-import { FeaturesSection } from "@/components/HomePage/FeaturesSection";
 import { StatsSection } from "@/components/HomePage/StatsSection";
-import { TestimonialsSection } from "@/components/HomePage/TestimonialsSection";
 import { CTASection } from "@/components/HomePage/CTASection";
 
 const Index = () => {
@@ -34,10 +30,10 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden bg-white">
+    <div className="min-h-screen w-full bg-white">
       <TopNavbar />
       
-      <main className="w-full">
+      <main>
         <HeroSection 
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
@@ -46,53 +42,38 @@ const Index = () => {
         
         <DestinationsSection />
         
-        <div className="bg-gray-50">
-          <FeaturesSection />
-        </div>
-        
         <StatsSection />
-        
-        <div className="bg-gray-50">
-          <TestimonialsSection />
-        </div>
         
         <CTASection />
       </main>
       
-      <footer className="bg-white py-16 border-t border-gray-100 w-full">
+      <footer className="bg-gray-50 py-12 border-t border-gray-100">
         <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <h3 className="text-xl font-bold mb-4 text-blue-900">Explore Zimbabwe</h3>
             <p className="text-gray-600">
-              Your gateway to Zimbabwe's breathtaking landscapes, rich cultural heritage, and unforgettable adventures.
+              Your gateway to Zimbabwe's breathtaking landscapes and unforgettable adventures.
             </p>
           </div>
           
           <div>
             <h4 className="font-medium mb-4 text-gray-800">Quick Links</h4>
             <ul className="space-y-2">
-              <li><a href="/destinations" className="text-gray-600 hover:text-amber-600 transition-colors">All Destinations</a></li>
-              <li><a href="/events" className="text-gray-600 hover:text-amber-600 transition-colors">Upcoming Events</a></li>
-              <li><a href="/auth" className="text-gray-600 hover:text-amber-600 transition-colors">Sign Up / Login</a></li>
-              <li><a href="/documentation" className="text-gray-600 hover:text-amber-600 transition-colors">Travel Guide</a></li>
+              <li><a href="/destinations" className="text-gray-600 hover:text-blue-600 transition-colors">All Destinations</a></li>
+              <li><a href="/events" className="text-gray-600 hover:text-blue-600 transition-colors">Upcoming Events</a></li>
+              <li><a href="/auth" className="text-gray-600 hover:text-blue-600 transition-colors">Sign Up / Login</a></li>
             </ul>
           </div>
           
           <div>
             <h4 className="font-medium mb-4 text-gray-800">Contact</h4>
             <p className="text-gray-600">
-              Have questions about your Zimbabwe journey? Reach out to our travel experts.
+              Have questions? Reach out to our travel experts.
             </p>
-            <button 
-              className="mt-4 inline-flex items-center text-sm text-amber-600 hover:text-amber-800 hover:underline transition-colors"
-              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            >
-              Back to top
-            </button>
           </div>
         </div>
         
-        <div className="container mx-auto px-4 mt-12 pt-6 border-t border-gray-50 text-center text-sm text-gray-500">
+        <div className="container mx-auto px-4 mt-8 pt-4 border-t border-gray-200 text-center text-sm text-gray-500">
           <p>© 2025 Explore Zimbabwe. All rights reserved.</p>
         </div>
       </footer>
