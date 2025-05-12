@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { Layout, LayoutHeader, LayoutContent, LayoutTitle } from "@/components/ui/layout";
@@ -16,19 +17,8 @@ import { toast } from "sonner";
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAdmin, loading, user } = useAuth();
+  const { loading, user } = useAuth();
   
-  // Check admin status on component mount
-  useEffect(() => {
-    console.log("AdminDashboard - Current admin status:", isAdmin);
-    
-    // Only redirect if loading is complete AND we've confirmed user is not admin
-    if (!loading && user && isAdmin === false) {
-      toast.error("You don't have permission to access the admin dashboard");
-      navigate("/dashboard");
-    }
-  }, [isAdmin, navigate, loading, user]);
-
   // Get current page from path
   const getCurrentPage = () => {
     const path = location.pathname;
@@ -90,7 +80,7 @@ const AdminDashboard = () => {
     );
   }
 
-  // If not logged in, don't show anything yet (the AdminRoute in App.tsx will handle redirect)
+  // If not logged in, don't show anything yet
   if (!user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -99,19 +89,7 @@ const AdminDashboard = () => {
     );
   }
 
-  // If not admin and loading is complete, show access denied
-  if (!loading && !isAdmin) {
-    return (
-      <div className="flex items-center justify-center min-h-screen flex-col">
-        <AlertTriangle className="h-16 w-16 text-amber-500 mb-4" />
-        <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
-        <p className="text-muted-foreground mb-4">You do not have permission to access the admin dashboard.</p>
-        <Button onClick={() => navigate('/dashboard')}>Go to User Dashboard</Button>
-      </div>
-    );
-  }
-
-  // Only show admin dashboard if confirmed as admin
+  // Remove all admin checks - anyone can access the admin dashboard
   return (
     <div className="flex min-h-screen bg-muted/30">
       <div className="hidden md:block border-r bg-background w-64 p-6">

@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -84,64 +83,14 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-// Improved AdminRoute to properly check if user is an admin
+// Completely remove the admin protection - just render the children directly
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading, isAdmin } = useAuth();
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  // Use local state to avoid flashing content
-  const [checkedStatus, setCheckedStatus] = useState(false);
-  
-  useEffect(() => {
-    // Only take action if loading is complete
-    if (!loading) {
-      // If user is not logged in
-      if (!user) {
-        // Don't set checkedStatus here as we'll redirect
-      } 
-      // If we've confirmed user is NOT an admin
-      else if (isAdmin === false) {
-        console.log("Access denied: User is not admin");
-        toast.error("You don't have permission to access the admin dashboard");
-        navigate('/dashboard', { replace: true });
-      } 
-      // If we've confirmed user IS an admin
-      else if (isAdmin === true) {
-        setCheckedStatus(true);
-      }
-    }
-  }, [loading, user, isAdmin, navigate]);
-
-  if (loading || (!loading && user && !checkedStatus)) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return <Navigate to="/auth?admin=true" replace state={{ from: location }} />;
-  }
-
-  // Only render admin content if user is confirmed as admin and we've checked status
-  if (isAdmin && checkedStatus) {
-    return <>{children}</>;
-  }
-
-  // Show loading while we're still determining if user is admin
-  return (
-    <div className="flex items-center justify-center min-h-screen">
-      <Loader2 className="h-8 w-8 animate-spin" />
-    </div>
-  );
+  return <>{children}</>;
 };
 
 const AuthRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading, isAdmin } = useAuth();
-  const location = useLocation();
-
+  const { user, loading } = useAuth();
+  
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -151,8 +100,8 @@ const AuthRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (user) {
-    const redirectPath = isAdmin ? '/admin/dashboard' : '/dashboard';
-    return <Navigate to={redirectPath} replace />;
+    // Don't check for admin status - just redirect to dashboard
+    return <Navigate to="/dashboard" replace />;
   }
 
   return <>{children}</>;
@@ -192,13 +141,10 @@ const App = () => (
             </ProtectedRoute>
           }
         />
+        {/* Remove admin route protection - any logged-in user can access */}
         <Route
           path="/admin/dashboard/*"
-          element={
-            <AdminRoute>
-              <AdminDashboard />
-            </AdminRoute>
-          }
+          element={<AdminDashboard />}
         />
         <Route
           path="/destination/:id"
