@@ -59,9 +59,28 @@ export const QuickAdminLogin = () => {
           console.log("Admin account created successfully!");
           return true;
         }
-      } else if (signInData.user) {
+      } else if (signInData?.user) {
         // Admin exists already
         console.log("Admin account already exists, proceeding with login");
+        
+        // Double check if the profile has ADMIN role, if not update it
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', signInData.user.id)
+          .single();
+          
+        if (!profileData || profileData.role !== 'ADMIN') {
+          console.log("Updating profile to ADMIN role");
+          await supabase
+            .from('profiles')
+            .upsert({
+              id: signInData.user.id,
+              email: adminCredentials.email,
+              role: 'ADMIN'
+            });
+        }
+        
         return true;
       }
       
@@ -92,7 +111,7 @@ export const QuickAdminLogin = () => {
         // Give the auth state a moment to update
         setTimeout(() => {
           navigate("/admin/dashboard");
-        }, 100);
+        }, 500); // Increased timeout to give more time for state to update
       } else {
         toast.error("Failed to login as admin: User does not have admin privileges");
       }
