@@ -11,7 +11,7 @@ export const StatsSection = () => {
       label: "Happy Travelers", 
       value: stats ? stats.totalUsers.toLocaleString() : "0", 
       icon: Users, 
-      color: "bg-blue-500"
+      color: "bg-amber-500"
     },
     { 
       label: "Destinations", 
@@ -23,13 +23,13 @@ export const StatsSection = () => {
       label: "Total Bookings", 
       value: stats ? stats.totalBookings.toLocaleString() : "0", 
       icon: Camera,
-      color: "bg-violet-500"
+      color: "bg-amber-600"
     },
     { 
       label: "Total Revenue", 
       value: stats ? `$${stats.totalRevenue.toLocaleString()}` : "$0", 
       icon: Award,
-      color: "bg-emerald-500"
+      color: "bg-amber-500"
     }
   ];
 
@@ -50,7 +50,7 @@ export const StatsSection = () => {
         
         {isLoading ? (
           <div className="flex justify-center items-center h-48">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+            <Loader2 className="h-8 w-8 animate-spin text-amber-500" />
             <span className="ml-2 text-gray-600">Loading statistics...</span>
           </div>
         ) : error ? (

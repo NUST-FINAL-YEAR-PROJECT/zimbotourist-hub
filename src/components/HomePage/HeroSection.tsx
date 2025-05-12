@@ -22,7 +22,7 @@ export const HeroSection = ({
       {/* Background with clean layout */}
       <div className="absolute inset-0 z-0 w-full">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1601581975053-7c899da7d575')] bg-cover bg-center" />
-        <div className="absolute inset-0 bg-blue-900/70" />
+        <div className="absolute inset-0 bg-gradient-to-b from-amber-900/90 to-amber-800/80" />
       </div>
       
       {/* Content with clean typography */}
@@ -56,7 +56,6 @@ export const HeroSection = ({
             </div>
             <Button 
               onClick={handleSearch}
-              variant="amber"
               size="2xl"
               className="rounded-xl bg-amber-500 hover:bg-amber-600 text-white shadow-lg"
             >
