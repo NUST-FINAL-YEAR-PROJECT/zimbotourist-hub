@@ -1,9 +1,7 @@
-
 import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { PostgrestFilterBuilder } from '@supabase/supabase-js';
 import type { Database } from '@/integrations/supabase/types';
 
 /**
@@ -25,7 +23,7 @@ export const useDestinations = (filters?: DestinationFilters) => {
     queryKey: ['destinations', filters],
     queryFn: async () => {
       // Explicitly type the query to help TypeScript with type inference
-      let query: PostgrestFilterBuilder<Database['public']['Tables']['destinations']> = supabase
+      let query = supabase
         .from('destinations')
         .select('*');
       
