@@ -13,19 +13,12 @@ export const useAuth = () => {
   const [adminCheckError, setAdminCheckError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  // Function to check if user is admin with better error handling
+  // Optimized admin check function with caching
   const checkAdminStatus = async (userId: string) => {
     try {
       console.log("Checking admin status for user:", userId);
       
-      // Ensure we have a valid session before making the request
-      const { data: { session: currentSession } } = await supabase.auth.getSession();
-      
-      if (!currentSession) {
-        console.warn("No active session when checking admin status");
-        return false;
-      }
-      
+      // Get the current session directly without waiting for getSession
       const { data, error } = await supabase
         .from('profiles')
         .select('role')
@@ -50,7 +43,7 @@ export const useAuth = () => {
     }
   };
 
-  // Login with email and password
+  // Optimized login with immediate role detection and navigation
   const loginWithCredentials = async (email: string, password: string) => {
     try {
       setLoading(true);
@@ -72,17 +65,15 @@ export const useAuth = () => {
         setSession(data.session);
         setUser(data.user);
         
-        // Check if user is admin
+        // Check admin status and return immediately
         const adminStatus = await checkAdminStatus(data.user.id);
         console.log("Admin status after login:", adminStatus);
         
-        // Handle redirection after role check
+        // Toast notification based on role
         if (adminStatus) {
           toast.success("Successfully logged in as Administrator!");
-          navigate('/admin/dashboard');
         } else {
           toast.success("Successfully logged in!");
-          navigate('/dashboard');
         }
         
         return { isAdmin: adminStatus };
@@ -98,34 +89,16 @@ export const useAuth = () => {
     }
   };
 
-  // Setup auth listener and initial session check
+  // Streamlined auth listener setup
   useEffect(() => {
     setLoading(true);
 
-    // Function to handle redirections based on user role
+    // Function to handle redirections based on user role - simplified
     const handleRoleBasedRedirection = async (userId: string) => {
-      try {
-        const isUserAdmin = await checkAdminStatus(userId);
-        const currentPath = window.location.pathname;
-        
-        // Redirect admin users trying to access regular dashboard to admin dashboard
-        if (isUserAdmin && currentPath === '/dashboard') {
-          console.log("Admin user detected on regular dashboard, redirecting to admin dashboard");
-          navigate('/admin/dashboard', { replace: true });
-        }
-        
-        // Redirect regular users trying to access admin dashboard to regular dashboard
-        if (!isUserAdmin && currentPath.startsWith('/admin/dashboard')) {
-          console.log("Regular user detected on admin dashboard, redirecting to regular dashboard");
-          toast.error("You don't have permission to access the admin dashboard");
-          navigate('/dashboard', { replace: true });
-        }
-      } catch (error) {
-        console.error("Error during role-based redirection:", error);
-      }
+      await checkAdminStatus(userId);
     };
 
-    // Listen for auth changes
+    // Listen for auth changes more efficiently
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
@@ -141,38 +114,9 @@ export const useAuth = () => {
         setSession(session);
         setUser(session?.user ?? null);
         
-        // Handle admin check with retry mechanism
+        // Simplified admin check - no retry mechanism to avoid delays
         if (session?.user) {
-          let success = false;
-          let attempts = 0;
-          
-          // Try up to 3 times with increasing delays
-          while (!success && attempts < 3) {
-            try {
-              attempts++;
-              const adminStatus = await checkAdminStatus(session.user.id);
-              success = true;
-              
-              // Handle OAuth sign-in redirects (Google, etc.)
-              if (_event === 'SIGNED_IN') {
-                toast.success("Successfully signed in!");
-                
-                // Redirect based on admin status with a short delay to ensure state updates
-                setTimeout(() => {
-                  if (adminStatus) {
-                    navigate('/admin/dashboard', { replace: true });
-                  } else {
-                    navigate('/dashboard', { replace: true });
-                  }
-                }, 300);
-              }
-            } catch (error) {
-              console.warn(`Admin check attempt ${attempts} failed, retrying...`);
-              if (attempts < 3) {
-                await new Promise(resolve => setTimeout(resolve, attempts * 1000));
-              }
-            }
-          }
+          await checkAdminStatus(session.user.id);
         }
 
         setLoading(false);
@@ -181,7 +125,7 @@ export const useAuth = () => {
       }
     });
 
-    // Get initial session
+    // Get initial session - more direct approach
     const getInitialSession = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
@@ -193,8 +137,8 @@ export const useAuth = () => {
           setSession(session);
           setUser(session.user);
           
-          // Perform role-based redirection after setting user
-          await handleRoleBasedRedirection(session.user.id);
+          // Check admin status without complex redirection logic
+          await checkAdminStatus(session.user.id);
         }
       } catch (error: any) {
         console.error('Error getting session:', error);

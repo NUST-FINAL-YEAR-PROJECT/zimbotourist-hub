@@ -34,25 +34,20 @@ const Auth = () => {
   const navigate = useNavigate();
   const { user, isAdmin, loginWithCredentials } = useAuth();
   
+  // Set mode based on URL parameters
   useEffect(() => {
-    // If URL has admin=true param, switch to admin signin mode
     if (isAdminPage) {
       setMode("admin-signin");
     }
   }, [isAdminPage]);
 
+  // Direct redirects without animations or delays
   useEffect(() => {
-    // If user is already authenticated, redirect based on role
     if (user) {
-      if (isAdmin) {
-        console.log("Auth page: Admin user detected, redirecting to admin dashboard");
-        navigate('/admin/dashboard', { replace: true });
-      } else {
-        console.log("Auth page: Regular user detected, redirecting to user dashboard");
-        navigate('/dashboard', { replace: true });
-      }
+      const redirectPath = isAdmin ? '/admin/dashboard' : '/dashboard';
+      navigate(redirectPath, { replace: true });
     }
-  }, [user, navigate, isAdmin]);
+  }, [user, isAdmin, navigate]);
 
   const validateForm = () => {
     if (!email) {
@@ -86,10 +81,10 @@ const Auth = () => {
 
     try {
       if (mode === "signin" || mode === "admin-signin") {
-        // Use the authentication logic for both regular and admin signin
-        await loginWithCredentials(email, password);
-        // The loginWithCredentials function handles setting the session, user,
-        // isAdmin flag and navigation to the appropriate dashboard
+        // Sign in directly without waiting for redirects to happen in useEffect
+        const { isAdmin } = await loginWithCredentials(email, password);
+        // Redirect immediately instead of waiting for auth state change events
+        navigate(isAdmin ? '/admin/dashboard' : '/dashboard', { replace: true });
       } else if (mode === "signup") {
         const { data, error } = await supabase.auth.signUp({
           email,

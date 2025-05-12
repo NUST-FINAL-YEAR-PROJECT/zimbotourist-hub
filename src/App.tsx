@@ -63,12 +63,14 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
 
+  // Store the path for redirect after auth
   useEffect(() => {
     if (!loading && !user) {
       sessionStorage.setItem('redirectAfterAuth', location.pathname);
     }
   }, [loading, user, location]);
 
+  // Simplified loading
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -77,6 +79,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
+  // Direct check without redirect animation
   if (!user) {
     return <Navigate to="/auth" replace state={{ from: location }} />;
   }
@@ -84,13 +87,12 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-// Updated AdminRoute to check for admin role
+// Updated AdminRoute with simplified checks
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading, isAdmin } = useAuth();
   const location = useLocation();
-  const navigate = useNavigate();
 
-  // Show loading indicator while checking auth status
+  // Simplified loading
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -99,37 +101,32 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  // Redirect to login if not authenticated
+  // Direct checks without animations
   if (!user) {
     return <Navigate to="/auth?admin=true" replace state={{ from: location }} />;
   }
 
-  // After loading is complete, if user is authenticated but not admin, redirect to regular dashboard
+  // If user is not admin, show toast and redirect
   if (!isAdmin) {
-    // Show toast notification
     toast.error("You don't have permission to access the admin dashboard");
-    // Redirect to the dashboard
     return <Navigate to="/dashboard" replace />;
   }
 
-  // User is authenticated and has admin role
   return <>{children}</>;
 };
 
+// Optimized AuthRoute to avoid unnecessary loading and redirects
 const AuthRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading, isAdmin } = useAuth();
-  const location = useLocation();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // When a user is confirmed (not loading), and logged in, redirect appropriately
-    if (!loading && user) {
-      const redirectPath = isAdmin ? '/admin/dashboard' : '/dashboard';
-      // Add a small timeout to ensure states are fully updated
-      setTimeout(() => navigate(redirectPath, { replace: true }), 100);
-    }
-  }, [loading, user, isAdmin, navigate]);
-
+  // If user is already authenticated, immediately redirect to the appropriate dashboard
+  if (user) {
+    const redirectPath = isAdmin ? '/admin/dashboard' : '/dashboard';
+    return <Navigate to={redirectPath} replace />;
+  }
+  
+  // Only show loader when actually loading
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -138,16 +135,7 @@ const AuthRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  if (user) {
-    // This will be handled by the useEffect, showing loading until redirect happens
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin" />
-        <p className="ml-2">Redirecting to dashboard...</p>
-      </div>
-    );
-  }
-
+  // Otherwise, show the auth page
   return <>{children}</>;
 };
 
