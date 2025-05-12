@@ -45,7 +45,7 @@ export const HeroSection = ({
           style={{ y: scrollY * 0.3 }}
           className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1601581975053-7c899da7d575')] bg-cover bg-center"
         />
-        <div className="absolute inset-0 bg-blue-900/80" />
+        <div className="absolute inset-0 bg-blue-900/70" />
         
         {/* Clean bottom fade */}
         <div className="absolute bottom-0 left-0 w-full h-32 bg-blue-50" />
@@ -111,44 +111,45 @@ export const HeroSection = ({
           </motion.p>
         </motion.div>
         
-        {/* Modern search container */}
+        {/* Modern search container with improved visibility */}
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 0.8 }}
-          className="w-full max-w-3xl bg-white/10 backdrop-blur-md border border-white/20 
+          className="w-full max-w-3xl bg-white/20 backdrop-blur-md border border-white/30 
             rounded-2xl p-6 shadow-xl"
         >
           <div className="flex flex-col md:flex-row gap-3">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/70" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white" />
               <Input
                 type="text"
                 placeholder="Where in Zimbabwe do you want to explore?"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 py-6 h-14 text-lg bg-white/10 text-white border-white/10 placeholder:text-white/50 
-                  focus:border-white/30 focus:ring-0 rounded-xl"
+                className="pl-10 py-6 h-14 text-lg bg-white/20 text-white border-white/20 placeholder:text-white/70
+                  focus:border-white/50 focus:ring-1 focus:ring-white/50 rounded-xl"
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
               />
             </div>
             <Button 
               onClick={handleSearch}
               variant="default"
-              className="h-14 px-8 font-medium text-lg rounded-xl bg-white text-blue-900 hover:bg-white/90 transition-all duration-300"
+              className="h-14 px-8 font-medium text-lg rounded-xl bg-amber-500 hover:bg-amber-600 text-white 
+                transition-all duration-300 shadow-lg hover:shadow-xl border-2 border-amber-400"
             >
               Explore Now
             </Button>
           </div>
           
           <div className="flex flex-wrap gap-3 mt-4 justify-center">
-            <span className="text-sm text-white/60">Popular:</span>
+            <span className="text-sm text-white/80">Popular:</span>
             {["Victoria Falls", "Hwange National Park", "Great Zimbabwe", "Matobo Hills"].map((place) => (
               <Button 
                 key={place}
                 variant="ghost" 
                 size="sm" 
-                className="text-sm h-7 p-0 text-white/80 hover:text-white hover:bg-white/10"
+                className="text-sm h-7 p-0 text-white hover:text-white hover:bg-white/20"
                 onClick={() => setSearchQuery(place)}
               >
                 {place}
@@ -166,7 +167,7 @@ export const HeroSection = ({
         className="absolute bottom-12 left-1/2 -translate-x-1/2 text-white"
       >
         <div className="flex flex-col items-center">
-          <span className="text-sm font-light tracking-wider text-white/70 mb-2">Scroll to discover</span>
+          <span className="text-sm font-light tracking-wider text-white/80 mb-2">Scroll to discover</span>
           <motion.div
             animate={{ y: [0, 10, 0] }}
             transition={{

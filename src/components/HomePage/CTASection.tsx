@@ -71,7 +71,8 @@ export const CTASection = () => {
           >
             <Button
               size="lg"
-              className="text-lg font-medium px-10 py-7 rounded-full bg-white text-blue-900 hover:bg-white/90 shadow-xl hover:shadow-2xl transition-all duration-300 group"
+              className="text-lg font-medium px-10 py-7 rounded-full bg-amber-500 text-white hover:bg-amber-600 
+                shadow-xl hover:shadow-2xl transition-all duration-300 group border-2 border-amber-400"
               onClick={handleAuthClick}
             >
               Start Your Journey Today

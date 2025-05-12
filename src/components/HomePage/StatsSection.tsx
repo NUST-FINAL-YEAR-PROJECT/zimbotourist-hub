@@ -18,7 +18,7 @@ export const StatsSection = () => {
       label: "Destinations", 
       value: stats ? stats.totalDestinations.toLocaleString() : "0", 
       icon: MapPin,
-      color: "bg-indigo-500"
+      color: "bg-amber-500"
     },
     { 
       label: "Total Bookings", 
@@ -30,18 +30,19 @@ export const StatsSection = () => {
       label: "Total Revenue", 
       value: stats ? `$${stats.totalRevenue.toLocaleString()}` : "$0", 
       icon: Award,
-      color: "bg-blue-400"
+      color: "bg-emerald-500"
     }
   ];
 
   return (
-    <section className="relative py-20 overflow-hidden bg-blue-50">
+    <section className="relative py-20 overflow-hidden">
       {/* Modern background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-blue-100" />
       <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1606108627827-ec3f836df1a1')] bg-cover bg-center opacity-5" />
       
       {/* Modern decorative elements */}
-      <div className="absolute top-20 left-10 w-64 h-64 rounded-full bg-blue-200/20 blur-3xl" />
-      <div className="absolute bottom-20 right-10 w-72 h-72 rounded-full bg-indigo-200/20 blur-3xl" />
+      <div className="absolute top-20 left-10 w-64 h-64 rounded-full bg-blue-200/30 blur-3xl" />
+      <div className="absolute bottom-20 right-10 w-72 h-72 rounded-full bg-amber-200/20 blur-3xl" />
       
       <div className="container mx-auto px-4 relative z-10">
         <motion.div
@@ -51,7 +52,7 @@ export const StatsSection = () => {
           viewport={{ once: true }}
           className="text-center max-w-3xl mx-auto mb-16"
         >
-          <Badge className="mb-4 bg-blue-500 hover:bg-blue-600 px-4 py-1 text-sm font-medium">
+          <Badge className="mb-4 bg-amber-500 hover:bg-amber-600 px-4 py-1 text-sm font-medium">
             Real-Time Data
           </Badge>
           <h2 className="text-4xl md:text-5xl font-display font-bold mb-5 text-gray-800">

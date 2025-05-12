@@ -68,7 +68,7 @@ const Index = () => {
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeIn}
-          className="bg-blue-50"
+          className="bg-gradient-to-br from-blue-50 to-blue-100"
         >
           <FeaturesSection />
         </motion.div>
@@ -87,7 +87,7 @@ const Index = () => {
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeIn}
-          className="bg-blue-50"
+          className="bg-gradient-to-br from-blue-50 to-blue-100"
         >
           <VideoFeature />
         </motion.div>
@@ -106,7 +106,7 @@ const Index = () => {
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeIn}
-          className="bg-blue-50"
+          className="bg-gradient-to-br from-amber-50 to-amber-100"
         >
           <TestimonialsSection />
         </motion.div>
@@ -141,10 +141,10 @@ const Index = () => {
           <div className="transform hover:translate-y-[-8px] transition-transform duration-500">
             <h4 className="font-medium mb-4 text-gray-800">Quick Links</h4>
             <ul className="space-y-2">
-              <li><a href="/destinations" className="text-gray-600 hover:text-blue-600 transition-colors">All Destinations</a></li>
-              <li><a href="/events" className="text-gray-600 hover:text-blue-600 transition-colors">Upcoming Events</a></li>
-              <li><a href="/auth" className="text-gray-600 hover:text-blue-600 transition-colors">Sign Up / Login</a></li>
-              <li><a href="/documentation" className="text-gray-600 hover:text-blue-600 transition-colors">Travel Guide</a></li>
+              <li><a href="/destinations" className="text-gray-600 hover:text-amber-600 transition-colors">All Destinations</a></li>
+              <li><a href="/events" className="text-gray-600 hover:text-amber-600 transition-colors">Upcoming Events</a></li>
+              <li><a href="/auth" className="text-gray-600 hover:text-amber-600 transition-colors">Sign Up / Login</a></li>
+              <li><a href="/documentation" className="text-gray-600 hover:text-amber-600 transition-colors">Travel Guide</a></li>
             </ul>
           </div>
           
@@ -154,7 +154,7 @@ const Index = () => {
               Have questions about your Zimbabwe journey? Reach out to our travel experts.
             </p>
             <button 
-              className="mt-4 inline-flex items-center text-sm text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+              className="mt-4 inline-flex items-center text-sm text-amber-600 hover:text-amber-800 hover:underline transition-colors"
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             >
               Back to top
