@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -16,6 +17,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Loader2, ArrowRight, Mail, Lock, ArrowLeft, Globe, CheckCircle2, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { QuickAdminLogin } from "@/components/QuickAdminLogin";
 
 type AuthMode = "signin" | "signup" | "forgot-password" | "reset-password" | "admin-signin";
 
@@ -251,6 +253,14 @@ const Auth = () => {
                 <ShieldCheck className="h-4 w-4" />
                 Administrator Access
               </Button>
+              
+              {/* Add QuickAdminLogin button */}
+              <div className="mt-4 flex items-center gap-2">
+                <div className="h-px bg-gray-200 w-20" />
+                <span className="text-xs text-muted-foreground">Demo Purpose Only</span>
+                <div className="h-px bg-gray-200 w-20" />
+              </div>
+              <QuickAdminLogin />
             </>
           ) : mode === "admin-signin" ? (
             <>
@@ -263,6 +273,13 @@ const Auth = () => {
                 <ArrowLeft className="mr-1 h-4 w-4" />
                 Back to user sign in
               </button>
+              {/* Add QuickAdminLogin button for admin mode too */}
+              <div className="mt-4 flex items-center gap-2">
+                <div className="h-px bg-gray-200 w-20" />
+                <span className="text-xs text-muted-foreground">Demo Purpose Only</span>
+                <div className="h-px bg-gray-200 w-20" />
+              </div>
+              <QuickAdminLogin />
             </>
           ) : mode === "signup" ? (
             <div className="flex items-center space-x-2">
