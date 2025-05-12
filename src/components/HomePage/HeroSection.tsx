@@ -45,23 +45,23 @@ export const HeroSection = ({
           style={{ y: scrollY * 0.3 }}
           className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1601581975053-7c899da7d575')] bg-cover bg-center"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-primary/30 to-black/70" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-blue-600/40 to-blue-900/70" />
         <div className="absolute inset-0 backdrop-blur-[1px]" />
         
         <div className="absolute inset-0">
           <div className="h-full w-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))]
-            from-primary/20 via-transparent to-transparent opacity-70" />
+            from-blue-400/20 via-transparent to-transparent opacity-70" />
         </div>
         
-        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-black to-transparent" />
+        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-blue-50 to-transparent" />
       </motion.div>
       
       {/* Floating particles effect */}
       <div className="absolute inset-0 z-0 overflow-hidden">
-        {[...Array(8)].map((_, i) => (
+        {[...Array(15)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute w-2 h-2 rounded-full bg-white/20"
+            className="absolute w-2 h-2 rounded-full bg-white/40"
             initial={{
               x: Math.random() * 100 + "%",
               y: Math.random() * 100 + "%",
@@ -91,7 +91,7 @@ export const HeroSection = ({
           <h1 className="text-white font-display tracking-tighter leading-none mb-6">
             <span className={`block ${isMobile ? "text-5xl" : "text-7xl md:text-8xl"} font-bold`}>Explore</span>
             <span className={`block ${isMobile ? "text-6xl" : "text-9xl"} font-extrabold 
-              bg-gradient-to-r from-amber-300 via-white to-amber-300 bg-clip-text text-transparent`}>
+              bg-gradient-to-r from-blue-300 via-white to-blue-300 bg-clip-text text-transparent`}>
               Zimbabwe
             </span>
           </h1>
@@ -140,8 +140,8 @@ export const HeroSection = ({
             </div>
             <Button 
               onClick={handleSearch}
-              className="h-14 px-8 font-medium text-lg bg-gradient-to-r from-amber-400 to-amber-500 
-                hover:from-amber-500 hover:to-amber-600 text-black rounded-xl transition-all duration-300"
+              variant="blue"
+              className="h-14 px-8 font-medium text-lg rounded-xl transition-all duration-300"
             >
               Explore Now
             </Button>

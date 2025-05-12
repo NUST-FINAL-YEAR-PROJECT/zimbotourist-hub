@@ -43,7 +43,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden bg-gray-50">
+    <div className="min-h-screen w-full overflow-x-hidden bg-blue-50">
       <TopNavbar />
       
       {/* Sections */}
@@ -59,6 +59,7 @@ const Index = () => {
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeIn}
+          className="bg-white py-16"
         >
           <DestinationsSection />
         </motion.div>
@@ -68,6 +69,7 @@ const Index = () => {
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeIn}
+          className="bg-blue-50 py-16"
         >
           <FeaturesSection />
         </motion.div>
@@ -77,6 +79,7 @@ const Index = () => {
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeIn}
+          className="bg-white py-16"
         >
           <ExperienceSection />
         </motion.div>
@@ -86,6 +89,7 @@ const Index = () => {
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeIn}
+          className="bg-blue-50 py-16"
         >
           <VideoFeature />
         </motion.div>
@@ -95,6 +99,7 @@ const Index = () => {
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeIn}
+          className="bg-white py-16"
         >
           <StatsSection />
         </motion.div>
@@ -104,6 +109,7 @@ const Index = () => {
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeIn}
+          className="bg-blue-50 py-16"
         >
           <TestimonialsSection />
         </motion.div>
@@ -113,6 +119,7 @@ const Index = () => {
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeIn}
+          className="bg-gradient-to-br from-primary to-accent py-16"
         >
           <CTASection />
         </motion.div>
@@ -127,14 +134,14 @@ const Index = () => {
         viewport={{ once: true }}
       >
         <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div>
-            <h3 className="text-xl font-bold mb-4">Explore Zimbabwe</h3>
+          <div className="transform hover:scale-105 transition-transform duration-300">
+            <h3 className="text-xl font-bold mb-4 text-gradient-primary">Explore Zimbabwe</h3>
             <p className="text-muted-foreground">
               Your gateway to Zimbabwe's breathtaking landscapes, rich cultural heritage, and unforgettable adventures.
             </p>
           </div>
           
-          <div>
+          <div className="transform hover:scale-105 transition-transform duration-300">
             <h4 className="font-medium mb-4">Quick Links</h4>
             <ul className="space-y-2">
               <li><a href="/destinations" className="text-muted-foreground hover:text-primary transition-colors">All Destinations</a></li>
@@ -144,13 +151,13 @@ const Index = () => {
             </ul>
           </div>
           
-          <div>
+          <div className="transform hover:scale-105 transition-transform duration-300">
             <h4 className="font-medium mb-4">Contact</h4>
             <p className="text-muted-foreground">
               Have questions about your Zimbabwe journey? Reach out to our travel experts.
             </p>
             <button 
-              className="mt-4 inline-flex items-center text-sm text-primary hover:underline"
+              className="mt-4 inline-flex items-center text-sm text-primary hover:underline hover:text-blue-700 transition-colors"
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             >
               Back to top
