@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -84,25 +83,56 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-// Improved AdminRoute to strictly enforce admin access
+// Enhanced AdminRoute for robust admin access control
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading, isAdmin } = useAuth();
+  const { user, loading, isAdmin, session } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const [verifyingToken, setVerifyingToken] = useState(true);
 
+  // Verify token and permissions
   useEffect(() => {
-    // Only redirect if we're sure about admin status (not loading)
-    if (!loading) {
-      // If logged in but not admin
-      if (user && isAdmin === false) {
-        console.log("Access denied: User is not admin");
-        toast.error("You don't have permission to access the admin dashboard");
-        navigate('/dashboard', { replace: true });
+    const verifyAccess = async () => {
+      try {
+        setVerifyingToken(true);
+        
+        // If not logged in, redirect to auth
+        if (!loading && !user) {
+          console.log("User not logged in, redirecting to auth");
+          return;
+        }
+        
+        // If loading or no user yet, wait
+        if (loading || !user) {
+          return;
+        }
+        
+        // Try refreshing the session if needed
+        if (user && !session) {
+          console.log("User exists but no session, refreshing auth");
+          await supabase.auth.refreshSession();
+          return;
+        }
+        
+        // If logged in but not admin
+        if (user && !loading && isAdmin === false) {
+          console.log("Access denied: User is not admin");
+          toast.error("You don't have permission to access the admin dashboard");
+          navigate('/dashboard', { replace: true });
+        }
+      } catch (error) {
+        console.error("Error verifying admin access:", error);
+        toast.error("Error verifying admin access. Please try logging in again.");
+        navigate('/auth', { replace: true, state: { from: location } });
+      } finally {
+        setVerifyingToken(false);
       }
-    }
-  }, [loading, user, isAdmin, navigate]);
+    };
+    
+    verifyAccess();
+  }, [loading, user, isAdmin, navigate, location, session]);
 
-  if (loading) {
+  if (loading || verifyingToken) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="h-8 w-8 animate-spin" />

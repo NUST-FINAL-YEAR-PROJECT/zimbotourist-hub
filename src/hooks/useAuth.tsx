@@ -10,12 +10,22 @@ export const useAuth = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [adminCheckError, setAdminCheckError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  // Function to check if user is admin
+  // Function to check if user is admin with better error handling
   const checkAdminStatus = async (userId: string) => {
     try {
       console.log("Checking admin status for user:", userId);
+      
+      // Ensure we have a valid session before making the request
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      
+      if (!currentSession) {
+        console.warn("No active session when checking admin status");
+        return false;
+      }
+      
       const { data, error } = await supabase
         .from('profiles')
         .select('role')
@@ -24,15 +34,18 @@ export const useAuth = () => {
       
       if (error) {
         console.error("Error checking admin status:", error);
+        setAdminCheckError(error.message);
         return false;
       }
       
       const isUserAdmin = data?.role === 'ADMIN';
       console.log("User admin status:", isUserAdmin);
       setIsAdmin(isUserAdmin);
+      setAdminCheckError(null);
       return isUserAdmin;
-    } catch (error) {
-      console.error("Error in checkAdminStatus:", error);
+    } catch (error: any) {
+      console.error("Exception in checkAdminStatus:", error);
+      setAdminCheckError(error.message);
       return false;
     }
   };
@@ -84,12 +97,15 @@ export const useAuth = () => {
     }
   };
 
+  // Setup auth listener and initial session check
   useEffect(() => {
+    setLoading(true);
+
     // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      console.log("Auth state changed:", _event, session);
+      console.log("Auth state changed:", _event, session?.user?.email);
       
       if (_event === 'SIGNED_OUT') {
         setSession(null);
@@ -101,22 +117,37 @@ export const useAuth = () => {
         setSession(session);
         setUser(session?.user ?? null);
         
-        // Check if user is admin
+        // Handle admin check with retry mechanism
         if (session?.user) {
-          const adminStatus = await checkAdminStatus(session.user.id);
+          let success = false;
+          let attempts = 0;
           
-          // Handle OAuth sign-in redirects (Google, etc.)
-          if (_event === 'SIGNED_IN' && window.location.hash.includes('access_token')) {
-            toast.success("Successfully signed in!");
-            
-            // Redirect based on admin status with a short delay to ensure state updates
-            setTimeout(() => {
-              if (adminStatus) {
-                navigate('/admin/dashboard');
-              } else {
-                navigate('/dashboard');
+          // Try up to 3 times with increasing delays
+          while (!success && attempts < 3) {
+            try {
+              attempts++;
+              const adminStatus = await checkAdminStatus(session.user.id);
+              success = true;
+              
+              // Handle OAuth sign-in redirects (Google, etc.)
+              if (_event === 'SIGNED_IN' && window.location.hash.includes('access_token')) {
+                toast.success("Successfully signed in!");
+                
+                // Redirect based on admin status with a short delay to ensure state updates
+                setTimeout(() => {
+                  if (adminStatus) {
+                    navigate('/admin/dashboard');
+                  } else {
+                    navigate('/dashboard');
+                  }
+                }, 500);
               }
-            }, 500);
+            } catch (error) {
+              console.warn(`Admin check attempt ${attempts} failed, retrying...`);
+              if (attempts < 3) {
+                await new Promise(resolve => setTimeout(resolve, attempts * 1000));
+              }
+            }
           }
         }
 
@@ -138,20 +169,35 @@ export const useAuth = () => {
           setSession(session);
           setUser(session.user);
           
-          // Check if user is admin and redirect if necessary
-          const adminStatus = await checkAdminStatus(session.user.id);
+          // Check if user is admin with retry logic
+          let success = false;
+          let attempts = 0;
           
-          // If we're on the dashboard route and user is admin, redirect to admin dashboard
-          const isOnUserDashboard = window.location.pathname === '/dashboard';
-          if (isOnUserDashboard && adminStatus) {
-            navigate('/admin/dashboard');
-          }
-          
-          // If we're on the admin dashboard route and user is not admin, redirect to user dashboard
-          const isOnAdminDashboard = window.location.pathname.startsWith('/admin/dashboard');
-          if (isOnAdminDashboard && !adminStatus) {
-            toast.error("You don't have permission to access the admin dashboard");
-            navigate('/dashboard');
+          while (!success && attempts < 3) {
+            try {
+              attempts++;
+              const adminStatus = await checkAdminStatus(session.user.id);
+              success = true;
+              
+              // Handle route redirections
+              const currentPath = window.location.pathname;
+              
+              // If we're on the dashboard route and user is admin, redirect to admin dashboard
+              if (currentPath === '/dashboard' && adminStatus) {
+                navigate('/admin/dashboard');
+              }
+              
+              // If we're on the admin dashboard route and user is not admin, redirect to user dashboard
+              if (currentPath.startsWith('/admin/dashboard') && !adminStatus) {
+                toast.error("You don't have permission to access the admin dashboard");
+                navigate('/dashboard');
+              }
+            } catch (error) {
+              console.warn(`Initial admin check attempt ${attempts} failed, retrying...`);
+              if (attempts < 3) {
+                await new Promise(resolve => setTimeout(resolve, attempts * 1000));
+              }
+            }
           }
         }
       } catch (error: any) {
@@ -179,5 +225,13 @@ export const useAuth = () => {
     }
   };
 
-  return { user, session, loading, signOut, isAdmin, loginWithCredentials };
+  return { 
+    user, 
+    session, 
+    loading, 
+    signOut, 
+    isAdmin, 
+    adminCheckError,
+    loginWithCredentials 
+  };
 };
