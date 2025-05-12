@@ -24,26 +24,29 @@ export const useDestinations = (filters?: DestinationFilters) => {
   return useQuery({
     queryKey: ['destinations', filters],
     queryFn: async () => {
-      // Create the query with explicit typing to avoid deep inference
-      let { data, error } = await supabase
+      // Break down the query into simpler steps to avoid deep type inference
+      let query = supabase
         .from('destinations')
-        .select('*')
-        .eq('region', filters?.region || null)
-        .gte('price', filters?.minPrice || 0)
-        .lte('price', filters?.maxPrice || 999999)
-        .contains('categories', filters?.category ? [filters.category] : null);
+        .select('*');
       
-      // Handle non-existent filters by overriding the query
-      if (!filters?.region) {
-        const response = await supabase
-          .from('destinations')
-          .select('*')
-          .gte('price', filters?.minPrice || 0)
-          .lte('price', filters?.maxPrice || 999999)
-          .contains('categories', filters?.category ? [filters.category] : null);
-        data = response.data;
-        error = response.error;
+      // Apply filters one by one to avoid complex chaining
+      if (filters?.region) {
+        query = query.eq('region', filters.region);
       }
+      
+      if (filters?.minPrice !== undefined) {
+        query = query.gte('price', filters.minPrice);
+      }
+      
+      if (filters?.maxPrice !== undefined) {
+        query = query.lte('price', filters.maxPrice);
+      }
+      
+      if (filters?.category) {
+        query = query.contains('categories', [filters.category]);
+      }
+      
+      const { data, error } = await query;
       
       if (error) throw error;
       return data as Destination[];
