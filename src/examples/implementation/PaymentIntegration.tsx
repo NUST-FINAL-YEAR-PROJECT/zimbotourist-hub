@@ -35,11 +35,12 @@ export const PaymentIntegrationExample = () => {
 
       // Save the payment details in the database
       await supabase.from('payments').insert({
-        reference,
+        booking_id: reference, // Using reference as booking_id temporarily
         amount,
-        email,
-        status: 'pending',
-        poll_url: data.pollUrl
+        payment_gateway: 'paynow',
+        payment_gateway_reference: reference,
+        payment_details: { email, pollUrl: data.pollUrl },
+        status: 'pending'
       });
 
       // Store the poll URL in session storage for checking status later
@@ -126,7 +127,7 @@ export const PaymentStatusChecker = () => {
         // Update payment status in database
         await supabase.from('payments').update({
           status: 'completed',
-        }).eq('reference', reference);
+        }).eq('payment_gateway_reference', reference);
         
         toast.success('Payment successful!');
       } else if (data.status === 'cancelled') {

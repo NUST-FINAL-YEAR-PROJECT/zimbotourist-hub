@@ -28,11 +28,11 @@ export const useDestinations = (filters?: DestinationFilters) => {
         query = query.eq('region', filters.region);
       }
       
-      if (filters?.minPrice) {
+      if (filters?.minPrice !== undefined) {
         query = query.gte('price', filters.minPrice);
       }
       
-      if (filters?.maxPrice) {
+      if (filters?.maxPrice !== undefined) {
         query = query.lte('price', filters.maxPrice);
       }
 
@@ -52,7 +52,7 @@ export const useSaveDestination = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (destination) => {
+    mutationFn: async (destination: any) => {
       const { data, error } = await supabase
         .from('destinations')
         .upsert(destination)
@@ -65,7 +65,7 @@ export const useSaveDestination = () => {
       queryClient.invalidateQueries({ queryKey: ['destinations'] });
       toast.success('Destination saved successfully');
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       toast.error(`Failed to save destination: ${error.message}`);
     },
   });
@@ -76,7 +76,7 @@ export const DestinationsList = ({ filters }: { filters?: DestinationFilters }) 
   const { data: destinations, isLoading, error } = useDestinations(filters);
   
   if (isLoading) return <div>Loading destinations...</div>;
-  if (error) return <div>Error loading destinations: {error.message}</div>;
+  if (error) return <div>Error loading destinations: {(error as Error).message}</div>;
   
   return (
     <div className="space-y-4">
