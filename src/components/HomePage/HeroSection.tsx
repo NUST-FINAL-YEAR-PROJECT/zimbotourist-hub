@@ -3,6 +3,7 @@ import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { motion } from "framer-motion";
 
 interface HeroSectionProps {
   searchQuery: string;
@@ -18,7 +19,7 @@ export const HeroSection = ({
   const isMobile = useIsMobile();
 
   return (
-    <section className="relative min-h-[80vh] flex flex-col justify-center items-center">
+    <section className="relative min-h-[90vh] flex flex-col justify-center items-center">
       {/* Background */}
       <div className="absolute inset-0 z-0 w-full">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1601581975053-7c899da7d575')] bg-cover bg-center" />
@@ -26,20 +27,31 @@ export const HeroSection = ({
       </div>
       
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-4 flex flex-col items-center text-center max-w-5xl">
-        <h1 className="text-white font-display mb-6">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        className="relative z-10 container mx-auto px-4 flex flex-col items-center text-center max-w-4xl"
+      >
+        <h1 className="text-white font-display mb-8">
           <span className={`block ${isMobile ? "text-4xl" : "text-6xl"} font-bold`}>Explore</span>
           <span className={`block ${isMobile ? "text-5xl" : "text-7xl"} font-extrabold text-white`}>
             Zimbabwe
           </span>
         </h1>
         
-        <p className="text-white/90 text-lg max-w-3xl mx-auto mb-10">
-          Experience the breathtaking beauty, rich culture, and unforgettable adventures.
+        <p className="text-white/90 text-lg max-w-2xl mx-auto mb-12 leading-relaxed">
+          Experience the breathtaking beauty, rich culture, and unforgettable adventures 
+          across Zimbabwe's most spectacular landscapes.
         </p>
         
         {/* Search */}
-        <div className="w-full max-w-2xl bg-white/10 backdrop-blur-sm rounded-lg p-4">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.6 }}
+          className="w-full max-w-xl bg-white/10 backdrop-blur-sm rounded-lg p-4 shadow-lg"
+        >
           <div className="flex flex-col md:flex-row gap-3">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/70" />
@@ -48,21 +60,22 @@ export const HeroSection = ({
                 placeholder="Where in Zimbabwe do you want to explore?"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 py-6 h-12 bg-white/20 text-white border-white/20 
-                  placeholder:text-white/70 focus:border-white/50 rounded-lg"
+                className="pl-10 py-6 h-12 bg-white/20 text-white border-white/30 
+                  placeholder:text-white/70 focus:border-blue-400 rounded-lg"
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
               />
             </div>
             <Button 
               onClick={handleSearch}
               variant="blue"
+              size="lg"
               className="h-12"
             >
               Explore Now
             </Button>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </section>
   );
 };

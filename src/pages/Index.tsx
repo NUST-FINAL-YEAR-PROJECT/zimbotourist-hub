@@ -47,18 +47,18 @@ const Index = () => {
         <CTASection />
       </main>
       
-      <footer className="bg-gray-50 py-12 border-t border-gray-100">
-        <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
+      <footer className="bg-gray-50 py-16 border-t border-gray-100">
+        <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-10">
           <div>
             <h3 className="text-xl font-bold mb-4 text-blue-900">Explore Zimbabwe</h3>
-            <p className="text-gray-600">
+            <p className="text-gray-600 leading-relaxed">
               Your gateway to Zimbabwe's breathtaking landscapes and unforgettable adventures.
             </p>
           </div>
           
           <div>
             <h4 className="font-medium mb-4 text-gray-800">Quick Links</h4>
-            <ul className="space-y-2">
+            <ul className="space-y-3">
               <li><a href="/destinations" className="text-gray-600 hover:text-blue-600 transition-colors">All Destinations</a></li>
               <li><a href="/events" className="text-gray-600 hover:text-blue-600 transition-colors">Upcoming Events</a></li>
               <li><a href="/auth" className="text-gray-600 hover:text-blue-600 transition-colors">Sign Up / Login</a></li>
@@ -67,13 +67,13 @@ const Index = () => {
           
           <div>
             <h4 className="font-medium mb-4 text-gray-800">Contact</h4>
-            <p className="text-gray-600">
+            <p className="text-gray-600 leading-relaxed">
               Have questions? Reach out to our travel experts.
             </p>
           </div>
         </div>
         
-        <div className="container mx-auto px-4 mt-8 pt-4 border-t border-gray-200 text-center text-sm text-gray-500">
+        <div className="container mx-auto px-4 mt-12 pt-6 border-t border-gray-200 text-center text-sm text-gray-500">
           <p>© 2025 Explore Zimbabwe. All rights reserved.</p>
         </div>
       </footer>
