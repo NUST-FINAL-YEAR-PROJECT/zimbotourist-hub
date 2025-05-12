@@ -6,6 +6,10 @@ import { TopNavbar } from "@/components/TopNavbar";
 import { HeroSection } from "@/components/HomePage/HeroSection";
 import { StatsSection } from "@/components/HomePage/StatsSection";
 import { CTASection } from "@/components/HomePage/CTASection";
+import { ExperienceSection } from "@/components/HomePage/ExperienceSection";
+import { FeaturesSection } from "@/components/HomePage/FeaturesSection";
+import { VideoFeature } from "@/components/HomePage/VideoFeature";
+import { TestimonialsSection } from "@/components/HomePage/TestimonialsSection";
 import { motion } from "framer-motion";
 
 const Index = () => {
@@ -40,7 +44,15 @@ const Index = () => {
           handleSearch={handleSearch}
         />
         
+        <ExperienceSection />
+        
         <StatsSection />
+        
+        <FeaturesSection />
+        
+        <VideoFeature />
+        
+        <TestimonialsSection />
         
         <CTASection />
       </main>
