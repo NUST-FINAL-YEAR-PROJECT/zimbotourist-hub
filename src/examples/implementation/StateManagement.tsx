@@ -1,8 +1,10 @@
+
 import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import type { Database } from '@/integrations/supabase/types';
+import { PostgrestFilterBuilder } from '@supabase/postgrest-js';
 
 /**
  * Example of state management using React Query
@@ -22,8 +24,8 @@ export const useDestinations = (filters?: DestinationFilters) => {
   return useQuery({
     queryKey: ['destinations', filters],
     queryFn: async () => {
-      // Explicitly type the query to help TypeScript with type inference
-      let query = supabase
+      // Explicitly type the query to avoid TypeScript's "excessively deep" error
+      let query: PostgrestFilterBuilder<any, any, any> = supabase
         .from('destinations')
         .select('*');
       
