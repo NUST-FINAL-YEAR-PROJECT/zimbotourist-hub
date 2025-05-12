@@ -73,9 +73,9 @@ export const CTASection = () => {
             className="flex flex-col sm:flex-row items-center justify-center gap-6"
           >
             <Button
-              variant="blue"
+              variant="blue-gradient"
               size="2xl"
-              className="bg-blue-500 hover:bg-blue-600 text-white shadow-lg hover:shadow-blue-500/25 transition-all duration-300 group"
+              className="shadow-lg hover:shadow-blue-500/25 transition-all duration-300 group"
               onClick={handleAuthClick}
             >
               <span>Start Your Journey</span>

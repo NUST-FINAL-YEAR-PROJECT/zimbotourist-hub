@@ -91,8 +91,7 @@ export const HeroSection = ({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.0, duration: 0.6 }}
-          className="w-full max-w-xl bg-white/10 backdrop-blur-md rounded-lg p-4 shadow-lg border border-white/20"
-          whileHover={{ boxShadow: "0 10px 25px rgba(0,0,0,0.2)" }}
+          className="w-full max-w-xl bg-white/10 backdrop-blur-md rounded-lg p-4 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300"
         >
           <div className="flex flex-col md:flex-row gap-3">
             <div className="relative flex-1">
@@ -111,8 +110,7 @@ export const HeroSection = ({
               onClick={handleSearch}
               variant="blue"
               size="lg"
-              className="h-12 bg-blue-500 hover:bg-blue-600 transition-all duration-300"
-              whileHover={{ scale: 1.03 }}
+              className="h-12 bg-blue-500 hover:bg-blue-600 transition-all duration-300 transform hover:scale-105"
             >
               Explore Now
             </Button>
