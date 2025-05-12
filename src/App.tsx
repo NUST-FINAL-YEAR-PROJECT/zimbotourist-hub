@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -19,6 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { DestinationsPage } from "./pages/DestinationsPage";
 import { PaymentStatusPage } from "./pages/PaymentStatusPage";
 import { PaymentPage } from "./pages/PaymentPage";
+import { AdminPromotion } from "./components/AdminPromotion";
 
 // Rename to SimpleDestinationsPage to avoid conflict with the imported component
 const SimpleDestinationsPage = () => (
@@ -224,6 +224,11 @@ const App = () => (
         <Route path="/payment" element={
           <ProtectedRoute>
             <PaymentPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/become-admin" element={
+          <ProtectedRoute>
+            <AdminPromotion />
           </ProtectedRoute>
         } />
         <Route
