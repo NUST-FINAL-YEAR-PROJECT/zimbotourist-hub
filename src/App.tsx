@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -99,6 +100,7 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
         // If not logged in, redirect to auth
         if (!loading && !user) {
           console.log("User not logged in, redirecting to auth");
+          navigate('/auth?admin=true', { replace: true, state: { from: location } });
           return;
         }
         
@@ -110,8 +112,14 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
         // Try refreshing the session if needed
         if (user && !session) {
           console.log("User exists but no session, refreshing auth");
-          await supabase.auth.refreshSession();
-          return;
+          const { data } = await supabase.auth.refreshSession();
+          if (data && data.session) {
+            console.log("Session refreshed successfully");
+          } else {
+            console.log("Failed to refresh session, redirecting to auth");
+            navigate('/auth?admin=true', { replace: true, state: { from: location } });
+            return;
+          }
         }
         
         // If logged in but not admin
@@ -123,7 +131,7 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
       } catch (error) {
         console.error("Error verifying admin access:", error);
         toast.error("Error verifying admin access. Please try logging in again.");
-        navigate('/auth', { replace: true, state: { from: location } });
+        navigate('/auth?admin=true', { replace: true, state: { from: location } });
       } finally {
         setVerifyingToken(false);
       }
@@ -160,6 +168,16 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
 const AuthRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading, isAdmin } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // When a user is confirmed (not loading), and logged in, redirect appropriately
+    if (!loading && user) {
+      const redirectPath = isAdmin ? '/admin/dashboard' : '/dashboard';
+      // Add a small timeout to ensure states are fully updated
+      setTimeout(() => navigate(redirectPath, { replace: true }), 100);
+    }
+  }, [loading, user, isAdmin, navigate]);
 
   if (loading) {
     return (
@@ -170,8 +188,13 @@ const AuthRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (user) {
-    const redirectPath = isAdmin ? '/admin/dashboard' : '/dashboard';
-    return <Navigate to={redirectPath} replace />;
+    // This will be handled by the useEffect, showing loading until redirect happens
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+        <p className="ml-2">Redirecting to dashboard...</p>
+      </div>
+    );
   }
 
   return <>{children}</>;

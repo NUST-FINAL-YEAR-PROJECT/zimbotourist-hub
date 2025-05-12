@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from '@supabase/supabase-js';
 import { toast } from "sonner";
 import { useNavigate } from 'react-router-dom';
@@ -176,19 +176,19 @@ export const useAuth = () => {
           while (!success && attempts < 3) {
             try {
               attempts++;
-              const adminStatus = await checkAdminStatus(session.user.id);
+              await checkAdminStatus(session.user.id);
               success = true;
               
               // Handle route redirections
               const currentPath = window.location.pathname;
               
               // If we're on the dashboard route and user is admin, redirect to admin dashboard
-              if (currentPath === '/dashboard' && adminStatus) {
+              if (currentPath === '/dashboard' && isAdmin) {
                 navigate('/admin/dashboard');
               }
               
               // If we're on the admin dashboard route and user is not admin, redirect to user dashboard
-              if (currentPath.startsWith('/admin/dashboard') && !adminStatus) {
+              if (currentPath.startsWith('/admin/dashboard') && !isAdmin) {
                 toast.error("You don't have permission to access the admin dashboard");
                 navigate('/dashboard');
               }
@@ -213,7 +213,7 @@ export const useAuth = () => {
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, [navigate, isAdmin]);
 
   const signOut = async () => {
     try {

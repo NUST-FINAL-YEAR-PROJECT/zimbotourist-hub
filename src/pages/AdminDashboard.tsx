@@ -14,39 +14,102 @@ import { DashboardStats } from "@/components/AdminDashboard/DashboardStats";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { useProfile } from "@/hooks/useProfile";
+import { supabase } from "@/integrations/supabase/client";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, isAdmin, loading, adminCheckError } = useAuth();
+  const { user, isAdmin, loading, adminCheckError, session } = useAuth();
   const [retryCount, setRetryCount] = useState(0);
+  const [isInitializing, setIsInitializing] = useState(true);
   
   // Use the profile hook to double-check role
   const { data: profile, isLoading: profileLoading, error: profileError, refetch } = 
     useProfile(user?.id);
   
+  // Verify session and admin status on mount
+  useEffect(() => {
+    const verifyAdminAccess = async () => {
+      try {
+        console.log("AdminDashboard: Verifying admin access");
+        setIsInitializing(true);
+        
+        // Verify active session
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error("Session verification error:", sessionError);
+          toast.error("Session error, please sign in again");
+          navigate('/auth?admin=true');
+          return;
+        }
+        
+        if (!sessionData.session) {
+          console.warn("No active session found");
+          toast.error("Your session has expired, please sign in again");
+          navigate('/auth?admin=true');
+          return;
+        }
+        
+        // Proceed with initialization
+        setIsInitializing(false);
+      } catch (error) {
+        console.error("Error in admin access verification:", error);
+        setIsInitializing(false);
+      }
+    };
+    
+    verifyAdminAccess();
+  }, [navigate]);
+  
   // Retry admin check if there's an error
-  const retryAdminCheck = () => {
+  const retryAdminCheck = async () => {
     setRetryCount(prev => prev + 1);
+    
+    // Try to refresh the session first
+    try {
+      const { data, error } = await supabase.auth.refreshSession();
+      if (error) {
+        console.error("Error refreshing session:", error);
+        toast.error("Failed to refresh your session");
+        return;
+      }
+      
+      if (data && data.session) {
+        toast.success("Session refreshed successfully");
+      }
+    } catch (error) {
+      console.error("Exception refreshing session:", error);
+    }
+    
+    // Then refetch the profile
     refetch();
   };
 
   // Additional check to ensure admin access
   useEffect(() => {
-    if (!loading && !profileLoading) {
-      // If profile is loaded and role isn't ADMIN, redirect
+    if (!loading && !profileLoading && !isInitializing) {
+      console.log("AdminDashboard: Checking access rights");
+      console.log("Admin status:", isAdmin);
+      console.log("Profile role:", profile?.role);
+      
+      // Double check - if profile is loaded and role isn't ADMIN, redirect
       if (profile && profile.role !== 'ADMIN') {
+        console.warn("User has no admin privileges in profile");
         toast.error("Your profile doesn't have admin privileges");
         navigate("/dashboard");
+        return;
       }
       
       // If isAdmin is explicitly false and we have profile data
       if (isAdmin === false && profile) {
+        console.warn("isAdmin flag is false despite profile check");
         toast.error("You don't have permission to access the admin dashboard");
         navigate("/dashboard");
+        return;
       }
     }
-  }, [loading, profileLoading, isAdmin, profile, navigate]);
+  }, [loading, profileLoading, isAdmin, profile, navigate, isInitializing]);
 
   // Get current page from path
   const getCurrentPage = () => {
@@ -100,12 +163,14 @@ const AdminDashboard = () => {
     },
   ];
 
-  // If still loading, show loading indicator
-  if (loading || profileLoading) {
+  // If still initializing, loading profile, or checking auth status
+  if (isInitializing || loading || profileLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen flex-col">
         <Loader2 className="h-8 w-8 animate-spin mb-4" />
-        <p className="text-muted-foreground">Loading admin dashboard...</p>
+        <p className="text-muted-foreground">
+          {isInitializing ? "Initializing admin dashboard..." : "Loading admin dashboard..."}
+        </p>
       </div>
     );
   }
@@ -147,7 +212,7 @@ const AdminDashboard = () => {
   }
 
   // If not admin after all checks, show access denied
-  if (!isAdmin && !profile?.role?.includes('ADMIN')) {
+  if (!isAdmin && profile?.role !== 'ADMIN') {
     return (
       <div className="flex items-center justify-center min-h-screen flex-col">
         <AlertTriangle className="h-16 w-16 text-amber-500 mb-4" />

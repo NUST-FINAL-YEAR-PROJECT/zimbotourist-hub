@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,6 +22,7 @@ type AuthMode = "signin" | "signup" | "forgot-password" | "reset-password" | "ad
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
+  const location = useLocation();
   const isAdminPage = searchParams.get("admin") === "true";
   const initialMode = searchParams.get("mode") === "signup" ? "signup" : isAdminPage ? "admin-signin" : "signin";
   const [mode, setMode] = useState<AuthMode>(initialMode);
@@ -41,10 +42,20 @@ const Auth = () => {
   }, [isAdminPage]);
 
   useEffect(() => {
+    // Track where the user is coming from
+    const from = location.state?.from?.pathname || '/';
+    
     if (user) {
-      navigate(isAdmin ? "/admin/dashboard" : "/dashboard");
+      // Prioritize admin status for routing decisions
+      if (isAdmin) {
+        console.log("Auth page: Admin user detected, redirecting to admin dashboard");
+        navigate('/admin/dashboard', { replace: true });
+      } else {
+        console.log("Auth page: Regular user detected, redirecting to user dashboard");
+        navigate('/dashboard', { replace: true });
+      }
     }
-  }, [user, navigate, isAdmin]);
+  }, [user, navigate, isAdmin, location]);
 
   const validateForm = () => {
     if (!email) {
@@ -126,7 +137,11 @@ const Auth = () => {
         options: {
           // The redirect URL should be the base URL since the auth hook will handle redirection
           // based on admin status after login
-          redirectTo: 'http://discoverzim.co.zw'
+          redirectTo: window.location.origin,
+          queryParams: {
+            // If in admin mode, pass this info through the OAuth flow
+            admin: isAdminPage ? 'true' : 'false'
+          }
         }
       });
       
