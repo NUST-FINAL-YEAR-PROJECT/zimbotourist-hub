@@ -43,11 +43,20 @@ export const QuickAdminLogin = () => {
         // If signup was successful, set their role to ADMIN in the profiles table
         if (signUpData.user) {
           try {
-            // Try to create profiles table if it doesn't exist
-            await supabase.rpc('create_profiles_if_not_exists');
+            // Call our edge function to create profiles table if it doesn't exist
+            const response = await fetch("https://gduzxexxpbibimtiycur.supabase.co/functions/v1/create-profiles-table", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${signUpData.session?.access_token || ""}`,
+              },
+            });
+
+            if (!response.ok) {
+              console.error("Error creating profiles table:", await response.text());
+            }
           } catch (e) {
-            // If RPC doesn't exist, just continue - we'll handle the missing table case below
-            console.log("Couldn't create profiles table via RPC, will try direct insert.");
+            console.log("Error calling create-profiles-table function:", e);
           }
           
           // Create profile with ADMIN role
@@ -60,32 +69,7 @@ export const QuickAdminLogin = () => {
             });
             
           if (profileError) {
-            if (profileError.message.includes('relation "profiles" does not exist')) {
-              try {
-                // Create the profiles table
-                const { error: createTableError } = await supabase.rpc('create_profiles_table');
-                if (createTableError) {
-                  console.error("Error creating profiles table:", createTableError);
-                } else {
-                  // Try inserting again after creating the table
-                  const { error: retryError } = await supabase
-                    .from('profiles')
-                    .upsert({
-                      id: signUpData.user.id,
-                      email: adminCredentials.email,
-                      role: 'ADMIN'
-                    });
-                    
-                  if (retryError) {
-                    console.error("Error creating admin profile after table creation:", retryError);
-                  }
-                }
-              } catch (e) {
-                console.error("Failed to create profiles table:", e);
-              }
-            } else {
-              console.error("Error creating admin profile:", profileError);
-            }
+            console.error("Error creating admin profile:", profileError);
           }
           
           console.log("Admin account created successfully!");
@@ -104,17 +88,27 @@ export const QuickAdminLogin = () => {
           if (testError && testError.message.includes('relation "profiles" does not exist')) {
             // Create the profile with ADMIN role since table doesn't exist
             try {
-              // Try to create profiles table
-              await supabase.rpc('create_profiles_table');
-              
-              // Then create the profile
-              await supabase
-                .from('profiles')
-                .upsert({
-                  id: signInData.user.id,
-                  email: adminCredentials.email,
-                  role: 'ADMIN'
-                });
+              // Call our edge function to create profiles table
+              const response = await fetch("https://gduzxexxpbibimtiycur.supabase.co/functions/v1/create-profiles-table", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "Authorization": `Bearer ${signInData.session?.access_token || ""}`,
+                },
+              });
+
+              if (!response.ok) {
+                console.error("Error creating profiles table:", await response.text());
+              } else {
+                // Then create the profile
+                await supabase
+                  .from('profiles')
+                  .upsert({
+                    id: signInData.user.id,
+                    email: adminCredentials.email,
+                    role: 'ADMIN'
+                  });
+              }
             } catch (e) {
               console.error("Failed to create profiles table:", e);
             }
