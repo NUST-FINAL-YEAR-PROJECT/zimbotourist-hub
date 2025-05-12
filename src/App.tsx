@@ -84,63 +84,12 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-// Enhanced AdminRoute for robust admin access control
+// Modified AdminRoute to remove admin role checks
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading, isAdmin, session } = useAuth();
+  const { user, loading } = useAuth();
   const location = useLocation();
-  const navigate = useNavigate();
-  const [verifyingToken, setVerifyingToken] = useState(true);
 
-  // Verify token and permissions
-  useEffect(() => {
-    const verifyAccess = async () => {
-      try {
-        setVerifyingToken(true);
-        
-        // If not logged in, redirect to auth
-        if (!loading && !user) {
-          console.log("User not logged in, redirecting to auth");
-          navigate('/auth?admin=true', { replace: true, state: { from: location } });
-          return;
-        }
-        
-        // If loading or no user yet, wait
-        if (loading || !user) {
-          return;
-        }
-        
-        // Try refreshing the session if needed
-        if (user && !session) {
-          console.log("User exists but no session, refreshing auth");
-          const { data } = await supabase.auth.refreshSession();
-          if (data && data.session) {
-            console.log("Session refreshed successfully");
-          } else {
-            console.log("Failed to refresh session, redirecting to auth");
-            navigate('/auth?admin=true', { replace: true, state: { from: location } });
-            return;
-          }
-        }
-        
-        // If logged in but not admin
-        if (user && !loading && isAdmin === false) {
-          console.log("Access denied: User is not admin");
-          toast.error("You don't have permission to access the admin dashboard");
-          navigate('/dashboard', { replace: true });
-        }
-      } catch (error) {
-        console.error("Error verifying admin access:", error);
-        toast.error("Error verifying admin access. Please try logging in again.");
-        navigate('/auth?admin=true', { replace: true, state: { from: location } });
-      } finally {
-        setVerifyingToken(false);
-      }
-    };
-    
-    verifyAccess();
-  }, [loading, user, isAdmin, navigate, location, session]);
-
-  if (loading || verifyingToken) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -148,21 +97,13 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
+  // Only check if user is logged in, but don't verify admin status
   if (!user) {
-    return <Navigate to="/auth?admin=true" replace state={{ from: location }} />;
+    return <Navigate to="/auth" replace state={{ from: location }} />;
   }
 
-  // Only render admin content if user is confirmed as admin
-  if (isAdmin) {
-    return <>{children}</>;
-  }
-
-  // Show loading while we're still determining if user is admin
-  return (
-    <div className="flex items-center justify-center min-h-screen">
-      <Loader2 className="h-8 w-8 animate-spin" />
-    </div>
-  );
+  // Allow access to anyone who is logged in
+  return <>{children}</>;
 };
 
 const AuthRoute = ({ children }: { children: React.ReactNode }) => {
