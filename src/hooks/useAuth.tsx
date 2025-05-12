@@ -103,21 +103,27 @@ export const useAuth = () => {
         
         // Check if user is admin
         if (session?.user) {
-          await checkAdminStatus(session.user.id);
+          const adminStatus = await checkAdminStatus(session.user.id);
+          
+          // If OAuth sign-in (like Google) and hash is present, redirect to appropriate dashboard
+          if (_event === 'SIGNED_IN' && window.location.hash.includes('access_token')) {
+            toast.success("Successfully signed in!");
+            
+            // Redirect to the appropriate dashboard based on admin status
+            setTimeout(() => {
+              if (adminStatus) {
+                navigate('/admin/dashboard');
+              } else {
+                navigate('/dashboard');
+              }
+            }, 500);
+          }
         }
 
-        // Redirect after Google sign-in if user just arrived (with a redirected hash)
-        if (_event === 'SIGNED_IN' && window.location.hash.includes('access_token')) {
-          toast.success("Successfully signed in with Google!");
-          
-          // Redirect to dashboard after a small delay to ensure everything is loaded
-          setTimeout(() => {
-            navigate('/dashboard');
-          }, 500);
-        }
+        setLoading(false);
+      } else {
+        setLoading(false);
       }
-      
-      setLoading(false);
     });
 
     // Get initial session

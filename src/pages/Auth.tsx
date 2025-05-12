@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -124,7 +125,9 @@ const Auth = () => {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: 'http://discoverzim.co.zw/dashboard'
+          // The redirect URL should be the base URL since the auth hook will handle redirection
+          // based on admin status after login
+          redirectTo: 'http://discoverzim.co.zw'
         }
       });
       
