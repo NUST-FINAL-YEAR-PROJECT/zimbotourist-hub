@@ -31,7 +31,7 @@ export const HeroSection = ({
 
   return (
     <section className="relative h-screen w-full flex flex-col justify-center items-center overflow-hidden">
-      {/* Background with solid color */}
+      {/* Background with modern layout */}
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -45,18 +45,18 @@ export const HeroSection = ({
           style={{ y: scrollY * 0.3 }}
           className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1601581975053-7c899da7d575')] bg-cover bg-center"
         />
-        <div className="absolute inset-0 bg-primary/70" />
+        <div className="absolute inset-0 bg-blue-900/80" />
         
-        {/* Solid color bottom fade instead of gradient */}
+        {/* Clean bottom fade */}
         <div className="absolute bottom-0 left-0 w-full h-32 bg-blue-50" />
       </motion.div>
       
-      {/* Floating particles effect */}
+      {/* Modern particle effect */}
       <div className="absolute inset-0 z-0 overflow-hidden">
-        {[...Array(15)].map((_, i) => (
+        {[...Array(12)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute w-2 h-2 rounded-full bg-white/40"
+            className="absolute w-2 h-2 rounded-full bg-white/30"
             initial={{
               x: Math.random() * 100 + "%",
               y: Math.random() * 100 + "%",
@@ -64,7 +64,7 @@ export const HeroSection = ({
             }}
             animate={{
               y: [Math.random() * 100 + "%", Math.random() * 100 + "%"],
-              opacity: [0.4, 0.8, 0.4],
+              opacity: [0.3, 0.6, 0.3],
             }}
             transition={{
               duration: Math.random() * 10 + 20,
@@ -75,15 +75,15 @@ export const HeroSection = ({
         ))}
       </div>
       
-      {/* Content */}
+      {/* Content with refined typography */}
       <div className="relative z-10 container mx-auto px-4 flex flex-col items-center w-full">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.8 }}
-          className="text-center mb-4 w-full"
+          className="text-center mb-6 w-full"
         >
-          <h1 className="text-white font-display tracking-tighter leading-none mb-6">
+          <h1 className="text-white font-display tracking-tighter leading-none mb-8">
             <span className={`block ${isMobile ? "text-5xl" : "text-7xl md:text-8xl"} font-bold`}>Explore</span>
             <span className={`block ${isMobile ? "text-6xl" : "text-9xl"} font-extrabold text-white`}>
               Zimbabwe
@@ -104,20 +104,20 @@ export const HeroSection = ({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.3, duration: 0.8 }}
-            className="text-white/90 text-xl md:text-2xl max-w-3xl mx-auto mb-10 leading-relaxed"
+            className="text-white/90 text-xl md:text-2xl max-w-3xl mx-auto mb-12 leading-relaxed"
           >
             Experience the breathtaking beauty, rich culture, and unforgettable adventures.
             Your journey begins here.
           </motion.p>
         </motion.div>
         
-        {/* Search container with solid color instead of glass effect */}
+        {/* Modern search container */}
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 0.8 }}
-          className="w-full max-w-4xl bg-white/20 border border-white/20 
-            rounded-2xl p-8 shadow-[0_8px_32px_rgba(0,0,0,0.12)]"
+          className="w-full max-w-3xl bg-white/10 backdrop-blur-md border border-white/20 
+            rounded-2xl p-6 shadow-xl"
         >
           <div className="flex flex-col md:flex-row gap-3">
             <div className="relative flex-1">
@@ -134,8 +134,8 @@ export const HeroSection = ({
             </div>
             <Button 
               onClick={handleSearch}
-              variant="blue"
-              className="h-14 px-8 font-medium text-lg rounded-xl transition-all duration-300"
+              variant="default"
+              className="h-14 px-8 font-medium text-lg rounded-xl bg-white text-blue-900 hover:bg-white/90 transition-all duration-300"
             >
               Explore Now
             </Button>
@@ -158,7 +158,7 @@ export const HeroSection = ({
         </motion.div>
       </div>
       
-      {/* Scroll indicator */}
+      {/* Modern scroll indicator */}
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: scrollY > 20 ? 0 : 1 }}
@@ -166,7 +166,7 @@ export const HeroSection = ({
         className="absolute bottom-12 left-1/2 -translate-x-1/2 text-white"
       >
         <div className="flex flex-col items-center">
-          <span className="text-sm text-white/80 mb-2">Scroll to discover Zimbabwe</span>
+          <span className="text-sm font-light tracking-wider text-white/70 mb-2">Scroll to discover</span>
           <motion.div
             animate={{ y: [0, 10, 0] }}
             transition={{

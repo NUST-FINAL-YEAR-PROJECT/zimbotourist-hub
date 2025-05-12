@@ -18,31 +18,30 @@ export const StatsSection = () => {
       label: "Destinations", 
       value: stats ? stats.totalDestinations.toLocaleString() : "0", 
       icon: MapPin,
-      color: "bg-purple-500"
+      color: "bg-indigo-500"
     },
     { 
       label: "Total Bookings", 
       value: stats ? stats.totalBookings.toLocaleString() : "0", 
       icon: Camera,
-      color: "bg-pink-500"
+      color: "bg-violet-500"
     },
     { 
       label: "Total Revenue", 
       value: stats ? `$${stats.totalRevenue.toLocaleString()}` : "$0", 
       icon: Award,
-      color: "bg-amber-500"
+      color: "bg-blue-400"
     }
   ];
 
   return (
-    <section className="relative py-20 overflow-hidden">
-      {/* Solid background instead of gradient */}
-      <div className="absolute inset-0 bg-blue-500/10" />
-      <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1606108627827-ec3f836df1a1')] bg-cover bg-center opacity-10" />
+    <section className="relative py-20 overflow-hidden bg-blue-50">
+      {/* Modern background */}
+      <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1606108627827-ec3f836df1a1')] bg-cover bg-center opacity-5" />
       
-      {/* Decorative elements with solid colors */}
-      <div className="absolute top-20 left-10 w-64 h-64 rounded-full bg-yellow-300/20 blur-3xl" />
-      <div className="absolute bottom-20 right-10 w-72 h-72 rounded-full bg-blue-400/20 blur-3xl" />
+      {/* Modern decorative elements */}
+      <div className="absolute top-20 left-10 w-64 h-64 rounded-full bg-blue-200/20 blur-3xl" />
+      <div className="absolute bottom-20 right-10 w-72 h-72 rounded-full bg-indigo-200/20 blur-3xl" />
       
       <div className="container mx-auto px-4 relative z-10">
         <motion.div
@@ -50,13 +49,13 @@ export const StatsSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
-          className="text-center max-w-3xl mx-auto mb-12"
+          className="text-center max-w-3xl mx-auto mb-16"
         >
-          <Badge className="mb-4 bg-pink-500 hover:bg-pink-600 px-4 py-1 text-sm font-medium">
+          <Badge className="mb-4 bg-blue-500 hover:bg-blue-600 px-4 py-1 text-sm font-medium">
             Real-Time Data
           </Badge>
-          <h2 className="text-4xl md:text-5xl font-display font-bold mb-4 text-gray-800">
-            Journey Through Our <span className="text-purple-600">Numbers</span>
+          <h2 className="text-4xl md:text-5xl font-display font-bold mb-5 text-gray-800">
+            Journey Through Our Numbers
           </h2>
           <p className="text-lg text-gray-600">
             Discover how we've helped travelers create unforgettable memories across Zimbabwe
@@ -65,7 +64,7 @@ export const StatsSection = () => {
         
         {isLoading ? (
           <div className="flex justify-center items-center h-48">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
             <span className="ml-2 text-gray-600">Loading statistics...</span>
           </div>
         ) : error ? (
@@ -83,16 +82,16 @@ export const StatsSection = () => {
                 viewport={{ once: true }}
                 className="group relative"
               >
-                <div className="absolute inset-0 bg-white rounded-2xl shadow-lg transform transition-all duration-500 group-hover:scale-[1.03]" />
+                <div className="absolute inset-0 bg-white rounded-2xl shadow-md transform transition-all duration-500 group-hover:scale-[1.03]" />
                 
                 <div className="relative p-8 text-center">
-                  <div className={`mb-6 w-20 h-20 rounded-2xl ${stat.color} flex items-center justify-center mx-auto
-                    shadow-lg transform transition-all duration-500 group-hover:rotate-6`}>
-                    <stat.icon className="w-10 h-10 text-white" />
+                  <div className={`mb-6 w-16 h-16 rounded-2xl ${stat.color} flex items-center justify-center mx-auto
+                    shadow-md transform transition-all duration-500 group-hover:rotate-6`}>
+                    <stat.icon className="w-8 h-8 text-white" />
                   </div>
                   
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
+                    initial={{ opacity: 0, scale: 0.9 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.8, delay: 0.2 + index * 0.1 }}
                     viewport={{ once: true }}

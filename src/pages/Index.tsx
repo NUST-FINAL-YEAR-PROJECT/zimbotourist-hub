@@ -43,7 +43,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden bg-blue-50">
+    <div className="min-h-screen w-full overflow-x-hidden bg-white">
       <TopNavbar />
       
       {/* Sections */}
@@ -59,7 +59,6 @@ const Index = () => {
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeIn}
-          className="bg-white py-16"
         >
           <DestinationsSection />
         </motion.div>
@@ -69,7 +68,7 @@ const Index = () => {
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeIn}
-          className="bg-blue-50 py-16"
+          className="bg-blue-50"
         >
           <FeaturesSection />
         </motion.div>
@@ -79,7 +78,6 @@ const Index = () => {
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeIn}
-          className="bg-white py-16"
         >
           <ExperienceSection />
         </motion.div>
@@ -89,7 +87,7 @@ const Index = () => {
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeIn}
-          className="bg-blue-50 py-16"
+          className="bg-blue-50"
         >
           <VideoFeature />
         </motion.div>
@@ -99,7 +97,6 @@ const Index = () => {
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeIn}
-          className="bg-white py-16"
         >
           <StatsSection />
         </motion.div>
@@ -109,7 +106,7 @@ const Index = () => {
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeIn}
-          className="bg-blue-50 py-16"
+          className="bg-blue-50"
         >
           <TestimonialsSection />
         </motion.div>
@@ -119,45 +116,45 @@ const Index = () => {
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeIn}
-          className="bg-primary py-16"
+          className="bg-blue-900"
         >
           <CTASection />
         </motion.div>
       </main>
       
-      {/* Footer with scroll to top */}
+      {/* Footer with modern styling */}
       <motion.footer 
-        className="bg-white py-16 border-t border-gray-200 w-full"
+        className="bg-white py-16 border-t border-gray-100 w-full"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
         viewport={{ once: true }}
       >
         <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="transform hover:scale-105 transition-transform duration-300">
-            <h3 className="text-xl font-bold mb-4 text-primary">Explore Zimbabwe</h3>
-            <p className="text-muted-foreground">
+          <div className="transform hover:translate-y-[-8px] transition-transform duration-500">
+            <h3 className="text-xl font-bold mb-4 text-blue-900">Explore Zimbabwe</h3>
+            <p className="text-gray-600">
               Your gateway to Zimbabwe's breathtaking landscapes, rich cultural heritage, and unforgettable adventures.
             </p>
           </div>
           
-          <div className="transform hover:scale-105 transition-transform duration-300">
-            <h4 className="font-medium mb-4">Quick Links</h4>
+          <div className="transform hover:translate-y-[-8px] transition-transform duration-500">
+            <h4 className="font-medium mb-4 text-gray-800">Quick Links</h4>
             <ul className="space-y-2">
-              <li><a href="/destinations" className="text-muted-foreground hover:text-primary transition-colors">All Destinations</a></li>
-              <li><a href="/events" className="text-muted-foreground hover:text-primary transition-colors">Upcoming Events</a></li>
-              <li><a href="/auth" className="text-muted-foreground hover:text-primary transition-colors">Sign Up / Login</a></li>
-              <li><a href="/documentation" className="text-muted-foreground hover:text-primary transition-colors">Travel Guide</a></li>
+              <li><a href="/destinations" className="text-gray-600 hover:text-blue-600 transition-colors">All Destinations</a></li>
+              <li><a href="/events" className="text-gray-600 hover:text-blue-600 transition-colors">Upcoming Events</a></li>
+              <li><a href="/auth" className="text-gray-600 hover:text-blue-600 transition-colors">Sign Up / Login</a></li>
+              <li><a href="/documentation" className="text-gray-600 hover:text-blue-600 transition-colors">Travel Guide</a></li>
             </ul>
           </div>
           
-          <div className="transform hover:scale-105 transition-transform duration-300">
-            <h4 className="font-medium mb-4">Contact</h4>
-            <p className="text-muted-foreground">
+          <div className="transform hover:translate-y-[-8px] transition-transform duration-500">
+            <h4 className="font-medium mb-4 text-gray-800">Contact</h4>
+            <p className="text-gray-600">
               Have questions about your Zimbabwe journey? Reach out to our travel experts.
             </p>
             <button 
-              className="mt-4 inline-flex items-center text-sm text-primary hover:underline hover:text-blue-700 transition-colors"
+              className="mt-4 inline-flex items-center text-sm text-blue-600 hover:text-blue-800 hover:underline transition-colors"
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             >
               Back to top
@@ -165,7 +162,7 @@ const Index = () => {
           </div>
         </div>
         
-        <div className="container mx-auto px-4 mt-12 pt-6 border-t border-gray-100 text-center text-sm text-muted-foreground">
+        <div className="container mx-auto px-4 mt-12 pt-6 border-t border-gray-50 text-center text-sm text-gray-500">
           <p>© 2025 Explore Zimbabwe. All rights reserved.</p>
         </div>
       </motion.footer>

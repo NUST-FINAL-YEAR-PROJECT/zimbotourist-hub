@@ -12,11 +12,11 @@ export const CTASection = () => {
   };
 
   return (
-    <section className="relative py-32 overflow-hidden">
-      {/* Background elements - solid color instead of gradient */}
+    <section className="relative py-28 overflow-hidden">
+      {/* Modern background elements */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1608638317448-83eed67f2738')] bg-cover bg-center opacity-20" />
-        <div className="absolute inset-0 bg-primary/90" />
+        <div className="absolute inset-0 bg-blue-900" />
         <motion.div 
           animate={{ 
             backgroundPosition: ["0% 0%", "100% 100%"], 
@@ -67,12 +67,11 @@ export const CTASection = () => {
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.4 }}
             viewport={{ once: true, margin: "-100px" }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4"
+            className="flex flex-col sm:flex-row items-center justify-center gap-6"
           >
             <Button
-              size="2xl"
-              variant="amber"
-              className="text-lg font-medium px-10 py-7 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 group"
+              size="lg"
+              className="text-lg font-medium px-10 py-7 rounded-full bg-white text-blue-900 hover:bg-white/90 shadow-xl hover:shadow-2xl transition-all duration-300 group"
               onClick={handleAuthClick}
             >
               Start Your Journey Today
@@ -80,8 +79,8 @@ export const CTASection = () => {
             </Button>
             
             <Button
-              variant="ghost"
-              className="text-white hover:bg-white/10 px-8 py-6 rounded-full transition-all duration-300"
+              variant="outline"
+              className="text-white hover:bg-white/10 border-white/30 px-8 py-6 rounded-full transition-all duration-300"
               onClick={() => navigate('/destinations')}
             >
               Explore All Destinations
