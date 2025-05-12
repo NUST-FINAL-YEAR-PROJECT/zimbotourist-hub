@@ -24,8 +24,8 @@ export const useDestinations = (filters?: DestinationFilters) => {
   return useQuery({
     queryKey: ['destinations', filters],
     queryFn: async () => {
-      // Break down the query into simpler steps to avoid deep type inference
-      let query = supabase
+      // Use "any" type to prevent deep type instantiation error
+      let query: any = supabase
         .from('destinations')
         .select('*');
       
