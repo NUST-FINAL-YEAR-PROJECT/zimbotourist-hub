@@ -85,6 +85,41 @@ export const useAuth = () => {
   };
 
   useEffect(() => {
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      console.log("Auth state changed:", _event, session);
+      
+      if (_event === 'SIGNED_OUT') {
+        setSession(null);
+        setUser(null);
+        setIsAdmin(false);
+        navigate('/');
+        toast.success("Successfully signed out");
+      } else if (_event === 'SIGNED_IN' || _event === 'TOKEN_REFRESHED') {
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        // Check if user is admin
+        if (session?.user) {
+          await checkAdminStatus(session.user.id);
+        }
+
+        // Redirect after Google sign-in if user just arrived (with a redirected hash)
+        if (_event === 'SIGNED_IN' && window.location.hash.includes('access_token')) {
+          toast.success("Successfully signed in with Google!");
+          
+          // Redirect to dashboard after a small delay to ensure everything is loaded
+          setTimeout(() => {
+            navigate('/dashboard');
+          }, 500);
+        }
+      }
+      
+      setLoading(false);
+    });
+
     // Get initial session
     const getInitialSession = async () => {
       try {
@@ -109,31 +144,6 @@ export const useAuth = () => {
     };
 
     getInitialSession();
-
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      console.log("Auth state changed:", _event, session);
-      
-      if (_event === 'SIGNED_OUT') {
-        setSession(null);
-        setUser(null);
-        setIsAdmin(false);
-        navigate('/');
-        toast.success("Successfully signed out");
-      } else if (_event === 'SIGNED_IN' || _event === 'TOKEN_REFRESHED') {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        // Check if user is admin
-        if (session?.user) {
-          await checkAdminStatus(session.user.id);
-        }
-      }
-      
-      setLoading(false);
-    });
 
     return () => {
       subscription.unsubscribe();
