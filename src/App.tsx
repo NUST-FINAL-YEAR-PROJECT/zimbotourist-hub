@@ -84,11 +84,13 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-// Modified AdminRoute to remove admin role checks
+// Updated AdminRoute to check for admin role
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading } = useAuth();
+  const { user, loading, isAdmin } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
+  // Show loading indicator while checking auth status
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -97,12 +99,20 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  // Only check if user is logged in, but don't verify admin status
+  // Redirect to login if not authenticated
   if (!user) {
-    return <Navigate to="/auth" replace state={{ from: location }} />;
+    return <Navigate to="/auth?admin=true" replace state={{ from: location }} />;
   }
 
-  // Allow access to anyone who is logged in
+  // After loading is complete, if user is authenticated but not admin, redirect to regular dashboard
+  if (!isAdmin) {
+    // Show toast notification
+    toast.error("You don't have permission to access the admin dashboard");
+    // Redirect to the dashboard
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  // User is authenticated and has admin role
   return <>{children}</>;
 };
 

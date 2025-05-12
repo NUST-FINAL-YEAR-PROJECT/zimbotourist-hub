@@ -76,6 +76,7 @@ export const useAuth = () => {
         const adminStatus = await checkAdminStatus(data.user.id);
         console.log("Admin status after login:", adminStatus);
         
+        // Handle redirection after role check
         if (adminStatus) {
           toast.success("Successfully logged in as Administrator!");
           navigate('/admin/dashboard');
@@ -100,6 +101,29 @@ export const useAuth = () => {
   // Setup auth listener and initial session check
   useEffect(() => {
     setLoading(true);
+
+    // Function to handle redirections based on user role
+    const handleRoleBasedRedirection = async (userId: string) => {
+      try {
+        const isUserAdmin = await checkAdminStatus(userId);
+        const currentPath = window.location.pathname;
+        
+        // Redirect admin users trying to access regular dashboard to admin dashboard
+        if (isUserAdmin && currentPath === '/dashboard') {
+          console.log("Admin user detected on regular dashboard, redirecting to admin dashboard");
+          navigate('/admin/dashboard', { replace: true });
+        }
+        
+        // Redirect regular users trying to access admin dashboard to regular dashboard
+        if (!isUserAdmin && currentPath.startsWith('/admin/dashboard')) {
+          console.log("Regular user detected on admin dashboard, redirecting to regular dashboard");
+          toast.error("You don't have permission to access the admin dashboard");
+          navigate('/dashboard', { replace: true });
+        }
+      } catch (error) {
+        console.error("Error during role-based redirection:", error);
+      }
+    };
 
     // Listen for auth changes
     const {
@@ -130,17 +154,17 @@ export const useAuth = () => {
               success = true;
               
               // Handle OAuth sign-in redirects (Google, etc.)
-              if (_event === 'SIGNED_IN' && window.location.hash.includes('access_token')) {
+              if (_event === 'SIGNED_IN') {
                 toast.success("Successfully signed in!");
                 
                 // Redirect based on admin status with a short delay to ensure state updates
                 setTimeout(() => {
                   if (adminStatus) {
-                    navigate('/admin/dashboard');
+                    navigate('/admin/dashboard', { replace: true });
                   } else {
-                    navigate('/dashboard');
+                    navigate('/dashboard', { replace: true });
                   }
-                }, 500);
+                }, 300);
               }
             } catch (error) {
               console.warn(`Admin check attempt ${attempts} failed, retrying...`);
@@ -169,36 +193,8 @@ export const useAuth = () => {
           setSession(session);
           setUser(session.user);
           
-          // Check if user is admin with retry logic
-          let success = false;
-          let attempts = 0;
-          
-          while (!success && attempts < 3) {
-            try {
-              attempts++;
-              await checkAdminStatus(session.user.id);
-              success = true;
-              
-              // Handle route redirections
-              const currentPath = window.location.pathname;
-              
-              // If we're on the dashboard route and user is admin, redirect to admin dashboard
-              if (currentPath === '/dashboard' && isAdmin) {
-                navigate('/admin/dashboard');
-              }
-              
-              // If we're on the admin dashboard route and user is not admin, redirect to user dashboard
-              if (currentPath.startsWith('/admin/dashboard') && !isAdmin) {
-                toast.error("You don't have permission to access the admin dashboard");
-                navigate('/dashboard');
-              }
-            } catch (error) {
-              console.warn(`Initial admin check attempt ${attempts} failed, retrying...`);
-              if (attempts < 3) {
-                await new Promise(resolve => setTimeout(resolve, attempts * 1000));
-              }
-            }
-          }
+          // Perform role-based redirection after setting user
+          await handleRoleBasedRedirection(session.user.id);
         }
       } catch (error: any) {
         console.error('Error getting session:', error);
@@ -213,7 +209,7 @@ export const useAuth = () => {
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate, isAdmin]);
+  }, [navigate]);
 
   const signOut = async () => {
     try {

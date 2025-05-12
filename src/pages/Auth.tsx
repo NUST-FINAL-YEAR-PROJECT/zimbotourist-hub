@@ -42,11 +42,8 @@ const Auth = () => {
   }, [isAdminPage]);
 
   useEffect(() => {
-    // Track where the user is coming from
-    const from = location.state?.from?.pathname || '/';
-    
+    // If user is already authenticated, redirect based on role
     if (user) {
-      // Prioritize admin status for routing decisions
       if (isAdmin) {
         console.log("Auth page: Admin user detected, redirecting to admin dashboard");
         navigate('/admin/dashboard', { replace: true });
@@ -55,7 +52,7 @@ const Auth = () => {
         navigate('/dashboard', { replace: true });
       }
     }
-  }, [user, navigate, isAdmin, location]);
+  }, [user, navigate, isAdmin]);
 
   const validateForm = () => {
     if (!email) {
@@ -135,11 +132,8 @@ const Auth = () => {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          // The redirect URL should be the base URL since the auth hook will handle redirection
-          // based on admin status after login
           redirectTo: window.location.origin,
           queryParams: {
-            // If in admin mode, pass this info through the OAuth flow
             admin: isAdminPage ? 'true' : 'false'
           }
         }
@@ -147,7 +141,6 @@ const Auth = () => {
       
       if (error) throw error;
       
-      // The redirect will happen automatically, but we can show a toast for UX
       toast.info("Redirecting to Google login...");
     } catch (error: any) {
       console.error("Google sign-in error:", error);
