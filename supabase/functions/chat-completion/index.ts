@@ -37,7 +37,10 @@ serve(async (req) => {
         tourism in Zimbabwe when appropriate without being forceful.
         
         Be concise but thorough in your responses. If you don't know something specific about 
-        Zimbabwe tourism, acknowledge it rather than providing incorrect information.`
+        Zimbabwe tourism, acknowledge it rather than providing incorrect information.
+        
+        Use a friendly, enthusiastic tone. Zimbabwe has amazing destinations like Victoria Falls,
+        Hwange National Park, Great Zimbabwe, Matobo Hills, Eastern Highlands, and Lake Kariba.`
       }
     ];
 
@@ -55,7 +58,7 @@ serve(async (req) => {
       content: message
     });
 
-    console.log('Sending request to OpenAI with messages:', JSON.stringify(messages));
+    console.log('Sending request to OpenAI with messages:', JSON.stringify(messages).substring(0, 200) + '...');
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -72,9 +75,10 @@ serve(async (req) => {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      console.error('OpenAI API error:', errorData);
-      throw new Error(errorData.error?.message || `Failed to get response from OpenAI: ${response.status}`);
+      const errorData = await response.json().catch(() => null);
+      const statusText = response.statusText || 'Unknown error';
+      console.error('OpenAI API error:', errorData || { status: response.status, statusText });
+      throw new Error(errorData?.error?.message || `Failed to get response from OpenAI: ${response.status} - ${statusText}`);
     }
 
     const data = await response.json();
@@ -85,7 +89,7 @@ serve(async (req) => {
     }
 
     const aiResponse = data.choices[0].message.content;
-    console.log('AI Response:', aiResponse);
+    console.log('AI Response:', aiResponse.substring(0, 100) + '...');
 
     return new Response(JSON.stringify({ response: aiResponse }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
