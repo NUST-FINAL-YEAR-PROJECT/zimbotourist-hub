@@ -105,11 +105,11 @@ export const useAuth = () => {
         if (session?.user) {
           const adminStatus = await checkAdminStatus(session.user.id);
           
-          // If OAuth sign-in (like Google) and hash is present, redirect to appropriate dashboard
+          // Handle OAuth sign-in redirects (Google, etc.)
           if (_event === 'SIGNED_IN' && window.location.hash.includes('access_token')) {
             toast.success("Successfully signed in!");
             
-            // Redirect to the appropriate dashboard based on admin status
+            // Redirect based on admin status with a short delay to ensure state updates
             setTimeout(() => {
               if (adminStatus) {
                 navigate('/admin/dashboard');
@@ -138,8 +138,21 @@ export const useAuth = () => {
           setSession(session);
           setUser(session.user);
           
-          // Check if user is admin
-          await checkAdminStatus(session.user.id);
+          // Check if user is admin and redirect if necessary
+          const adminStatus = await checkAdminStatus(session.user.id);
+          
+          // If we're on the dashboard route and user is admin, redirect to admin dashboard
+          const isOnUserDashboard = window.location.pathname === '/dashboard';
+          if (isOnUserDashboard && adminStatus) {
+            navigate('/admin/dashboard');
+          }
+          
+          // If we're on the admin dashboard route and user is not admin, redirect to user dashboard
+          const isOnAdminDashboard = window.location.pathname.startsWith('/admin/dashboard');
+          if (isOnAdminDashboard && !adminStatus) {
+            toast.error("You don't have permission to access the admin dashboard");
+            navigate('/dashboard');
+          }
         }
       } catch (error: any) {
         console.error('Error getting session:', error);

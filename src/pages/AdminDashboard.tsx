@@ -19,9 +19,9 @@ const AdminDashboard = () => {
   const location = useLocation();
   const { isAdmin, loading } = useAuth();
   
-  // Check admin status on component mount
+  // Check admin status on component mount - this is an extra safety check
+  // since AdminRoute component already provides access control
   useEffect(() => {
-    console.log("AdminDashboard - Current admin status:", isAdmin);
     if (!loading && isAdmin === false) {
       toast.error("You don't have permission to access the admin dashboard");
       navigate("/dashboard");

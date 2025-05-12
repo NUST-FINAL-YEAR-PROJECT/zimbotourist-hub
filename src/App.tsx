@@ -84,18 +84,21 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-// Modified AdminRoute to properly check if user is an admin
+// Improved AdminRoute to strictly enforce admin access
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading, isAdmin } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Only show the toast and redirect if user is loaded and definitely not an admin
-    if (!loading && user && isAdmin === false) {
-      console.log("Access denied: User is not admin");
-      toast.error("You don't have permission to access the admin dashboard");
-      navigate('/dashboard', { replace: true });
+    // Only redirect if we're sure about admin status (not loading)
+    if (!loading) {
+      // If logged in but not admin
+      if (user && isAdmin === false) {
+        console.log("Access denied: User is not admin");
+        toast.error("You don't have permission to access the admin dashboard");
+        navigate('/dashboard', { replace: true });
+      }
     }
   }, [loading, user, isAdmin, navigate]);
 
