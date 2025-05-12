@@ -12,10 +12,37 @@ export const useAuth = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
 
-  // Function to check if user is admin
+  // Function to check if user is admin with better error handling
   const checkAdminStatus = async (userId: string) => {
     try {
       console.log("Checking admin status for user:", userId);
+      
+      // First check if the profiles table exists by making a light query
+      const { error: testError } = await supabase
+        .from('profiles')
+        .select('count', { count: 'exact', head: true });
+      
+      if (testError && testError.message.includes('relation "profiles" does not exist')) {
+        console.log("Profiles table doesn't exist yet. Creating profile with admin role.");
+        
+        // Create the profile with admin role
+        const { error: createError } = await supabase
+          .from('profiles')
+          .insert({
+            id: userId,
+            role: 'ADMIN'
+          });
+        
+        if (createError) {
+          console.error("Error creating admin profile:", createError);
+          return false;
+        }
+        
+        setIsAdmin(true);
+        return true;
+      }
+      
+      // If profiles table exists, query it normally
       const { data, error } = await supabase
         .from('profiles')
         .select('role')
@@ -23,6 +50,26 @@ export const useAuth = () => {
         .single();
       
       if (error) {
+        // If no profile found, create one with ADMIN role
+        if (error.code === 'PGRST116') { // Record not found
+          console.log("Profile not found. Creating profile with admin role.");
+          
+          const { error: insertError } = await supabase
+            .from('profiles')
+            .insert({
+              id: userId,
+              role: 'ADMIN'
+            });
+          
+          if (insertError) {
+            console.error("Error creating admin profile:", insertError);
+            return false;
+          }
+          
+          setIsAdmin(true);
+          return true;
+        }
+        
         console.error("Error checking admin status:", error);
         return false;
       }
@@ -37,7 +84,7 @@ export const useAuth = () => {
     }
   };
 
-  // Login with email and password
+  // Login with email and password with better error handling
   const loginWithCredentials = async (email: string, password: string) => {
     try {
       setLoading(true);
@@ -63,7 +110,6 @@ export const useAuth = () => {
         const adminStatus = await checkAdminStatus(data.user.id);
         console.log("Admin status after login:", adminStatus);
         
-        // Return before navigation to ensure state is properly updated
         return { isAdmin: adminStatus };
       }
       
@@ -81,6 +127,29 @@ export const useAuth = () => {
     // Set loading true at start to prevent premature rendering
     setLoading(true);
     
+    // Function to get initial session
+    const getInitialSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+          throw error;
+        }
+        
+        if (session) {
+          setSession(session);
+          setUser(session.user);
+          
+          // Check if user is admin
+          await checkAdminStatus(session.user.id);
+        }
+      } catch (error: any) {
+        console.error('Error getting session:', error);
+        toast.error(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     // Listen for auth changes first
     const {
       data: { subscription },
@@ -107,28 +176,6 @@ export const useAuth = () => {
     });
 
     // Get initial session
-    const getInitialSession = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (error) {
-          throw error;
-        }
-        
-        if (session) {
-          setSession(session);
-          setUser(session.user);
-          
-          // Check if user is admin
-          await checkAdminStatus(session.user.id);
-        }
-      } catch (error: any) {
-        console.error('Error getting session:', error);
-        toast.error(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     getInitialSession();
 
     return () => {
