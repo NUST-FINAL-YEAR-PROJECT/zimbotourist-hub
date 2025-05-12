@@ -63,14 +63,7 @@ export const useAuth = () => {
         const adminStatus = await checkAdminStatus(data.user.id);
         console.log("Admin status after login:", adminStatus);
         
-        if (adminStatus) {
-          toast.success("Successfully logged in as Administrator!");
-          navigate('/admin/dashboard');
-        } else {
-          toast.success("Successfully logged in!");
-          navigate('/dashboard');
-        }
-        
+        // Return before navigation to ensure state is properly updated
         return { isAdmin: adminStatus };
       }
       

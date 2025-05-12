@@ -5,10 +5,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { Loader2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 export const QuickAdminLogin = () => {
   const [loading, setLoading] = useState(false);
   const { loginWithCredentials } = useAuth();
+  const navigate = useNavigate();
 
   // This would normally be stored securely, but for demo purposes we're hardcoding
   // In a real app, these would be environment variables or stored securely
@@ -82,8 +84,18 @@ export const QuickAdminLogin = () => {
       }
       
       // Now login with the admin credentials
-      await loginWithCredentials(adminCredentials.email, adminCredentials.password);
-      toast.success("Successfully logged in as admin!");
+      const response = await loginWithCredentials(adminCredentials.email, adminCredentials.password);
+      
+      // Check if login was successful and user is admin
+      if (response && response.isAdmin) {
+        toast.success("Successfully logged in as admin!");
+        // Give the auth state a moment to update
+        setTimeout(() => {
+          navigate("/admin/dashboard");
+        }, 100);
+      } else {
+        toast.error("Failed to login as admin: User does not have admin privileges");
+      }
     } catch (error: any) {
       console.error("Admin login error:", error);
       toast.error("Failed to login as admin: " + (error.message || "Unknown error"));
