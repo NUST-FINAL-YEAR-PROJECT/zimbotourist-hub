@@ -24,7 +24,7 @@ export const useEventOperations = () => {
           throw error;
         }
 
-        return data as Event[];
+        return data as unknown as Event[];
       } catch (error) {
         console.error("Error fetching events:", error);
         throw error;
@@ -60,7 +60,7 @@ export const useEventOperations = () => {
         }
 
         toast.success("Event created successfully");
-        return data as Event;
+        return data as unknown as Event;
       } catch (error) {
         console.error("Error creating event:", error);
         throw error;
@@ -103,7 +103,7 @@ export const useEventOperations = () => {
         }
 
         toast.success("Event updated successfully");
-        return updatedEvent as Event;
+        return updatedEvent as unknown as Event;
       } catch (error) {
         console.error("Error updating event:", error);
         throw error;
