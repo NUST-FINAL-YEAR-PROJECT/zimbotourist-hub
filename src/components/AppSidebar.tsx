@@ -1,6 +1,6 @@
 
 import { useLocation, useNavigate } from "react-router-dom";
-import { LogOut, MapPin, Settings, Ticket, Home, Calendar, Sparkles, Bell, AlertCircle, Info, CheckCircle2, ShieldCheck } from "lucide-react";
+import { LogOut, MapPin, Settings, Ticket, Home, Calendar, Sparkles, ShieldCheck } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -61,14 +61,16 @@ export function AppSidebar() {
 
   // Function to check if a path is active - handles nested routes
   const isActivePath = (path: string) => {
-    return location.pathname === path || 
-           (path !== "/dashboard" && location.pathname.startsWith(path));
+    if (path === "/dashboard" && location.pathname === "/dashboard") {
+      return true;
+    }
+    return path !== "/dashboard" && location.pathname.startsWith(path);
   };
   
   if (isMobile) {
     return (
-      <div className="mobile-nav-bottom">
-        <div className="flex justify-around items-center">
+      <div className="mobile-nav-bottom fixed bottom-0 left-0 right-0 bg-white border-t z-50">
+        <div className="flex justify-around items-center py-2">
           {menuItems.map((item) => (
             <Button
               key={item.title}
@@ -98,7 +100,7 @@ export function AppSidebar() {
               <Sparkles className="h-5 w-5 text-white" />
             </div>
             <h2 className={cn(
-              "text-lg font-display font-semibold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent transition-opacity duration-300",
+              "text-lg font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent transition-opacity duration-300",
               state === "collapsed" && "opacity-0"
             )}>
               Reserve.zw

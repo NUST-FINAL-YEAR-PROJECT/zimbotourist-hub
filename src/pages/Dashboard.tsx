@@ -1,12 +1,12 @@
 
 import { useState, useEffect } from "react";
-import { useNavigate, Routes, Route, Navigate } from "react-router-dom";
+import { useNavigate, Routes, Route, Navigate, Link } from "react-router-dom";
 import { toast } from "sonner";
 import { DestinationExplorer } from "@/components/DestinationExplorer";
 import { EventsList } from "@/components/EventsList";
 import { supabase } from "@/integrations/supabase/client";
 import type { Profile, Booking, AppNotification } from "@/types/models";
-import { Bell, BellDot, CalendarDays, LayoutDashboard, Activity, MapPin, Calendar, Clock, Users, CheckCircle, AlertTriangle, Info } from "lucide-react";
+import { Bell, BellDot, CalendarDays, LayoutDashboard, Activity, MapPin, Calendar, Clock, Users, CheckCircle2, AlertTriangle, Info } from "lucide-react";
 import { AppSidebar } from "@/components/AppSidebar";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useQuery } from "@tanstack/react-query";

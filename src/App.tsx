@@ -1,10 +1,10 @@
 
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { TopNavbar } from "@/components/TopNavbar";
-import { AppSidebar } from "@/components/AppSidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 // Pages
 import Index from "@/pages/Index";
@@ -37,21 +37,6 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   return children;
 };
 
-// Layout with sidebar for dashboard routes
-const DashboardLayout = ({ children }: { children: JSX.Element }) => {
-  return (
-    <div className="flex min-h-screen bg-background">
-      <AppSidebar />
-      <div className="flex-1 flex flex-col">
-        <TopNavbar />
-        <div className="flex-1">
-          {children}
-        </div>
-      </div>
-    </div>
-  );
-};
-
 // Admin route component
 const AdminRoute = ({ children }: { children: JSX.Element }) => {
   const { user, isLoading, isAdmin } = useAuth();
@@ -75,33 +60,41 @@ const AdminRoute = ({ children }: { children: JSX.Element }) => {
 // Main app component
 function App() {
   const location = useLocation();
-  const showNavbar = !location.pathname.startsWith("/auth");
+  const showNavbar = !location.pathname.startsWith("/auth") && 
+                     !location.pathname.startsWith("/dashboard") && 
+                     !location.pathname.startsWith("/admin");
   
   return (
     <TooltipProvider>
-      <InitializeData />
-      <Toaster />
-      <div className="app-container">
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/destinations" element={<DestinationsPage />} />
-          <Route path="/destination/:id" element={<DestinationDetails />} />
-          <Route path="/event/:id" element={<EventDetails />} />
-          <Route path="/documentation" element={<Documentation />} />
-          <Route path="/payment-status" element={<PaymentStatusPage />} />
-          
-          {/* Protected dashboard routes */}
-          <Route path="/dashboard" element={<ProtectedRoute><DashboardLayout><Dashboard /></DashboardLayout></ProtectedRoute>} />
-          <Route path="/dashboard/bookings" element={<ProtectedRoute><DashboardLayout><MyBookings /></DashboardLayout></ProtectedRoute>} />
-          <Route path="/dashboard/payment" element={<ProtectedRoute><DashboardLayout><PaymentPage /></DashboardLayout></ProtectedRoute>} />
-          <Route path="/dashboard/standalone-payment" element={<ProtectedRoute><DashboardLayout><StandalonePaymentPage /></DashboardLayout></ProtectedRoute>} />
-          
-          {/* Admin routes */}
-          <Route path="/admin/*" element={<AdminRoute><DashboardLayout><AdminDashboard /></DashboardLayout></AdminRoute>} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </div>
+      <SidebarProvider>
+        <InitializeData />
+        <Toaster position="top-right" />
+        <div className="app-container">
+          {showNavbar && <TopNavbar />}
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/destinations" element={<DestinationsPage />} />
+            <Route path="/destination/:id" element={<DestinationDetails />} />
+            <Route path="/event/:id" element={<EventDetails />} />
+            <Route path="/documentation" element={<Documentation />} />
+            <Route path="/payment-status" element={<PaymentStatusPage />} />
+            
+            {/* Protected dashboard routes */}
+            <Route path="/dashboard/*" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/dashboard/bookings" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/dashboard/destinations" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/dashboard/events" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/dashboard/settings" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/dashboard/payment" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/dashboard/standalone-payment" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            
+            {/* Admin routes */}
+            <Route path="/admin/*" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </div>
+      </SidebarProvider>
     </TooltipProvider>
   );
 }

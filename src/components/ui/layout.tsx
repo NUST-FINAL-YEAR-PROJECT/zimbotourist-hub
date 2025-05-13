@@ -67,7 +67,7 @@ export function LayoutContent({ className, children, ...props }: LayoutContentPr
     <div 
       className={cn(
         "flex-1",
-        isMobile ? "px-4 mobile-bottom-spacing" : "px-0", 
+        isMobile ? "px-4 pb-16" : "px-0", // Added pb-16 for mobile to add bottom spacing for fixed navbar
         className
       )} 
       {...props}

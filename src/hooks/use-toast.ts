@@ -1,89 +1,190 @@
 
-import * as React from "react";
-import { createContext, useContext } from "react";
+import { Toast, ToastActionElement, ToastProps } from "@/components/ui/toast";
+import { useToast as useToastUI } from "@/components/ui/use-toast";
 
-import {
-  ToastActionElement,
-  ToastProps,
-} from "@/components/ui/toast";
+const TOAST_LIMIT = 20;
+const TOAST_REMOVE_DELAY = 1000;
 
-type ToastContextType = {
-  toast: (props: ToastProps) => void;
-  dismiss: (toastId?: string) => void;
-  toasts: ToastProps[];
+type ToasterToast = ToastProps & {
+  id: string;
+  title?: React.ReactNode;
+  description?: React.ReactNode;
+  action?: ToastActionElement;
 };
 
-const ToastContext = createContext<ToastContextType | undefined>(undefined);
+const actionTypes = {
+  ADD_TOAST: "ADD_TOAST",
+  UPDATE_TOAST: "UPDATE_TOAST",
+  DISMISS_TOAST: "DISMISS_TOAST",
+  REMOVE_TOAST: "REMOVE_TOAST",
+} as const;
 
-// Use a non-JSX implementation for the provider
-export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
-  const [toasts, setToasts] = React.useState<ToastProps[]>([]);
+let count = 0;
 
-  const toast = React.useCallback(
-    (props: ToastProps) => {
-      setToasts((prevToasts) => [...prevToasts, { ...props, id: props.id || Math.random().toString() }]);
-    },
-    []
-  );
+function generateId() {
+  count = (count + 1) % Number.MAX_SAFE_INTEGER;
+  return count.toString();
+}
 
-  const dismiss = React.useCallback((toastId?: string) => {
-    setToasts((prevToasts) =>
-      prevToasts.filter((toast) => (toastId ? toast.id !== toastId : true))
-    );
-  }, []);
+type ActionType = typeof actionTypes;
 
-  // Create the context value
-  const contextValue = {
-    toast,
-    dismiss,
-    toasts
-  };
+type Action =
+  | {
+      type: ActionType["ADD_TOAST"];
+      toast: ToasterToast;
+    }
+  | {
+      type: ActionType["UPDATE_TOAST"];
+      toast: Partial<ToasterToast>;
+    }
+  | {
+      type: ActionType["DISMISS_TOAST"];
+      toastId?: string;
+    }
+  | {
+      type: ActionType["REMOVE_TOAST"];
+      toastId?: string;
+    };
 
-  // Use React.createElement instead of JSX
-  return React.createElement(
-    ToastContext.Provider,
-    { value: contextValue },
-    children
-  );
-};
+interface State {
+  toasts: ToasterToast[];
+}
 
-export const useToast = () => {
-  const context = useContext(ToastContext);
+export const toastReducer = (state: State, action: Action): State => {
+  switch (action.type) {
+    case actionTypes.ADD_TOAST:
+      return {
+        ...state,
+        toasts: [action.toast, ...state.toasts].slice(0, TOAST_LIMIT),
+      };
 
-  if (context === undefined) {
-    throw new Error("useToast must be used within a ToastProvider");
+    case actionTypes.UPDATE_TOAST:
+      return {
+        ...state,
+        toasts: state.toasts.map((t) =>
+          t.id === action.toast.id ? { ...t, ...action.toast } : t
+        ),
+      };
+
+    case actionTypes.DISMISS_TOAST: {
+      const { toastId } = action;
+
+      if (toastId) {
+        return {
+          ...state,
+          toasts: state.toasts.map((t) =>
+            t.id === toastId
+              ? {
+                  ...t,
+                  open: false,
+                }
+              : t
+          ),
+        };
+      }
+
+      return {
+        ...state,
+        toasts: state.toasts.map((t) => ({
+          ...t,
+          open: false,
+        })),
+      };
+    }
+    case actionTypes.REMOVE_TOAST:
+      if (action.toastId === undefined) {
+        return {
+          ...state,
+          toasts: [],
+        };
+      }
+      return {
+        ...state,
+        toasts: state.toasts.filter((t) => t.id !== action.toastId),
+      };
+    default:
+      return state;
   }
-
-  return context;
 };
 
-// Creating a callable toast function
-const toastFunction = (props: ToastProps) => {
-  // Get the context directly
-  const context = useContext(ToastContext);
+function dispatchToast(props: ToasterToast) {
+  const { toast } = useToast();
+  toast(props);
+}
+
+export function useToast() {
+  const { toast } = useToastUI();
   
-  if (context) {
-    context.toast(props);
-  } else {
-    console.warn("Toast was called outside of ToastProvider context");
+  return {
+    toast,
+    error: (description: string, title: string = "Error") => {
+      toast({
+        variant: "destructive",
+        title,
+        description,
+      });
+    },
+    success: (description: string, title: string = "Success") => {
+      toast({
+        variant: "success",
+        title,
+        description,
+      });
+    },
+    warning: (description: string, title: string = "Warning") => {
+      toast({
+        variant: "warning",
+        title,
+        description,
+      });
+    },
+    info: (description: string, title: string = "Info") => {
+      toast({
+        title,
+        description,
+      });
+    },
+  };
+}
+
+// Create a function-based toast API for direct imports
+export const toast = {
+  // Standard toast method
+  (props: ToastProps): void {
+    const id = generateId();
+    const { toast } = useToastUI();
+    toast({ ...props, id });
+  },
+  // Variant helper methods
+  error(description: string, title: string = "Error") {
+    const { toast } = useToastUI();
+    toast({
+      variant: "destructive",
+      title,
+      description,
+    });
+  },
+  success(description: string, title: string = "Success") {
+    const { toast } = useToastUI();
+    toast({
+      variant: "success",
+      title,
+      description,
+    });
+  },
+  warning(description: string, title: string = "Warning") {
+    const { toast } = useToastUI();
+    toast({
+      variant: "warning",
+      title,
+      description,
+    });
+  },
+  info(description: string, title: string = "Info") {
+    const { toast } = useToastUI();
+    toast({
+      title,
+      description,
+    });
   }
 };
-
-// Adding helper methods
-toastFunction.error = (message: string) => {
-  toastFunction({ title: "Error", description: message, variant: "destructive" });
-};
-
-toastFunction.success = (message: string) => {
-  toastFunction({ title: "Success", description: message, variant: "success" });
-};
-
-toastFunction.warning = (message: string) => {
-  toastFunction({ title: "Warning", description: message, variant: "warning" });
-};
-
-toastFunction.info = (message: string) => {
-  toastFunction({ title: "Info", description: message, variant: "info" });
-};
-
-export const toast = toastFunction;
