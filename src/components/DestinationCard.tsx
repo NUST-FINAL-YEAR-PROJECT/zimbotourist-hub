@@ -1,11 +1,11 @@
+
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { MapPin, DollarSign, Heart, Calendar, Clock, Star, ExternalLink } from "lucide-react";
+import { MapPin, DollarSign, Heart, Calendar, Clock, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { Destination } from "@/types/models";
-import { useToast } from "@/hooks/use-toast";
 
 interface DestinationCardProps {
   image: string;
@@ -21,7 +21,6 @@ interface DestinationCardProps {
   duration?: string;
   bestTimeToVisit?: string;
   location?: string;
-  paymentUrl?: string;  // New prop for external payment URL
 }
 
 export const DestinationCard = ({
@@ -37,10 +36,8 @@ export const DestinationCard = ({
   duration,
   bestTimeToVisit,
   location,
-  paymentUrl,
 }: DestinationCardProps) => {
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   const handleWishlistClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -54,20 +51,6 @@ export const DestinationCard = ({
       onClick();
     } else if (id) {
       navigate(`/destination/${id}`);
-    }
-  };
-
-  const handlePaymentClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent triggering the card click
-    
-    if (paymentUrl) {
-      // Open in a new tab
-      window.open(paymentUrl, '_blank');
-      
-      toast({
-        title: "Redirecting to payment",
-        description: "You're being redirected to complete your payment.",
-      });
     }
   };
 
@@ -165,19 +148,6 @@ export const DestinationCard = ({
             <Star className="h-3.5 w-3.5 text-primary" />
             View Details
           </div>
-          
-          {/* Payment button - only shown when paymentUrl is available */}
-          {paymentUrl && (
-            <Button 
-              variant="outline"
-              size="sm"
-              className="ml-auto mt-2 bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:text-green-700 gap-1.5"
-              onClick={handlePaymentClick}
-            >
-              <ExternalLink className="h-3.5 w-3.5" />
-              Pay Now
-            </Button>
-          )}
         </div>
       </div>
     </motion.div>

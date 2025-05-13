@@ -4,17 +4,20 @@ import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { Layout, LayoutHeader, LayoutContent, LayoutTitle } from "@/components/ui/layout";
 import { SidebarNav } from "@/components/ui/sidebar-nav";
 import { Button } from "@/components/ui/button";
-import { Users, BookOpen, Calendar, Settings, Home, BarChart3, Download } from "lucide-react";
+import { Users, BookOpen, Calendar, Settings, Home, BarChart3, Download, AlertTriangle, Loader2 } from "lucide-react";
 import { UserManagement } from "@/components/AdminDashboard/UserManagement";
 import { DestinationManager } from "@/components/AdminDashboard/DestinationManager";
 import { EventManager } from "@/components/AdminDashboard/EventManager";
 import { BookingManager } from "@/components/AdminDashboard/BookingManager";
 import { AdminSettings } from "@/components/AdminDashboard/AdminSettings";
 import { DashboardStats } from "@/components/AdminDashboard/DashboardStats";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { loading, user } = useAuth();
   
   // Get current page from path
   const getCurrentPage = () => {
@@ -68,7 +71,25 @@ const AdminDashboard = () => {
     },
   ];
 
-  // All authentication checks have been removed
+  // If still loading, show loading indicator
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  // If not logged in, don't show anything yet
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  // Remove all admin checks - anyone can access the admin dashboard
   return (
     <div className="flex min-h-screen bg-muted/30">
       <div className="hidden md:block border-r bg-background w-64 p-6">

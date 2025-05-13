@@ -1,6 +1,6 @@
 
-import { useLocation, useNavigate } from "react-router-dom";
-import { LogOut, MapPin, Settings, Ticket, Home, Calendar, Sparkles, ShieldCheck } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { LogOut, MapPin, Settings, Ticket, Home, Calendar, Sparkles, Bell, AlertCircle, Info, CheckCircle2, ShieldCheck } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -22,7 +22,6 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 
 export function AppSidebar() {
   const navigate = useNavigate();
-  const location = useLocation();
   const { signOut, isAdmin } = useAuth();
   const { state } = useSidebar();
   const isMobile = useIsMobile();
@@ -58,19 +57,11 @@ export function AppSidebar() {
       path: "/dashboard/events",
     },
   ];
-
-  // Function to check if a path is active - handles nested routes
-  const isActivePath = (path: string) => {
-    if (path === "/dashboard" && location.pathname === "/dashboard") {
-      return true;
-    }
-    return path !== "/dashboard" && location.pathname.startsWith(path);
-  };
   
   if (isMobile) {
     return (
-      <div className="mobile-nav-bottom fixed bottom-0 left-0 right-0 bg-white border-t z-50">
-        <div className="flex justify-around items-center py-2">
+      <div className="mobile-nav-bottom">
+        <div className="flex justify-around items-center">
           {menuItems.map((item) => (
             <Button
               key={item.title}
@@ -79,7 +70,7 @@ export function AppSidebar() {
               onClick={item.onClick}
               className={cn(
                 "flex flex-col items-center py-1 px-2 h-auto",
-                isActivePath(item.path) ? "text-blue-600" : "text-muted-foreground"
+                window.location.pathname === item.path ? "text-blue-600" : "text-muted-foreground"
               )}
             >
               <item.icon className="h-5 w-5" />
@@ -100,7 +91,7 @@ export function AppSidebar() {
               <Sparkles className="h-5 w-5 text-white" />
             </div>
             <h2 className={cn(
-              "text-lg font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent transition-opacity duration-300",
+              "text-lg font-display font-semibold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent transition-opacity duration-300",
               state === "collapsed" && "opacity-0"
             )}>
               Reserve.zw
@@ -126,7 +117,7 @@ export function AppSidebar() {
                     <SidebarMenuButton
                       onClick={item.onClick}
                       className="hover:bg-blue-50 hover:text-blue-600 data-[active=true]:bg-blue-100 data-[active=true]:text-blue-600"
-                      isActive={isActivePath(item.path)}
+                      isActive={window.location.pathname === item.path}
                     >
                       <item.icon className="h-5 w-5" />
                       <span className="font-medium">{item.title}</span>
@@ -144,7 +135,7 @@ export function AppSidebar() {
                   <SidebarMenuButton
                     onClick={() => navigate("/dashboard/settings")}
                     className="hover:bg-blue-50 hover:text-blue-600 data-[active=true]:bg-blue-100 data-[active=true]:text-blue-600"
-                    isActive={isActivePath("/dashboard/settings")}
+                    isActive={window.location.pathname === "/dashboard/settings"}
                   >
                     <Settings className="h-5 w-5" />
                     <span className="font-medium">Settings</span>
@@ -162,7 +153,7 @@ export function AppSidebar() {
                     <SidebarMenuButton
                       onClick={() => navigate("/admin/dashboard")}
                       className="hover:bg-amber-50 hover:text-amber-600 data-[active=true]:bg-amber-100 data-[active=true]:text-amber-600"
-                      isActive={location.pathname.startsWith("/admin")}
+                      isActive={window.location.pathname.startsWith("/admin/dashboard")}
                     >
                       <ShieldCheck className="h-5 w-5" />
                       <span className="font-medium">Admin Dashboard</span>

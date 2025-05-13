@@ -301,7 +301,6 @@ export type Database = {
           is_featured: boolean | null
           location: string
           name: string
-          payment_url: string | null
           price: number
           updated_at: string
           weather_info: string | null
@@ -325,7 +324,6 @@ export type Database = {
           is_featured?: boolean | null
           location: string
           name: string
-          payment_url?: string | null
           price: number
           updated_at?: string
           weather_info?: string | null
@@ -349,7 +347,6 @@ export type Database = {
           is_featured?: boolean | null
           location?: string
           name?: string
-          payment_url?: string | null
           price?: number
           updated_at?: string
           weather_info?: string | null
@@ -366,7 +363,6 @@ export type Database = {
           id: string
           image_url: string | null
           location: string | null
-          payment_url: string | null
           price: number | null
           program_name: string | null
           program_type: string | null
@@ -384,7 +380,6 @@ export type Database = {
           id?: string
           image_url?: string | null
           location?: string | null
-          payment_url?: string | null
           price?: number | null
           program_name?: string | null
           program_type?: string | null
@@ -402,7 +397,6 @@ export type Database = {
           id?: string
           image_url?: string | null
           location?: string | null
-          payment_url?: string | null
           price?: number | null
           program_name?: string | null
           program_type?: string | null

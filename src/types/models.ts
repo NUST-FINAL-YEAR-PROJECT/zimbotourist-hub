@@ -21,7 +21,6 @@ export interface Destination {
   updated_at: string;
   categories: string[] | null;
   is_featured: boolean | null;
-  payment_url: string | null;
 }
 
 export interface Booking {
@@ -116,5 +115,4 @@ export interface Event {
   program_type: string | null;
   duration: string | null;
   activities: string[] | null;
-  payment_url: string | null;
 }
