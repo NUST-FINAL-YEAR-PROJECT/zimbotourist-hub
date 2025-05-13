@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { Toast, ToastActionElement, ToastProps } from "@/components/ui/toast";
 import { useToast as useToastUI } from "@/components/ui/use-toast";
@@ -193,7 +194,7 @@ toastFunction.info = (description: string, title: string = "Info") => {
 // Export the function with added properties
 export const toast = toastFunction;
 
-// Fix the ToastProvider component definition
-export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
+// Define ToastProvider as a proper React component with correct TypeScript typing
+export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return <>{children}</>;
 };
