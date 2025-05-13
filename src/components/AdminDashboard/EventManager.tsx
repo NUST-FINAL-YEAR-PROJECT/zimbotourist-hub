@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import {
   Card,
@@ -38,7 +37,7 @@ import { useEventOperations } from "@/hooks/useEventOperations";
 import { format } from "date-fns";
 import { Pencil, Plus, Trash, ExternalLink } from "lucide-react";
 import type { Event } from "@/types/models";
-import { toast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 export const EventManager = () => {
   const {
@@ -49,6 +48,7 @@ export const EventManager = () => {
     updateEvent,
     deleteEvent,
   } = useEventOperations();
+  const { toast } = useToast();
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -76,6 +76,7 @@ export const EventManager = () => {
         toast({
           title: "Success",
           description: "Event created successfully",
+          variant: "success"
         });
       },
     });
@@ -108,6 +109,7 @@ export const EventManager = () => {
             toast({
               title: "Success",
               description: "Event updated successfully",
+              variant: "success"
             });
           },
         }
@@ -134,6 +136,7 @@ export const EventManager = () => {
           toast({
             title: "Success",
             description: "Event deleted successfully",
+            variant: "success"
           });
         },
       });

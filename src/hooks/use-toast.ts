@@ -57,19 +57,33 @@ export const useToast = () => {
   return context;
 };
 
-export const toast = {
-  error: (message: string) => {
-    console.error(message); // For debugging purposes
-    // In production, we would use a toast library here
-    // For now, we'll just log to console
-  },
-  success: (message: string) => {
-    console.log("Success:", message); // For debugging purposes
-  },
-  warning: (message: string) => {
-    console.warn(message); // For debugging purposes
-  },
-  info: (message: string) => {
-    console.info(message); // For debugging purposes
-  },
+// Creating a callable toast function
+const toastFunction = (props: ToastProps) => {
+  // Get the context directly
+  const context = useContext(ToastContext);
+  
+  if (context) {
+    context.toast(props);
+  } else {
+    console.warn("Toast was called outside of ToastProvider context");
+  }
 };
+
+// Adding helper methods
+toastFunction.error = (message: string) => {
+  toastFunction({ title: "Error", description: message, variant: "destructive" });
+};
+
+toastFunction.success = (message: string) => {
+  toastFunction({ title: "Success", description: message, variant: "success" });
+};
+
+toastFunction.warning = (message: string) => {
+  toastFunction({ title: "Warning", description: message, variant: "warning" });
+};
+
+toastFunction.info = (message: string) => {
+  toastFunction({ title: "Info", description: message, variant: "info" });
+};
+
+export const toast = toastFunction;

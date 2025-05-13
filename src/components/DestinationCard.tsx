@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -6,7 +5,7 @@ import { MapPin, DollarSign, Heart, Calendar, Clock, Star, ExternalLink } from "
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { Destination } from "@/types/models";
-import { toast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 interface DestinationCardProps {
   image: string;
@@ -41,6 +40,7 @@ export const DestinationCard = ({
   paymentUrl,
 }: DestinationCardProps) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleWishlistClick = (e: React.MouseEvent) => {
     e.stopPropagation();
