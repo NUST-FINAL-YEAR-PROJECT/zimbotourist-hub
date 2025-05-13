@@ -1,5 +1,5 @@
 
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { LogOut, MapPin, Settings, Ticket, Home, Calendar, Sparkles, Bell, AlertCircle, Info, CheckCircle2, ShieldCheck } from "lucide-react";
 import {
   Sidebar,
@@ -22,6 +22,7 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 
 export function AppSidebar() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { signOut, isAdmin } = useAuth();
   const { state } = useSidebar();
   const isMobile = useIsMobile();
@@ -57,6 +58,12 @@ export function AppSidebar() {
       path: "/dashboard/events",
     },
   ];
+
+  // Function to check if a path is active - handles nested routes
+  const isActivePath = (path: string) => {
+    return location.pathname === path || 
+           (path !== "/dashboard" && location.pathname.startsWith(path));
+  };
   
   if (isMobile) {
     return (
@@ -70,7 +77,7 @@ export function AppSidebar() {
               onClick={item.onClick}
               className={cn(
                 "flex flex-col items-center py-1 px-2 h-auto",
-                window.location.pathname === item.path ? "text-blue-600" : "text-muted-foreground"
+                isActivePath(item.path) ? "text-blue-600" : "text-muted-foreground"
               )}
             >
               <item.icon className="h-5 w-5" />
@@ -117,7 +124,7 @@ export function AppSidebar() {
                     <SidebarMenuButton
                       onClick={item.onClick}
                       className="hover:bg-blue-50 hover:text-blue-600 data-[active=true]:bg-blue-100 data-[active=true]:text-blue-600"
-                      isActive={window.location.pathname === item.path}
+                      isActive={isActivePath(item.path)}
                     >
                       <item.icon className="h-5 w-5" />
                       <span className="font-medium">{item.title}</span>
@@ -135,7 +142,7 @@ export function AppSidebar() {
                   <SidebarMenuButton
                     onClick={() => navigate("/dashboard/settings")}
                     className="hover:bg-blue-50 hover:text-blue-600 data-[active=true]:bg-blue-100 data-[active=true]:text-blue-600"
-                    isActive={window.location.pathname === "/dashboard/settings"}
+                    isActive={isActivePath("/dashboard/settings")}
                   >
                     <Settings className="h-5 w-5" />
                     <span className="font-medium">Settings</span>
@@ -153,7 +160,7 @@ export function AppSidebar() {
                     <SidebarMenuButton
                       onClick={() => navigate("/admin/dashboard")}
                       className="hover:bg-amber-50 hover:text-amber-600 data-[active=true]:bg-amber-100 data-[active=true]:text-amber-600"
-                      isActive={window.location.pathname.startsWith("/admin/dashboard")}
+                      isActive={location.pathname.startsWith("/admin")}
                     >
                       <ShieldCheck className="h-5 w-5" />
                       <span className="font-medium">Admin Dashboard</span>

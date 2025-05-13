@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useNavigate, Routes, Route } from "react-router-dom";
+import { useNavigate, Routes, Route, Navigate } from "react-router-dom";
 import { toast } from "sonner";
 import { DestinationExplorer } from "@/components/DestinationExplorer";
 import { EventsList } from "@/components/EventsList";
@@ -14,7 +14,6 @@ import { SettingsPage } from "@/components/SettingsPage";
 import { EventDetails } from "./EventDetails";
 import { PaymentPage } from "./PaymentPage";
 import { ChatAssistant } from "@/components/ChatAssistant";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -28,6 +27,7 @@ import { Badge } from "@/components/ui/badge";
 import { MyBookings } from "./MyBookings";
 import { useAuth } from "@/hooks/useAuth";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Layout, LayoutHeader, LayoutContent } from "@/components/ui/layout";
 
 type BookingWithRelations = Booking & {
   destinations: {
@@ -212,7 +212,7 @@ const DashboardHome = ({
         className="bg-gradient-to-r from-blue-500 to-blue-700 p-4 sm:p-6 rounded-xl text-white shadow-md"
       >
         <h1 className="text-lg sm:text-3xl font-bold">
-          {getGreeting()}, {profile.username || profile.email.split('@')[0]}!
+          {getGreeting()}, {profile?.username || profile?.email?.split('@')[0] || 'User'}!
         </h1>
         <p className="text-sm opacity-90 mt-1">
           Here's what's happening with your travel plans
@@ -445,6 +445,7 @@ export const Dashboard = () => {
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/payment" element={<PaymentPage />} />
               <Route path="/bookings" element={<MyBookings />} />
+              <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>
           </div>
         </div>
