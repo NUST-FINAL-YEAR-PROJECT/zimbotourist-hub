@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { Toast, ToastActionElement, ToastProps } from "@/components/ui/toast";
 import { useToast as useToastUI } from "@/components/ui/use-toast";
@@ -193,7 +194,7 @@ toastFunction.info = (description: string, title: string = "Info") => {
 // Export the function with added properties
 export const toast = toastFunction;
 
-// Export ToastProvider component - using a simpler functional component pattern
-export const ToastProvider = (props: { children: React.ReactNode }) => {
-  return <>{props.children}</>;
+// Export ToastProvider component using a proper React FC type
+export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  return <>{children}</>;
 };
