@@ -1,4 +1,5 @@
 
+import * as React from "react";
 import { Toast, ToastActionElement, ToastProps } from "@/components/ui/toast";
 import { useToast as useToastUI } from "@/components/ui/use-toast";
 
@@ -193,3 +194,8 @@ toastFunction.info = (description: string, title: string = "Info") => {
 
 // Export the function with added properties
 export const toast = toastFunction;
+
+// Export ToastProvider component 
+export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
+  return <>{children}</>;
+};

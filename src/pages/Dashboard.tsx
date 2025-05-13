@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, Routes, Route, Navigate, Link } from "react-router-dom";
 import { toast } from "sonner";
@@ -81,7 +80,7 @@ const NotificationItem = ({
   const getIconForType = () => {
     switch (notification.type) {
       case 'success':
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
+        return <CheckCircle2 className="h-5 w-5 text-green-500" />;
       case 'error':
         return <AlertTriangle className="h-5 w-5 text-red-500" />;
       case 'warning':
