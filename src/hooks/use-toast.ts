@@ -187,4 +187,9 @@ function useToast() {
   }
 }
 
-export { useToast, toast }
+// Fixed the component definition to properly handle TypeScript type checking
+function ToastProvider({ children }: { children: React.ReactNode }) {
+  return children
+}
+
+export { useToast, toast, ToastProvider }
