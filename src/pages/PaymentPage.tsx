@@ -5,14 +5,16 @@ import { useQuery } from "@tanstack/react-query";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, AlertCircle } from "lucide-react";
-import type { Booking } from "@/types/models";
 import { PaymentForm } from "@/components/PaymentForm";
+import { PaymentProcessor } from "@/components/PaymentProcessor";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 // Initialize Stripe with the publishable key
 const stripePromise = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY 
@@ -33,9 +35,19 @@ const appearance: Parameters<typeof Elements>[0]['options']['appearance'] = {
   },
 };
 
-type BookingWithDestination = Booking & {
-  destinations: {
+type BookingWithDestination = {
+  id: string;
+  total_price: number;
+  booking_date: string;
+  number_of_people: number;
+  contact_email: string;
+  contact_phone: string;
+  destinations?: {
     name: string;
+    image_url: string | null;
+  } | null;
+  events?: {
+    title: string;
     image_url: string | null;
   } | null;
 };
@@ -43,17 +55,20 @@ type BookingWithDestination = Booking & {
 export const PaymentPage = () => {
   const [searchParams] = useSearchParams();
   const bookingId = searchParams.get("booking_id");
+  const useNewPaymentFlow = searchParams.get("new") === "true";
   const navigate = useNavigate();
   const { toast } = useToast();
   const [clientSecret, setClientSecret] = useState<string>();
   const isMobile = useIsMobile();
+  const { user } = useAuth();
 
   const { data: booking, isLoading } = useQuery({
     queryKey: ["booking", bookingId],
     queryFn: async () => {
       if (!bookingId) throw new Error("No booking ID provided");
       
-      const { data, error } = await supabase
+      // Try to get destination booking first
+      const { data: destinationBooking, error: destinationError } = await supabase
         .from("bookings")
         .select(`
           *,
@@ -65,8 +80,28 @@ export const PaymentPage = () => {
         .eq("id", bookingId)
         .single();
 
-      if (error) throw error;
-      return data as BookingWithDestination;
+      if (destinationBooking && !destinationError) {
+        return destinationBooking as BookingWithDestination;
+      }
+      
+      // If not a destination booking, try event booking
+      const { data: eventBooking, error: eventError } = await supabase
+        .from("bookings")
+        .select(`
+          *,
+          events (
+            title,
+            image_url
+          )
+        `)
+        .eq("id", bookingId)
+        .single();
+        
+      if (eventBooking && !eventError) {
+        return eventBooking as BookingWithDestination;
+      }
+      
+      throw new Error("Booking not found");
     },
     enabled: !!bookingId,
   });
@@ -82,7 +117,7 @@ export const PaymentPage = () => {
       return;
     }
 
-    if (booking) {
+    if (booking && !useNewPaymentFlow) {
       const setupPayment = async () => {
         try {
           // Get the current session
@@ -133,7 +168,16 @@ export const PaymentPage = () => {
 
       setupPayment();
     }
-  }, [bookingId, booking, navigate, toast]);
+  }, [bookingId, booking, navigate, toast, useNewPaymentFlow]);
+
+  const getItemName = () => {
+    if (booking?.destinations?.name) {
+      return `Zimbabwe Travel: ${booking.destinations.name}`;
+    } else if (booking?.events?.title) {
+      return `Event Ticket: ${booking.events.title}`;
+    }
+    return "Zimbabwe Travel Booking";
+  };
 
   if (isLoading) {
     return (
@@ -178,64 +222,83 @@ export const PaymentPage = () => {
         Back
       </Button>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Complete Your Payment</CardTitle>
-          <CardDescription>
-            Secure payment for your booking at {booking?.destinations?.name || "selected destination"}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="rounded-lg border p-4 space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium">Booking Reference</span>
-              <span className="text-sm text-muted-foreground">{booking?.id ? booking.id.slice(0, 8) : 'N/A'}</span>
+      {useNewPaymentFlow ? (
+        <PaymentProcessor
+          bookingId={bookingId as string}
+          amount={booking.total_price}
+          email={booking.contact_email || user?.email || ""}
+          phone={booking.contact_phone || ""}
+          itemName={getItemName()}
+          description={`Payment for ${booking.destinations ? "travel booking" : "event ticket"}`}
+          paymentProviders={["stripe", "paynow"]}
+        />
+      ) : (
+        <Card>
+          <CardHeader>
+            <CardTitle>Complete Your Payment</CardTitle>
+            <CardDescription>
+              Secure payment for your booking at {booking?.destinations?.name || booking?.events?.title || "selected destination"}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="rounded-lg border p-4 space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium">Booking Reference</span>
+                <span className="text-sm text-muted-foreground">{booking?.id ? booking.id.slice(0, 8) : 'N/A'}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium">Travel Date</span>
+                <span className="text-sm text-muted-foreground">
+                  {booking && booking.booking_date ? new Date(booking.booking_date).toLocaleDateString() : 'N/A'}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium">Number of People</span>
+                <span className="text-sm text-muted-foreground">{booking?.number_of_people || 0}</span>
+              </div>
+              <div className="flex justify-between items-center pt-3 border-t">
+                <span className="font-semibold">Total Amount</span>
+                <span className="font-semibold text-primary">${booking?.total_price || 0}</span>
+              </div>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium">Travel Date</span>
-              <span className="text-sm text-muted-foreground">
-                {booking && booking.booking_date ? new Date(booking.booking_date).toLocaleDateString() : 'N/A'}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium">Number of People</span>
-              <span className="text-sm text-muted-foreground">{booking?.number_of_people || 0}</span>
-            </div>
-            <div className="flex justify-between items-center pt-3 border-t">
-              <span className="font-semibold">Total Amount</span>
-              <span className="font-semibold text-primary">${booking?.total_price || 0}</span>
-            </div>
-          </div>
 
-          {clientSecret && stripePromise && (
-            <Elements 
-              stripe={stripePromise} 
-              options={{ 
-                clientSecret,
-                appearance,
-                paymentMethodCreation: 'manual',
-                payment_method_types: ['card'],
-              }}
-            >
-              <PaymentForm bookingId={bookingId as string} />
-            </Elements>
-          )}
+            {clientSecret && stripePromise && (
+              <Elements 
+                stripe={stripePromise} 
+                options={{ 
+                  clientSecret,
+                  appearance,
+                  paymentMethodCreation: 'manual',
+                  payment_method_types: ['card'],
+                }}
+              >
+                <PaymentForm bookingId={bookingId as string} />
+              </Elements>
+            )}
 
-          {(!clientSecret || !stripePromise) && (
-            <div className="text-center p-4">
-              <Skeleton className="h-12 w-full mb-4" />
-              <p className="text-sm text-muted-foreground">
-                {!stripePromise ? "Stripe is not configured properly." : "Preparing payment options..."}
-              </p>
+            {(!clientSecret || !stripePromise) && (
+              <div className="text-center p-4">
+                <Skeleton className="h-12 w-full mb-4" />
+                <p className="text-sm text-muted-foreground">
+                  {!stripePromise ? "Stripe is not configured properly." : "Preparing payment options..."}
+                </p>
+              </div>
+            )}
+            
+            <div className="pt-4 text-center">
+              <Button 
+                variant="outline" 
+                onClick={() => navigate({
+                  pathname: "/dashboard/payment",
+                  search: `?booking_id=${bookingId}&new=true`
+                })}
+              >
+                Try New Payment Flow
+              </Button>
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
-};
-
-// Helper function for class names
-const cn = (...classes: (string | undefined | boolean)[]) => {
-  return classes.filter(Boolean).join(' ');
 };
