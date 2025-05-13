@@ -196,6 +196,6 @@ toastFunction.info = (description: string, title: string = "Info") => {
 export const toast = toastFunction;
 
 // Export ToastProvider component 
-export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
+export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return <>{children}</>;
 };
