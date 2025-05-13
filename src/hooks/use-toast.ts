@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { Toast, ToastActionElement, ToastProps } from "@/components/ui/toast";
 import { useToast as useToastUI } from "@/components/ui/use-toast";
@@ -149,7 +148,6 @@ export function useToast() {
 }
 
 // Create a function-based toast API for direct imports
-// Using function with properties pattern instead of object with function
 function toastFunction(props: ToastProps) {
   const id = generateId();
   const { toast } = useToastUI();
@@ -195,7 +193,7 @@ toastFunction.info = (description: string, title: string = "Info") => {
 // Export the function with added properties
 export const toast = toastFunction;
 
-// Export ToastProvider component 
-export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  return <>{children}</>;
+// Export ToastProvider component - using a simpler functional component pattern
+export const ToastProvider = (props: { children: React.ReactNode }) => {
+  return <>{props.children}</>;
 };
