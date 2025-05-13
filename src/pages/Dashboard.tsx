@@ -1,15 +1,16 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate, Routes, Route } from "react-router-dom";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 import { DestinationExplorer } from "@/components/DestinationExplorer";
 import { EventsList } from "@/components/EventsList";
+import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import type { Profile, Booking, AppNotification } from "@/types/models";
-import { Bell, BellDot, CalendarDays, LayoutDashboard, Activity, MapPin, Calendar, Clock, Users, CheckCircle, AlertTriangle, Info } from "lucide-react";
+import { Bell, BellDot, CalendarDays, Trash2, LayoutDashboard, Activity, MapPin, Calendar, Clock, Users, CheckCircle, AlertTriangle, Info } from "lucide-react";
 import { AppSidebar } from "@/components/AppSidebar";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { SettingsPage } from "@/components/SettingsPage";
 import { EventDetails } from "./EventDetails";
 import { PaymentPage } from "./PaymentPage";
@@ -26,8 +27,6 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import { motion, AnimatePresence } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { MyBookings } from "./MyBookings";
-import { useAuth } from "@/hooks/useAuth";
-import { Skeleton } from "@/components/ui/skeleton";
 
 type BookingWithRelations = Booking & {
   destinations: {
@@ -363,11 +362,12 @@ const DashboardHome = ({
 
 export const Dashboard = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { toast } = useToast();
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const isMobile = useIsMobile();
 
-  const { data: bookings = [] } = useQuery({
+  const { data: bookings = [], isLoading: isLoadingBookings } = useQuery({
     queryKey: ["bookings", profile?.id],
     queryFn: async () => {
       if (!profile?.id) return [];
@@ -386,28 +386,77 @@ export const Dashboard = () => {
   });
 
   useEffect(() => {
-    const getProfile = async () => {
-      if (!user) return;
-      
+    const checkAuth = async () => {
       try {
-        const { data } = await supabase
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          toast({
+            variant: "destructive",
+            title: "Not authenticated",
+            description: "Please sign in to access the dashboard"
+          });
+          navigate("/auth");
+          return;
+        }
+
+        const { data: profileData, error } = await supabase
           .from("profiles")
           .select("*")
-          .eq("id", user.id)
+          .eq("id", session.user.id)
           .single();
-        
-        setProfile(data);
+
+        if (error) {
+          console.error("Error fetching profile:", error);
+          navigate("/auth");
+          return;
+        }
+
+        setProfile(profileData);
       } catch (error) {
-        console.error("Error fetching profile:", error);
+        console.error("Auth check error:", error);
+        navigate("/auth");
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    getProfile();
-  }, [user]);
+    checkAuth();
 
-  // If no user, protected route will redirect
-  if (!user || !profile) {
-    return null;
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_OUT') {
+        navigate('/auth');
+      } else if (session) {
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", session.user.id)
+          .single();
+        setProfile(profileData);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate, toast]);
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen w-full bg-gradient-to-br from-blue-50 via-white to-blue-50">
+        <div className="flex-1 p-3 sm:p-8">
+          <div className="container mx-auto space-y-4 sm:space-y-8">
+            <Skeleton className="h-12 w-full max-w-md rounded-xl mb-4 sm:mb-8" />
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-6">
+              {[1, 2, 3, 4].map(i => (
+                <Skeleton key={i} className="h-20 sm:h-32 w-full rounded-xl" />
+              ))}
+            </div>
+            <Skeleton className="h-[200px] sm:h-[500px] w-full rounded-xl mt-4 sm:mt-8" />
+          </div>
+        </div>
+        {isMobile && <div className="h-16" />}
+      </div>
+    );
   }
 
   return (

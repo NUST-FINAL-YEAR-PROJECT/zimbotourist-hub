@@ -81,6 +81,3 @@ verify_jwt = true
 
 [functions.check-paynow-status]
 verify_jwt = false
-
-[functions.create-profiles-table]
-verify_jwt = false

@@ -4,18 +4,30 @@ import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { Layout, LayoutHeader, LayoutContent, LayoutTitle } from "@/components/ui/layout";
 import { SidebarNav } from "@/components/ui/sidebar-nav";
 import { Button } from "@/components/ui/button";
-import { Users, BookOpen, Calendar, Settings, Home, BarChart3, Download } from "lucide-react";
+import { Users, BookOpen, Calendar, Settings, Home, BarChart3, Download, AlertTriangle, Loader2 } from "lucide-react";
 import { UserManagement } from "@/components/AdminDashboard/UserManagement";
 import { DestinationManager } from "@/components/AdminDashboard/DestinationManager";
 import { EventManager } from "@/components/AdminDashboard/EventManager";
 import { BookingManager } from "@/components/AdminDashboard/BookingManager";
 import { AdminSettings } from "@/components/AdminDashboard/AdminSettings";
 import { DashboardStats } from "@/components/AdminDashboard/DashboardStats";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAdmin, loading } = useAuth();
   
+  // Check admin status on component mount
+  useEffect(() => {
+    console.log("AdminDashboard - Current admin status:", isAdmin);
+    if (!loading && isAdmin === false) {
+      toast.error("You don't have permission to access the admin dashboard");
+      navigate("/dashboard");
+    }
+  }, [isAdmin, navigate, loading]);
+
   // Get current page from path
   const getCurrentPage = () => {
     const path = location.pathname;
@@ -68,7 +80,27 @@ const AdminDashboard = () => {
     },
   ];
 
-  // All authentication checks have been removed
+  // If still loading, show loading indicator
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  // If not admin, show access denied
+  if (!isAdmin) {
+    return (
+      <div className="flex items-center justify-center min-h-screen flex-col">
+        <AlertTriangle className="h-16 w-16 text-amber-500 mb-4" />
+        <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
+        <p className="text-muted-foreground mb-4">You do not have permission to access the admin dashboard.</p>
+        <Button onClick={() => navigate('/dashboard')}>Go to User Dashboard</Button>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen bg-muted/30">
       <div className="hidden md:block border-r bg-background w-64 p-6">

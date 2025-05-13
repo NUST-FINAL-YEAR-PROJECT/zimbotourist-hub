@@ -1,10 +1,10 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { useState, useEffect } from "react";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import { Dashboard } from "./pages/Dashboard";
@@ -12,6 +12,8 @@ import AdminDashboard from "./pages/AdminDashboard";
 import { DestinationDetails } from "./pages/DestinationDetails";
 import { EventDetails } from "./pages/EventDetails";
 import Documentation from "./pages/Documentation";
+import { Loader2 } from "lucide-react";
+import { useEffect } from "react";
 import { InitializeData } from "./components/InitializeData";
 import { supabase } from "@/integrations/supabase/client";
 import { DestinationsPage } from "./pages/DestinationsPage";
@@ -58,14 +60,22 @@ const EventsPage = () => (
 );
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const location = useLocation();
 
   useEffect(() => {
-    if (!user) {
+    if (!loading && !user) {
       sessionStorage.setItem('redirectAfterAuth', location.pathname);
     }
-  }, [user, location]);
+  }, [loading, user, location]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   if (!user) {
     return <Navigate to="/auth" replace state={{ from: location }} />;
@@ -74,16 +84,61 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-// Directly render children without any auth checks for development
+// Modified AdminRoute to properly check if user is an admin
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
-  return <>{children}</>;
+  const { user, loading, isAdmin } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Only show the toast and redirect if user is loaded and definitely not an admin
+    if (!loading && user && isAdmin === false) {
+      console.log("Access denied: User is not admin");
+      toast.error("You don't have permission to access the admin dashboard");
+      navigate('/dashboard', { replace: true });
+    }
+  }, [loading, user, isAdmin, navigate]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/auth?admin=true" replace state={{ from: location }} />;
+  }
+
+  // Only render admin content if user is confirmed as admin
+  if (isAdmin) {
+    return <>{children}</>;
+  }
+
+  // Show loading while we're still determining if user is admin
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <Loader2 className="h-8 w-8 animate-spin" />
+    </div>
+  );
 };
 
 const AuthRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user } = useAuth();
-  
+  const { user, loading, isAdmin } = useAuth();
+  const location = useLocation();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
   if (user) {
-    return <Navigate to="/dashboard" replace />;
+    const redirectPath = isAdmin ? '/admin/dashboard' : '/dashboard';
+    return <Navigate to={redirectPath} replace />;
   }
 
   return <>{children}</>;
@@ -123,8 +178,14 @@ const App = () => (
             </ProtectedRoute>
           }
         />
-        {/* Remove all protection - make admin dashboard directly accessible without auth */}
-        <Route path="/admin/dashboard/*" element={<AdminDashboard />} />
+        <Route
+          path="/admin/dashboard/*"
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          }
+        />
         <Route
           path="/destination/:id"
           element={

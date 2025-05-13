@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -17,7 +16,6 @@ import {
 import { Label } from "@/components/ui/label";
 import { Loader2, ArrowRight, Mail, Lock, ArrowLeft, Globe, CheckCircle2, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { QuickAdminLogin } from "@/components/QuickAdminLogin";
 
 type AuthMode = "signin" | "signup" | "forgot-password" | "reset-password" | "admin-signin";
 
@@ -34,6 +32,7 @@ const Auth = () => {
   const { user, isAdmin, loginWithCredentials } = useAuth();
   
   useEffect(() => {
+    // If URL has admin=true param, switch to admin signin mode
     if (isAdminPage) {
       setMode("admin-signin");
     }
@@ -77,7 +76,10 @@ const Auth = () => {
 
     try {
       if (mode === "signin" || mode === "admin-signin") {
+        // Use the authentication logic for both regular and admin signin
         await loginWithCredentials(email, password);
+        // The loginWithCredentials function handles setting the session, user,
+        // isAdmin flag and navigation to the appropriate dashboard
       } else if (mode === "signup") {
         const { data, error } = await supabase.auth.signUp({
           email,
@@ -90,11 +92,11 @@ const Auth = () => {
         if (error) throw error;
         
         if (data.user?.identities?.length === 0) {
-          toast.error("Account already exists");
+          toast.error("Account exists");
           setMode("signin");
         } else {
           setFormSuccess(true);
-          toast.success("Account created successfully!");
+          toast.success("Account created!");
         }
       } else if (mode === "forgot-password") {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -104,10 +106,11 @@ const Auth = () => {
         if (error) throw error;
         
         setFormSuccess(true);
-        toast.success("Password reset email sent");
+        toast.success("Check your email");
       }
     } catch (error: any) {
-      toast.error(error.message || "Authentication failed");
+      console.error("Auth error:", error);
+      toast.error(error.message || "An error occurred during authentication.");
     } finally {
       setLoading(false);
     }
@@ -248,14 +251,6 @@ const Auth = () => {
                 <ShieldCheck className="h-4 w-4" />
                 Administrator Access
               </Button>
-              
-              {/* Add QuickAdminLogin button */}
-              <div className="mt-4 flex items-center gap-2">
-                <div className="h-px bg-gray-200 w-20" />
-                <span className="text-xs text-muted-foreground">Demo Purpose Only</span>
-                <div className="h-px bg-gray-200 w-20" />
-              </div>
-              <QuickAdminLogin />
             </>
           ) : mode === "admin-signin" ? (
             <>
@@ -268,13 +263,6 @@ const Auth = () => {
                 <ArrowLeft className="mr-1 h-4 w-4" />
                 Back to user sign in
               </button>
-              {/* Add QuickAdminLogin button for admin mode too */}
-              <div className="mt-4 flex items-center gap-2">
-                <div className="h-px bg-gray-200 w-20" />
-                <span className="text-xs text-muted-foreground">Demo Purpose Only</span>
-                <div className="h-px bg-gray-200 w-20" />
-              </div>
-              <QuickAdminLogin />
             </>
           ) : mode === "signup" ? (
             <div className="flex items-center space-x-2">
