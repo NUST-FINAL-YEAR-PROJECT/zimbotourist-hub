@@ -21,7 +21,7 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
 
   const toast = React.useCallback(
     (props: ToastProps) => {
-      setToasts((prevToasts) => [...prevToasts, { ...props, id: Math.random().toString() }]);
+      setToasts((prevToasts) => [...prevToasts, { ...props, id: props.id || Math.random().toString() }]);
     },
     []
   );
