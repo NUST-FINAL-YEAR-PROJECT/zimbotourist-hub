@@ -7,10 +7,10 @@ import { TopNavbar } from "@/components/TopNavbar";
 import { AppSidebar } from "@/components/AppSidebar";
 
 // Pages
-import { Index } from "@/pages/Index";
-import { Auth } from "@/pages/Auth";
+import Index from "@/pages/Index";
+import Auth from "@/pages/Auth";
 import { Dashboard } from "@/pages/Dashboard";
-import { AdminDashboard } from "@/pages/AdminDashboard";
+import AdminDashboard from "@/pages/AdminDashboard";
 import { DestinationsPage } from "@/pages/DestinationsPage";
 import { DestinationDetails } from "@/pages/DestinationDetails";
 import { MyBookings } from "@/pages/MyBookings";
@@ -18,7 +18,7 @@ import { InitializeData } from "@/components/InitializeData";
 import { PaymentPage } from "@/pages/PaymentPage";
 import { PaymentStatusPage } from "@/pages/PaymentStatusPage";
 import { EventDetails } from "@/pages/EventDetails";
-import { Documentation } from "@/pages/Documentation";
+import Documentation from "@/pages/Documentation";
 import { StandalonePaymentPage } from "@/pages/StandalonePaymentPage";
 
 // Protected route component

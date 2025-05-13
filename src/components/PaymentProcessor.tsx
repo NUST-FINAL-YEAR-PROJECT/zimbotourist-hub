@@ -62,13 +62,13 @@ export const PaymentProcessor = ({
       
       if (result.redirectUrl) {
         // Store poll URL in session storage if available
-        if (result.pollUrl) {
+        if (selectedProvider === "paynow" && 'pollUrl' in result && result.pollUrl) {
           sessionStorage.setItem(`payment_${bookingId}_pollUrl`, result.pollUrl);
         }
         
         // Redirect to the payment page or provider's payment page
         window.location.href = result.redirectUrl;
-      } else if (result.clientSecret && selectedProvider === "stripe") {
+      } else if (selectedProvider === "stripe" && 'clientSecret' in result && result.clientSecret) {
         // Navigate to the Stripe payment page
         navigate(`/dashboard/payment?booking_id=${bookingId}`);
       } else {

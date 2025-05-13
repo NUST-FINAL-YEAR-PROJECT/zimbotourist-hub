@@ -18,6 +18,22 @@ export interface PaymentDetails {
   errorCallback?: (error: Error) => void;
 }
 
+// Define the response types for different payment providers
+export type PaynowPaymentResponse = {
+  success: boolean;
+  redirectUrl: string;
+  pollUrl: string;
+  reference: string;
+};
+
+export type StripePaymentResponse = {
+  success: boolean;
+  clientSecret: string;
+  redirectUrl: string;
+};
+
+export type PaymentResponse = PaynowPaymentResponse | StripePaymentResponse;
+
 /**
  * Processes a payment using the specified provider
  * @param provider The payment provider to use
@@ -27,7 +43,7 @@ export interface PaymentDetails {
 export const processPayment = async (
   provider: PaymentProvider,
   details: PaymentDetails
-) => {
+): Promise<PaymentResponse> => {
   try {
     console.log(`Processing payment via ${provider}`, details);
     
@@ -55,7 +71,7 @@ export const processPayment = async (
 /**
  * Process payment using Paynow
  */
-const processPaynowPayment = async (details: PaymentDetails) => {
+const processPaynowPayment = async (details: PaymentDetails): Promise<PaynowPaymentResponse> => {
   const { amount, reference, email, phone, items, returnUrl } = details;
   
   if (!phone) {
@@ -89,7 +105,7 @@ const processPaynowPayment = async (details: PaymentDetails) => {
 /**
  * Process payment using Stripe
  */
-const processStripePayment = async (details: PaymentDetails) => {
+const processStripePayment = async (details: PaymentDetails): Promise<StripePaymentResponse> => {
   const { reference: bookingId, amount, metadata = {} } = details;
   
   // Get current authentication session
