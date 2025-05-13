@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -40,6 +39,28 @@ const Auth = () => {
   }, [isAdminPage]);
 
   useEffect(() => {
+    // Check if user is already authenticated
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session) {
+        const { data } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', session.user.id)
+          .single();
+        
+        const isUserAdmin = data?.role === 'ADMIN';
+        
+        // Redirect to the appropriate dashboard
+        navigate(isUserAdmin ? "/admin/dashboard" : "/dashboard");
+      }
+    };
+    
+    checkAuth();
+  }, [navigate]);
+
+  useEffect(() => {
     if (user) {
       navigate(isAdmin ? "/admin/dashboard" : "/dashboard");
     }
@@ -77,7 +98,10 @@ const Auth = () => {
 
     try {
       if (mode === "signin" || mode === "admin-signin") {
-        await loginWithCredentials(email, password);
+        const { isAdmin } = await loginWithCredentials(email, password);
+        
+        // Navigate to the appropriate dashboard
+        navigate(isAdmin ? "/admin/dashboard" : "/dashboard");
       } else if (mode === "signup") {
         const { data, error } = await supabase.auth.signUp({
           email,

@@ -1,9 +1,9 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { toast } from "sonner";
 import { useState, useEffect } from "react";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -13,7 +13,6 @@ import { DestinationDetails } from "./pages/DestinationDetails";
 import { EventDetails } from "./pages/EventDetails";
 import Documentation from "./pages/Documentation";
 import { InitializeData } from "./components/InitializeData";
-import { supabase } from "@/integrations/supabase/client";
 import { DestinationsPage } from "./pages/DestinationsPage";
 import { PaymentStatusPage } from "./pages/PaymentStatusPage";
 import { PaymentPage } from "./pages/PaymentPage";
@@ -58,15 +57,21 @@ const EventsPage = () => (
 );
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const location = useLocation();
 
   useEffect(() => {
-    if (!user) {
+    if (!isLoading && !user) {
       sessionStorage.setItem('redirectAfterAuth', location.pathname);
     }
-  }, [user, location]);
+  }, [user, location, isLoading]);
 
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  }
+
+  // If not authenticated, redirect to auth page
   if (!user) {
     return <Navigate to="/auth" replace state={{ from: location }} />;
   }
@@ -74,13 +79,35 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-// Directly render children without any auth checks for development
+// Update AdminRoute to check for admin status
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, isAdmin, isLoading } = useAuth();
+  const location = useLocation();
+
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  }
+
+  // If not authenticated or not admin, redirect appropriately
+  if (!user) {
+    return <Navigate to="/auth?admin=true" replace />;
+  }
+
+  if (!isAdmin) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   return <>{children}</>;
 };
 
 const AuthRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
+  
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  }
   
   if (user) {
     return <Navigate to="/dashboard" replace />;
@@ -123,8 +150,14 @@ const App = () => (
             </ProtectedRoute>
           }
         />
-        {/* Remove all protection - make admin dashboard directly accessible without auth */}
-        <Route path="/admin/dashboard/*" element={<AdminDashboard />} />
+        <Route 
+          path="/admin/dashboard/*" 
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          } 
+        />
         <Route
           path="/destination/:id"
           element={

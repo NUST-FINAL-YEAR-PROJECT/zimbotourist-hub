@@ -2,13 +2,14 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { User, Session } from '@supabase/supabase-js';
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import { useNavigate } from 'react-router-dom';
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
   // Function to check if user is admin
@@ -24,6 +25,7 @@ export const useAuth = () => {
       setIsAdmin(isUserAdmin);
       return isUserAdmin;
     } catch (error) {
+      console.error("Error checking admin status:", error);
       return false;
     }
   };
@@ -44,6 +46,9 @@ export const useAuth = () => {
         
         const adminStatus = await checkAdminStatus(data.user.id);
         
+        // Store a session flag to redirect after refresh
+        sessionStorage.setItem('authenticated', 'true');
+        
         return { isAdmin: adminStatus };
       }
       
@@ -57,12 +62,20 @@ export const useAuth = () => {
   useEffect(() => {
     // Function to get initial session
     const getInitialSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      setIsLoading(true);
       
-      if (session) {
-        setSession(session);
-        setUser(session.user);
-        await checkAdminStatus(session.user.id);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session) {
+          setSession(session);
+          setUser(session.user);
+          await checkAdminStatus(session.user.id);
+        }
+      } catch (error) {
+        console.error("Error getting session:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -74,6 +87,7 @@ export const useAuth = () => {
         setSession(null);
         setUser(null);
         setIsAdmin(false);
+        sessionStorage.removeItem('authenticated');
         navigate('/');
         toast.success("Successfully signed out");
       } else if (_event === 'SIGNED_IN' || _event === 'TOKEN_REFRESHED') {
@@ -82,6 +96,7 @@ export const useAuth = () => {
         
         if (session?.user) {
           await checkAdminStatus(session.user.id);
+          sessionStorage.setItem('authenticated', 'true');
         }
       }
     });
@@ -98,10 +113,11 @@ export const useAuth = () => {
     try {
       await supabase.auth.signOut();
       localStorage.clear();
+      sessionStorage.removeItem('authenticated');
     } catch (error: any) {
       toast.error(error.message);
     }
   };
 
-  return { user, session, signOut, isAdmin, loginWithCredentials };
+  return { user, session, isLoading, signOut, isAdmin, loginWithCredentials };
 };
