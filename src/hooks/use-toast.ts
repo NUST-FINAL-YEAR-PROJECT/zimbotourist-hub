@@ -10,10 +10,12 @@ import {
 type ToastContextType = {
   toast: (props: ToastProps) => void;
   dismiss: (toastId?: string) => void;
+  toasts: ToastProps[];
 };
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
+// Use a non-JSX implementation for the provider
 export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
   const [toasts, setToasts] = React.useState<ToastProps[]>([]);
 
@@ -30,10 +32,18 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
     );
   }, []);
 
-  return (
-    <ToastContext.Provider value={{ toast, dismiss }}>
-      {children}
-    </ToastContext.Provider>
+  // Create the context value
+  const contextValue = {
+    toast,
+    dismiss,
+    toasts
+  };
+
+  // Use React.createElement instead of JSX
+  return React.createElement(
+    ToastContext.Provider,
+    { value: contextValue },
+    children
   );
 };
 
