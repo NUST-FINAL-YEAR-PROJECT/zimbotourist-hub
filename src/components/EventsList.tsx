@@ -27,6 +27,9 @@ export const EventsList = () => {
           description={event.description || ""}
           price={event.price ? `$${event.price}` : "Free"}
           onClick={() => navigate(`/events/${event.id}`)}
+          paymentUrl={event.payment_url || ""}
+          location={event.location || ""}
+          duration={event.duration || ""}
         />
       ))}
     </div>

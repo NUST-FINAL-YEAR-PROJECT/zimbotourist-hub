@@ -36,8 +36,9 @@ import { Button } from "@/components/ui/button";
 import { EventForm, EventFormValues } from "./EventForm";
 import { useEventOperations } from "@/hooks/useEventOperations";
 import { format } from "date-fns";
-import { Pencil, Plus, Trash } from "lucide-react";
+import { Pencil, Plus, Trash, ExternalLink } from "lucide-react";
 import type { Event } from "@/types/models";
+import { toast } from "@/components/ui/use-toast";
 
 export const EventManager = () => {
   const {
@@ -68,9 +69,14 @@ export const EventManager = () => {
       program_url: formData.program_url || null,
       program_name: formData.program_name || null,
       program_type: formData.program_type || null,
+      payment_url: formData.payment_url || null, // Add payment URL
     }, {
       onSuccess: () => {
         setIsCreateDialogOpen(false);
+        toast({
+          title: "Success",
+          description: "Event created successfully",
+        });
       },
     });
   };
@@ -92,12 +98,17 @@ export const EventManager = () => {
             program_url: formData.program_url || null,
             program_name: formData.program_name || null,
             program_type: formData.program_type || null,
+            payment_url: formData.payment_url || null, // Add payment URL
           },
         },
         {
           onSuccess: () => {
             setIsEditDialogOpen(false);
             setSelectedEvent(null);
+            toast({
+              title: "Success",
+              description: "Event updated successfully",
+            });
           },
         }
       );
@@ -120,8 +131,18 @@ export const EventManager = () => {
         onSuccess: () => {
           setIsDeleteDialogOpen(false);
           setSelectedEvent(null);
+          toast({
+            title: "Success",
+            description: "Event deleted successfully",
+          });
         },
       });
+    }
+  };
+
+  const handleOpenPaymentLink = (url: string) => {
+    if (url) {
+      window.open(url, '_blank');
     }
   };
 
@@ -161,6 +182,7 @@ export const EventManager = () => {
                   <TableHead>Date</TableHead>
                   <TableHead>Price</TableHead>
                   <TableHead>Type</TableHead>
+                  <TableHead>Payment</TableHead>
                   <TableHead className="w-[100px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -200,6 +222,21 @@ export const EventManager = () => {
                       {event.price ? `$${event.price}` : "Free"}
                     </TableCell>
                     <TableCell>{event.event_type || "-"}</TableCell>
+                    <TableCell>
+                      {event.payment_url ? (
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => handleOpenPaymentLink(event.payment_url!)}
+                          className="text-blue-500 hover:text-blue-700"
+                        >
+                          <ExternalLink className="h-4 w-4 mr-1" />
+                          Link
+                        </Button>
+                      ) : (
+                        <span className="text-muted-foreground text-xs">Not set</span>
+                      )}
+                    </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
                         <Button
@@ -301,4 +338,4 @@ export const EventManager = () => {
       </CardContent>
     </Card>
   );
-};
+}

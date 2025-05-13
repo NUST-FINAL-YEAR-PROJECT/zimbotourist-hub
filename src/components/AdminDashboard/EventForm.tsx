@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -40,6 +41,7 @@ const eventFormSchema = z.object({
   program_url: z.string().url("Invalid URL").optional().nullable(),
   program_name: z.string().optional().nullable(),
   program_type: z.string().optional().nullable(),
+  payment_url: z.string().url("Invalid payment URL").optional().nullable(),
 });
 
 export type EventFormValues = z.infer<typeof eventFormSchema>;
@@ -71,6 +73,7 @@ export function EventForm({ event, onSubmit, isLoading }: EventFormProps) {
     program_url: event?.program_url || "",
     program_name: event?.program_name || "",
     program_type: event?.program_type || "",
+    payment_url: event?.payment_url || "",
   };
 
   const form = useForm<EventFormValues>({
@@ -265,6 +268,25 @@ export function EventForm({ event, onSubmit, isLoading }: EventFormProps) {
               <FormControl>
                 <Input 
                   placeholder="Conference, Workshop, etc." 
+                  {...field} 
+                  value={field.value || ""} 
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Payment URL field */}
+        <FormField
+          control={form.control}
+          name="payment_url"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Payment URL</FormLabel>
+              <FormControl>
+                <Input 
+                  placeholder="https://payment-provider.com/your-event-payment" 
                   {...field} 
                   value={field.value || ""} 
                 />
