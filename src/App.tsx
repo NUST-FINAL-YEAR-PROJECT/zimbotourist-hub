@@ -1,6 +1,4 @@
-
 import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -120,7 +118,6 @@ const App = () => (
   <TooltipProvider>
     <InitializeData />
     <Toaster />
-    <Sonner />
     <div className="app-container">
       <Routes>
         <Route path="/" element={<Index />} />
