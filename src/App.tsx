@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { useState, useEffect } from "react"; // Added useState import here
+import { useState, useEffect } from "react";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import { Dashboard } from "./pages/Dashboard";
@@ -12,7 +12,6 @@ import AdminDashboard from "./pages/AdminDashboard";
 import { DestinationDetails } from "./pages/DestinationDetails";
 import { EventDetails } from "./pages/EventDetails";
 import Documentation from "./pages/Documentation";
-import { Loader2 } from "lucide-react";
 import { InitializeData } from "./components/InitializeData";
 import { supabase } from "@/integrations/supabase/client";
 import { DestinationsPage } from "./pages/DestinationsPage";
@@ -59,22 +58,14 @@ const EventsPage = () => (
 );
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const location = useLocation();
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!user) {
       sessionStorage.setItem('redirectAfterAuth', location.pathname);
     }
-  }, [loading, user, location]);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
+  }, [user, location]);
 
   if (!user) {
     return <Navigate to="/auth" replace state={{ from: location }} />;
@@ -83,24 +74,15 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-// Completely remove the admin protection - just render the children directly
+// Directly render children without any auth checks for development
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
 const AuthRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
-
   if (user) {
-    // Don't check for admin status - just redirect to dashboard
     return <Navigate to="/dashboard" replace />;
   }
 
@@ -141,11 +123,8 @@ const App = () => (
             </ProtectedRoute>
           }
         />
-        {/* Remove admin route protection - any logged-in user can access */}
-        <Route
-          path="/admin/dashboard/*"
-          element={<AdminDashboard />}
-        />
+        {/* Remove all protection - make admin dashboard directly accessible without auth */}
+        <Route path="/admin/dashboard/*" element={<AdminDashboard />} />
         <Route
           path="/destination/:id"
           element={

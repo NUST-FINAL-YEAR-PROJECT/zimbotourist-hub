@@ -25,7 +25,7 @@ export const useEvents = () => {
           return [];
         }
 
-        return data as unknown as Event[];
+        return data as Event[];
       } catch (error) {
         console.error("Fetch error:", error);
         toast.error("Failed to fetch events");
@@ -58,7 +58,7 @@ export const useEvent = (id: string | undefined) => {
         throw new Error("Event not found");
       }
 
-      return data as unknown as Event;
+      return data as Event;
     },
     enabled: !!id,
   });
@@ -126,7 +126,7 @@ export const useUpcomingEvents = (limit: number = 3) => {
           throw error;
         }
 
-        return data as unknown as Event[];
+        return data as Event[];
       } catch (error) {
         console.error("Fetch error for upcoming events:", error);
         throw error;

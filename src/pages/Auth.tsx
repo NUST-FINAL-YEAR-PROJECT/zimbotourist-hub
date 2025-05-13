@@ -34,7 +34,6 @@ const Auth = () => {
   const { user, isAdmin, loginWithCredentials } = useAuth();
   
   useEffect(() => {
-    // If URL has admin=true param, switch to admin signin mode
     if (isAdminPage) {
       setMode("admin-signin");
     }
@@ -78,10 +77,7 @@ const Auth = () => {
 
     try {
       if (mode === "signin" || mode === "admin-signin") {
-        // Use the authentication logic for both regular and admin signin
         await loginWithCredentials(email, password);
-        // The loginWithCredentials function handles setting the session, user,
-        // isAdmin flag and navigation to the appropriate dashboard
       } else if (mode === "signup") {
         const { data, error } = await supabase.auth.signUp({
           email,
@@ -94,11 +90,11 @@ const Auth = () => {
         if (error) throw error;
         
         if (data.user?.identities?.length === 0) {
-          toast.error("Account exists");
+          toast.error("Account already exists");
           setMode("signin");
         } else {
           setFormSuccess(true);
-          toast.success("Account created!");
+          toast.success("Account created successfully!");
         }
       } else if (mode === "forgot-password") {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -108,11 +104,10 @@ const Auth = () => {
         if (error) throw error;
         
         setFormSuccess(true);
-        toast.success("Check your email");
+        toast.success("Password reset email sent");
       }
     } catch (error: any) {
-      console.error("Auth error:", error);
-      toast.error(error.message || "An error occurred during authentication.");
+      toast.error(error.message || "Authentication failed");
     } finally {
       setLoading(false);
     }

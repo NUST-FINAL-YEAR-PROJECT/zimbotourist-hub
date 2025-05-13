@@ -49,7 +49,7 @@ export const EventDetails = () => {
         throw new Error("Event not found");
       }
 
-      return data as unknown as Event;
+      return data as Event;
     },
   });
 
