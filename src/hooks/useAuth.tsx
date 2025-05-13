@@ -8,11 +8,10 @@ import { useNavigate } from 'react-router-dom';
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
 
-  // Function to check if user is admin with simplified error handling
+  // Function to check if user is admin
   const checkAdminStatus = async (userId: string) => {
     try {
       const { data } = await supabase
@@ -29,7 +28,7 @@ export const useAuth = () => {
     }
   };
 
-  // Login with email and password with simplified error handling
+  // Login with email and password
   const loginWithCredentials = async (email: string, password: string) => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -50,8 +49,8 @@ export const useAuth = () => {
       
       return { isAdmin: false };
     } catch (error: any) {
-      toast.error(error.message || "Failed to login");
-      throw error;
+      toast.error(error.message || "Failed to sign in");
+      return { isAdmin: false };
     }
   };
 
@@ -67,7 +66,7 @@ export const useAuth = () => {
       }
     };
 
-    // Listen for auth changes first
+    // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
@@ -104,5 +103,5 @@ export const useAuth = () => {
     }
   };
 
-  return { user, session, loading, signOut, isAdmin, loginWithCredentials };
+  return { user, session, signOut, isAdmin, loginWithCredentials };
 };

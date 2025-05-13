@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -89,11 +90,11 @@ const Auth = () => {
         if (error) throw error;
         
         if (data.user?.identities?.length === 0) {
-          toast.error("Account exists");
+          toast.error("Account already exists");
           setMode("signin");
         } else {
           setFormSuccess(true);
-          toast.success("Account created!");
+          toast.success("Account created successfully!");
         }
       } else if (mode === "forgot-password") {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -103,10 +104,10 @@ const Auth = () => {
         if (error) throw error;
         
         setFormSuccess(true);
-        toast.success("Check your email");
+        toast.success("Password reset email sent");
       }
     } catch (error: any) {
-      toast.error(error.message || "An error occurred during authentication.");
+      toast.error(error.message || "Authentication failed");
     } finally {
       setLoading(false);
     }
