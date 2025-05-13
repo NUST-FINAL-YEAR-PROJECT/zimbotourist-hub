@@ -148,43 +148,48 @@ export function useToast() {
 }
 
 // Create a function-based toast API for direct imports
-export const toast = {
-  // Standard toast method
-  (props: ToastProps): void {
-    const id = generateId();
-    const { toast } = useToastUI();
-    toast({ ...props, id });
-  },
-  // Variant helper methods
-  error(description: string, title: string = "Error") {
-    const { toast } = useToastUI();
-    toast({
-      variant: "destructive",
-      title,
-      description,
-    });
-  },
-  success(description: string, title: string = "Success") {
-    const { toast } = useToastUI();
-    toast({
-      variant: "success",
-      title,
-      description,
-    });
-  },
-  warning(description: string, title: string = "Warning") {
-    const { toast } = useToastUI();
-    toast({
-      variant: "warning",
-      title,
-      description,
-    });
-  },
-  info(description: string, title: string = "Info") {
-    const { toast } = useToastUI();
-    toast({
-      title,
-      description,
-    });
-  }
+// Using function with properties pattern instead of object with function
+function toastFunction(props: ToastProps) {
+  const id = generateId();
+  const { toast } = useToastUI();
+  toast({ ...props, id });
+}
+
+// Add variant methods as properties to the main function
+toastFunction.error = (description: string, title: string = "Error") => {
+  const { toast } = useToastUI();
+  toast({
+    variant: "destructive",
+    title,
+    description,
+  });
 };
+
+toastFunction.success = (description: string, title: string = "Success") => {
+  const { toast } = useToastUI();
+  toast({
+    variant: "success",
+    title,
+    description,
+  });
+};
+
+toastFunction.warning = (description: string, title: string = "Warning") => {
+  const { toast } = useToastUI();
+  toast({
+    variant: "warning",
+    title,
+    description,
+  });
+};
+
+toastFunction.info = (description: string, title: string = "Info") => {
+  const { toast } = useToastUI();
+  toast({
+    title,
+    description,
+  });
+};
+
+// Export the function with added properties
+export const toast = toastFunction;
