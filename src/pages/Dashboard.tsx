@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, Routes, Route } from "react-router-dom";
 import { toast } from "sonner";
@@ -26,6 +27,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { MyBookings } from "./MyBookings";
 import { useAuth } from "@/hooks/useAuth";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type BookingWithRelations = Booking & {
   destinations: {
