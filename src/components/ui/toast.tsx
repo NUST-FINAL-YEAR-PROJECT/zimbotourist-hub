@@ -114,7 +114,14 @@ const ToastDescription = React.forwardRef<
 ))
 ToastDescription.displayName = ToastPrimitives.Description.displayName
 
-type ToastProps = React.ComponentPropsWithoutRef<typeof Toast>
+// Extended ToastProps type to include the title, description, action properties
+interface ToastProps extends React.ComponentPropsWithoutRef<typeof Toast> {
+  id?: string;
+  title?: React.ReactNode;
+  description?: React.ReactNode;
+  action?: React.ReactNode;
+  open?: boolean;
+}
 
 type ToastActionElement = React.ReactElement<typeof ToastAction>
 
