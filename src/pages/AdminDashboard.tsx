@@ -24,7 +24,7 @@ const AdminDashboard = () => {
     console.log("AdminDashboard - Current admin status:", isAdmin);
     if (!loading && isAdmin === false) {
       toast.error("You don't have permission to access the admin dashboard");
-      navigate("/dashboard");
+      navigate("admin/dashboard");
     }
   }, [isAdmin, navigate, loading]);
 
