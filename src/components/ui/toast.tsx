@@ -114,7 +114,7 @@ const ToastDescription = React.forwardRef<
 ))
 ToastDescription.displayName = ToastPrimitives.Description.displayName
 
-// Define ToastProps separately instead of extending React.ComponentPropsWithoutRef
+// Define ToastProps as a standalone interface without extending React component props
 interface ToastProps {
   id?: string;
   title?: React.ReactNode;
@@ -129,14 +129,14 @@ interface ToastProps {
 
 type ToastActionElement = React.ReactElement<typeof ToastAction>
 
-// Define the toast context
+// Define the toast context with all required methods including toast function
 interface ToastContextType {
   toasts: ToastProps[]
   addToast: (toast: ToastProps) => void
   updateToast: (id: string, toast: Partial<ToastProps>) => void
   dismissToast: (id: string) => void
   removeToast: (id: string) => void
-  toast: (props: ToastProps) => void // Add this to fix the 'toast' does not exist error
+  toast: (props: ToastProps) => void
 }
 
 const ToastContext = React.createContext<ToastContextType | undefined>(undefined)
