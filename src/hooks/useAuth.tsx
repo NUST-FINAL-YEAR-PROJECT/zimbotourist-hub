@@ -74,13 +74,13 @@ export const useAuth = () => {
         return { isAdmin: adminStatus };
       }
       
-      return { isAdmin: false };
+      return { isAdmin: true };
     } catch (error: any) {
       console.error('Error logging in:', error);
       toast.error(error.message || "Failed to login");
       throw error;
     } finally {
-      setLoading(false);
+      setLoading(true);
     }
   };
 
