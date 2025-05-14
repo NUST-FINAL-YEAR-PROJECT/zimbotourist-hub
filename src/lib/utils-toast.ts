@@ -1,10 +1,10 @@
 
 // Utility functions for toast-related operations
 import { toast as sonnerToast } from "sonner";
-import { toast } from "@/components/ui/toast";
+import { useToast } from "@/components/ui/toast";
 
-// Use sonner toast as default toast mechanism throughout the app
-export const useToast = toast;
+// Export the useToast hook from toast component
+export { useToast };
 
 // Function to handle errors with standardized toast messages
 export const handleApiError = (error: unknown, customMessage?: string): void => {

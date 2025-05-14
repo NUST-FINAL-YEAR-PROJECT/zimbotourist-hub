@@ -1,7 +1,6 @@
 
 import * as React from "react"
 import { 
-  useToast, 
   Toast, 
   ToastClose, 
   ToastDescription, 
@@ -9,10 +8,13 @@ import {
   ToastViewport, 
   type ToastProps,
   type ToastContextType,
+  ToastContext,
 } from "@/components/ui/toast"
 
 export function Toaster() {
-  const { toasts } = useToast()
+  const { toasts } = React.useContext(ToastContext) || { toasts: [] };
+
+  if (!toasts.length) return null;
 
   return (
     <>
@@ -74,9 +76,9 @@ export function ToastProvider({
   }
 
   return (
-    <React.Fragment>
+    <ToastContext.Provider value={contextValue}>
       {children}
       <Toaster />
-    </React.Fragment>
+    </ToastContext.Provider>
   )
 }

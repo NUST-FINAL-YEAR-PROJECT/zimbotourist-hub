@@ -1,12 +1,10 @@
 
 import * as React from "react";
 import { 
-  ToastProvider as ToastProviderOriginal,
-  type ToastProps, 
-  type ToastContextType,
+  ToastProvider as ToastProviderOriginal, 
   ToastContext,
-  useToast as useToastOriginal,
-  toast as toastOriginal
+  type ToastProps, 
+  type ToastContextType 
 } from "@/components/ui/toast";
 
 // Re-export the toast provider with children
@@ -18,10 +16,21 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-// Hook to access toast context - use the original hook directly
-export const useToast = useToastOriginal;
+// Hook to access toast context
+export const useToast = () => {
+  const context = React.useContext(ToastContext);
+  
+  if (!context) {
+    throw new Error("useToast must be used within a ToastProvider");
+  }
+  
+  return context;
+};
 
-// Toast function shorthand - use the original toast function directly
-export const toast = toastOriginal;
+// Toast function shorthand
+export const toast = (props: ToastProps) => {
+  const { addToast } = useToast();
+  addToast(props);
+};
 
 export type { ToastProps, ToastContextType };

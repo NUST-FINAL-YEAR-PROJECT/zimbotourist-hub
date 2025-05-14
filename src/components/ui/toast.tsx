@@ -114,7 +114,7 @@ const ToastDescription = React.forwardRef<
 ))
 ToastDescription.displayName = ToastPrimitives.Description.displayName
 
-// Define ToastProps as a standalone interface without extending React component props
+// Define the ToastContext and associated types
 interface ToastProps {
   id?: string;
   title?: React.ReactNode;
@@ -129,31 +129,39 @@ interface ToastProps {
 
 type ToastActionElement = React.ReactElement<typeof ToastAction>
 
-// Define the toast context with all required methods including toast function
+// Create the context to manage toast state
 interface ToastContextType {
-  toasts: ToastProps[]
-  addToast: (toast: ToastProps) => void
-  updateToast: (id: string, toast: Partial<ToastProps>) => void
-  dismissToast: (id: string) => void
-  removeToast: (id: string) => void
-  toast: (props: ToastProps) => void
+  toasts: ToastProps[];
+  addToast: (toast: ToastProps) => void;
+  updateToast: (id: string, toast: Partial<ToastProps>) => void;
+  dismissToast: (id: string) => void;
+  removeToast: (id: string) => void;
+  toast: (props: ToastProps) => void;
 }
 
-const ToastContext = React.createContext<ToastContextType | undefined>(undefined)
+// Create the context with a default value
+const ToastContext = React.createContext<ToastContextType | undefined>(undefined);
 
-function useToast() {
-  const context = React.useContext(ToastContext)
+// Hook to use the toast context
+const useToast = () => {
+  const context = React.useContext(ToastContext);
   if (!context) {
-    throw new Error("useToast must be used within a ToastProvider")
+    throw new Error("useToast must be used within a ToastProvider");
   }
-  return context
-}
+  return context;
+};
 
-// Toast function to create and display toasts
+// Shorthand toast function
 const toast = (props: ToastProps) => {
-  const { addToast } = useToast()
-  addToast(props)
-}
+  try {
+    // Get the context and add the toast
+    const { addToast } = useToast();
+    addToast(props);
+  } catch (error) {
+    console.error("Toast error:", error);
+    // Silently fail if not in a ToastProvider context
+  }
+};
 
 export {
   type ToastProps,
