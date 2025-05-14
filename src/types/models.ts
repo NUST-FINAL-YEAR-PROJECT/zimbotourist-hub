@@ -21,6 +21,7 @@ export interface Destination {
   updated_at: string;
   categories: string[] | null;
   is_featured: boolean | null;
+  payment_url: string | null;
 }
 
 export interface Booking {
@@ -95,24 +96,21 @@ export interface Event {
   id: string;
   title: string;
   description: string | null;
-  start_date: string;
-  end_date: string;
+  start_date: string | null;
+  end_date: string | null;
   location: string | null;
-  price: number;
+  price: number | null;
   image_url: string | null;
-  capacity: number | null;
   ticket_types: Record<string, any>[] | null;
-  max_tickets_per_type: Record<string, any> | null;
-  available_tickets_per_type: Record<string, any> | null;
   event_type: string | null;
-  venue_details: Record<string, any> | null;
-  booking_deadline: string | null;
-  cancellation_policy: string | null;
   created_at: string;
   updated_at: string;
   program_url: string | null;
   program_name: string | null;
   program_type: string | null;
-  duration: string | null;
+  payment_url: string | null;
+  // Adding activities property as it's used in components but wasn't in the interface
   activities: string[] | null;
+  // Adding duration property as it's used in components but wasn't in the interface
+  duration: string | null;
 }
