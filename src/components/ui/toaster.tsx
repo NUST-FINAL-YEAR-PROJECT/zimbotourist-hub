@@ -5,10 +5,9 @@ import {
   Toast, 
   ToastClose, 
   ToastDescription, 
-  ToastContext, 
   ToastTitle, 
   ToastViewport, 
-  ToastProps,
+  type ToastProps,
   type ToastContextType,
 } from "@/components/ui/toast"
 
@@ -60,7 +59,7 @@ export function ToastProvider({
     setToasts((prev) => prev.filter((t) => t.id !== id))
   }, [])
   
-  // Create the toast helper function directly within the context
+  // Create the toast helper function
   const toast = React.useCallback((props: ToastProps) => {
     addToast(props)
   }, [addToast])
@@ -71,13 +70,13 @@ export function ToastProvider({
     updateToast,
     dismissToast,
     removeToast,
-    toast, // Add the toast function to the context
+    toast,
   }
 
   return (
-    <ToastContext.Provider value={contextValue}>
+    <React.Fragment>
       {children}
       <Toaster />
-    </ToastContext.Provider>
+    </React.Fragment>
   )
 }

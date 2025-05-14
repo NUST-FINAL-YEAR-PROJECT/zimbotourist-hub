@@ -1,5 +1,3 @@
-
-import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
@@ -19,6 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { DestinationsPage } from "./pages/DestinationsPage";
 import { PaymentStatusPage } from "./pages/PaymentStatusPage";
 import { PaymentPage } from "./pages/PaymentPage";
+import { Toaster } from "@/components/ui/toaster";
 
 // Rename to SimpleDestinationsPage to avoid conflict with the imported component
 const SimpleDestinationsPage = () => (
@@ -148,7 +147,6 @@ const App = () => (
   <TooltipProvider>
     <InitializeData />
     <Toaster />
-    <Sonner />
     <div className="app-container">
       <Routes>
         <Route path="/" element={<Index />} />
