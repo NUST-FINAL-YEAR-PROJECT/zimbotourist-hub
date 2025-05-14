@@ -1,6 +1,16 @@
 
 import * as React from "react"
-import { useToast, Toast, ToastClose, ToastDescription, ToastContext, ToastTitle, ToastViewport, ToastProps } from "@/components/ui/toast"
+import { 
+  useToast, 
+  Toast, 
+  ToastClose, 
+  ToastDescription, 
+  ToastContext, 
+  ToastTitle, 
+  ToastViewport, 
+  ToastProps,
+  type ToastContextType,
+} from "@/components/ui/toast"
 
 export function Toaster() {
   const { toasts } = useToast()
@@ -49,17 +59,23 @@ export function ToastProvider({
   const removeToast = React.useCallback((id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id))
   }, [])
+  
+  // Create the toast helper function directly within the context
+  const toast = React.useCallback((props: ToastProps) => {
+    addToast(props)
+  }, [addToast])
+
+  const contextValue: ToastContextType = {
+    toasts,
+    addToast,
+    updateToast,
+    dismissToast,
+    removeToast,
+    toast, // Add the toast function to the context
+  }
 
   return (
-    <ToastContext.Provider
-      value={{
-        toasts,
-        addToast,
-        updateToast,
-        dismissToast,
-        removeToast,
-      }}
-    >
+    <ToastContext.Provider value={contextValue}>
       {children}
       <Toaster />
     </ToastContext.Provider>

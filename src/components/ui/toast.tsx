@@ -114,24 +114,29 @@ const ToastDescription = React.forwardRef<
 ))
 ToastDescription.displayName = ToastPrimitives.Description.displayName
 
-// Extended ToastProps type to include the title, description, action properties
-interface ToastProps extends React.ComponentPropsWithoutRef<typeof Toast> {
+// Define ToastProps separately instead of extending React.ComponentPropsWithoutRef
+interface ToastProps {
   id?: string;
   title?: React.ReactNode;
   description?: React.ReactNode;
   action?: React.ReactNode;
   open?: boolean;
+  variant?: "default" | "destructive" | "success" | "warning" | "info";
+  className?: string;
+  duration?: number;
+  onOpenChange?: (open: boolean) => void;
 }
 
 type ToastActionElement = React.ReactElement<typeof ToastAction>
 
 // Define the toast context
-type ToastContextType = {
+interface ToastContextType {
   toasts: ToastProps[]
   addToast: (toast: ToastProps) => void
   updateToast: (id: string, toast: Partial<ToastProps>) => void
   dismissToast: (id: string) => void
   removeToast: (id: string) => void
+  toast: (props: ToastProps) => void // Add this to fix the 'toast' does not exist error
 }
 
 const ToastContext = React.createContext<ToastContextType | undefined>(undefined)
@@ -145,7 +150,7 @@ function useToast() {
 }
 
 // Toast function to create and display toasts
-function toast(props: ToastProps) {
+const toast = (props: ToastProps) => {
   const { addToast } = useToast()
   addToast(props)
 }
