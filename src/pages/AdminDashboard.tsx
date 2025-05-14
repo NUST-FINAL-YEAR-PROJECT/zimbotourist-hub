@@ -17,16 +17,12 @@ import { toast } from "sonner";
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAdmin, loading } = useAuth();
-  
-  // Check admin status on component mount
+  const { loading } = useAuth();  // removed isAdmin check
+
   useEffect(() => {
-    console.log("AdminDashboard - Current admin status:", isAdmin);
-    if (!loading && isAdmin === false) {
-      toast.error("You don't have permission to access the admin dashboard");
-      navigate("admin/dashboard");
-    }
-  }, [isAdmin, navigate, loading]);
+    console.log("AdminDashboard - Access granted");
+  }, []);
+
 
   // Get current page from path
   const getCurrentPage = () => {
