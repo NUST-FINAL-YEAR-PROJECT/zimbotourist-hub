@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { createPayment } from "@/integrations/paynow/client";
 import { BookingInvoice } from "./BookingInvoice";
@@ -14,6 +14,7 @@ import { DuplicateBookingAlert } from "./DuplicateBookingAlert";
 import { ArrowLeft, ArrowRight, Calendar as CalendarIcon, Users, Mail, Phone, Receipt } from "lucide-react";
 import type { Destination } from "@/types/models";
 import type { Database } from "@/integrations/supabase/types";
+import { useNavigate } from "react-router-dom";
 
 interface BookingFormProps {
   destination: Destination;
@@ -31,7 +32,7 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
   const [userId, setUserId] = useState<string>();
   const [showDuplicateAlert, setShowDuplicateAlert] = useState(false);
   const [hasCheckedDuplicate, setHasCheckedDuplicate] = useState(false);
-  const { toast } = useToast();
+  const navigate = useNavigate();
 
   const progress = (step / 4) * 100;
 
@@ -66,29 +67,17 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
 
   const handleSubmit = async () => {
     if (!date) {
-      toast({
-        title: "Select Travel Date",
-        description: "Please choose your preferred travel date to continue.",
-        variant: "destructive"
-      });
+      toast.error("Please select a travel date");
       return;
     }
 
     if (!userId) {
-      toast({
-        title: "Sign In Required",
-        description: "Please sign in to your account before making a booking.",
-        variant: "destructive"
-      });
+      toast.error("Please sign in to your account before making a booking");
       return;
     }
 
     if (!contactName || !contactEmail || !contactPhone) {
-      toast({
-        title: "Complete Contact Information",
-        description: "Please fill in all required contact details to proceed.",
-        variant: "destructive"
-      });
+      toast.error("Please fill in all required contact details");
       return;
     }
 
@@ -126,17 +115,13 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
 
       if (bookingError) throw bookingError;
 
-      toast({
-        title: "Booking Created Successfully",
-        description: "Redirecting to payment...",
-        className: "bg-green-50 border-green-200"
-      });
+      toast.success("Booking created successfully! Redirecting to payment...");
       
       // Initialize Paynow payment
       const bookingId = booking?.id;
       if (bookingId) {
         try {
-          console.log("Attempting to create Paynow payment for booking:", bookingId);
+          console.log("Creating payment for booking:", bookingId);
           
           const paymentResponse = await createPayment(
             contactEmail,
@@ -161,26 +146,17 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
           }
         } catch (paymentError: any) {
           console.error("Payment error:", paymentError);
-          toast({
-            title: "Payment Gateway Error",
-            description: "Redirecting to alternate payment method...",
-            variant: "destructive"
-          });
+          toast.error("Payment gateway error. Redirecting to alternate payment method...");
+          
           // Fallback to Stripe payment if Paynow fails
-          setTimeout(() => {
-            window.location.href = `/dashboard/payment?booking_id=${bookingId}`;
-          }, 2000);
+          navigate(`/dashboard/payment?booking_id=${bookingId}`);
         }
       } else {
         throw new Error("No booking ID returned from database");
       }
       
     } catch (error: any) {
-      toast({
-        title: "Booking Creation Failed",
-        description: error.message || "An error occurred while creating your booking. Please try again.",
-        variant: "destructive"
-      });
+      toast.error(error.message || "An error occurred while creating your booking");
       setIsSubmitting(false);
     }
   };
@@ -349,7 +325,159 @@ export const BookingForm = ({ destination, onSuccess }: BookingFormProps) => {
       <Progress value={progress} className="w-full" />
       
       <div className="min-h-[400px]">
-        {stepContent[step as keyof typeof stepContent]}
+        {step === 1 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="space-y-6"
+          >
+            <div className="flex items-center gap-2 text-lg font-semibold">
+              <CalendarIcon className="h-5 w-5" />
+              <h3>Select Date</h3>
+            </div>
+            <Calendar
+              mode="single"
+              selected={date}
+              onSelect={setDate}
+              className="rounded-md border mx-auto"
+              disabled={(date) => date < new Date()}
+            />
+          </motion.div>
+        )}
+
+        {step === 2 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="space-y-6"
+          >
+            <div className="flex items-center gap-2 text-lg font-semibold">
+              <Users className="h-5 w-5" />
+              <h3>Number of People</h3>
+            </div>
+            <div className="flex items-center gap-4">
+              <Button
+                variant="outline"
+                onClick={() => setNumberOfPeople(prev => Math.max(1, prev - 1))}
+                disabled={numberOfPeople <= 1}
+              >
+                -
+              </Button>
+              <Input
+                type="number"
+                min={1}
+                value={numberOfPeople}
+                onChange={(e) => setNumberOfPeople(parseInt(e.target.value) || 1)}
+                className="text-center"
+              />
+              <Button
+                variant="outline"
+                onClick={() => setNumberOfPeople(prev => prev + 1)}
+              >
+                +
+              </Button>
+            </div>
+          </motion.div>
+        )}
+
+        {step === 3 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="space-y-6"
+          >
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-lg font-semibold">
+                <Mail className="h-5 w-5" />
+                <h3>Contact Information</h3>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                We'll use these details to send your booking confirmation
+              </p>
+            </div>
+            <div className="space-y-4">
+              <Input
+                placeholder="Full Name"
+                value={contactName}
+                onChange={(e) => setContactName(e.target.value)}
+                required
+              />
+              <Input
+                type="email"
+                placeholder="Email"
+                value={contactEmail}
+                onChange={(e) => setContactEmail(e.target.value)}
+                required
+              />
+              <Input
+                placeholder="Phone Number"
+                value={contactPhone}
+                onChange={(e) => setContactPhone(e.target.value)}
+                required
+              />
+            </div>
+          </motion.div>
+        )}
+
+        {step === 4 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="space-y-6"
+          >
+            <div className="flex items-center gap-2 text-lg font-semibold">
+              <Receipt className="h-5 w-5" />
+              <h3>Booking Summary</h3>
+            </div>
+            <div className="rounded-lg border p-6 space-y-4 bg-gray-50">
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Date</span>
+                  <span className="font-medium">{date && format(date, "MMMM d, yyyy")}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Number of People</span>
+                  <span className="font-medium">{numberOfPeople}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Price per Person</span>
+                  <span className="font-medium">${destination.price}</span>
+                </div>
+              </div>
+              <div className="pt-4 border-t">
+                <div className="flex justify-between">
+                  <span className="font-semibold">Total Price</span>
+                  <span className="font-semibold">${destination.price * numberOfPeople}</span>
+                </div>
+              </div>
+            </div>
+            
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="w-full gap-2">
+                  <Receipt className="h-4 w-4" />
+                  Preview Invoice
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-4xl h-[700px]">
+                {date && <BookingInvoice 
+                  destination={destination}
+                  numberOfPeople={numberOfPeople}
+                  date={date}
+                  contactDetails={{
+                    name: contactName,
+                    email: contactEmail,
+                    phone: contactPhone
+                  }}
+                />}
+              </DialogContent>
+            </Dialog>
+          </motion.div>
+        )}
       </div>
 
       <div className="flex gap-2 pt-4">

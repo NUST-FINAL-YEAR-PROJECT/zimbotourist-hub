@@ -1,11 +1,10 @@
-
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -31,7 +30,6 @@ export const EventBookingForm = ({ event, onSuccess }: EventBookingFormProps) =>
   const [showDuplicateAlert, setShowDuplicateAlert] = useState(false);
   const [hasCheckedDuplicate, setHasCheckedDuplicate] = useState(false);
   const { user } = useAuth();
-  const { toast } = useToast();
   const navigate = useNavigate();
 
   const progress = (step / 3) * 100;
@@ -60,20 +58,12 @@ export const EventBookingForm = ({ event, onSuccess }: EventBookingFormProps) =>
 
   const handleSubmit = async () => {
     if (!user) {
-      toast({
-        title: "Sign In Required",
-        description: "Please sign in to your account before making a booking.",
-        variant: "destructive"
-      });
+      toast.error("Please sign in to your account before making a booking");
       return;
     }
 
     if (!contactName || !contactEmail || !contactPhone) {
-      toast({
-        title: "Complete Contact Information",
-        description: "Please fill in all required contact details to proceed.",
-        variant: "destructive"
-      });
+      toast.error("Please fill in all required contact details");
       return;
     }
 
@@ -110,16 +100,14 @@ export const EventBookingForm = ({ event, onSuccess }: EventBookingFormProps) =>
 
       if (bookingError) throw bookingError;
 
-      toast({
-        title: "Booking Created Successfully",
-        description: "Redirecting to payment...",
-        className: "bg-green-50 border-green-200"
-      });
+      toast.success("Booking created successfully! Redirecting to payment...");
       
       // Try Paynow payment first
       const bookingId = booking?.id;
       if (bookingId) {
         try {
+          console.log("Creating Paynow payment for booking:", bookingId);
+          
           const paymentResponse = await createPayment(
             contactEmail,
             contactPhone,
@@ -127,6 +115,8 @@ export const EventBookingForm = ({ event, onSuccess }: EventBookingFormProps) =>
             bookingId,
             [{ name: `Event Ticket: ${event.title} (${selectedTicketType.name})`, amount: totalPrice }]
           );
+          
+          console.log("Paynow payment response:", paymentResponse);
           
           if (paymentResponse.success && paymentResponse.redirectUrl) {
             // Store pollUrl in session storage for later verification
@@ -148,11 +138,7 @@ export const EventBookingForm = ({ event, onSuccess }: EventBookingFormProps) =>
         throw new Error("No booking ID returned from database");
       }
     } catch (error: any) {
-      toast({
-        title: "Booking Creation Failed",
-        description: error.message,
-        variant: "destructive"
-      });
+      toast.error(error.message || "Booking creation failed");
       setIsSubmitting(false);
     }
   };

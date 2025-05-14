@@ -5,13 +5,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { checkPaymentStatus } from "@/integrations/paynow/client";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { ArrowLeft, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 
 export const PaymentStatusPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [status, setStatus] = useState<"loading" | "success" | "failed">("loading");
   const [bookingDetails, setBookingDetails] = useState<any>(null);
 
@@ -25,11 +24,7 @@ export const PaymentStatusPage = () => {
     const verifyPayment = async () => {
       if (!paymentReference) {
         setStatus("failed");
-        toast({
-          variant: "destructive",
-          title: "Payment Verification Failed",
-          description: "Missing payment reference",
-        });
+        toast.error("Missing payment reference");
         return;
       }
 
@@ -41,6 +36,10 @@ export const PaymentStatusPage = () => {
             *,
             destinations (
               name,
+              image_url
+            ),
+            events (
+              title,
               image_url
             )
           `)
@@ -69,54 +68,64 @@ export const PaymentStatusPage = () => {
             if (updateError) throw updateError;
 
             setStatus("success");
-            toast({
-              title: "Payment Successful",
-              description: "Your Zimbabwe booking has been confirmed.",
-              className: "bg-green-50 border-green-200",
-            });
+            toast.success("Your Zimbabwe booking has been confirmed");
             
             // Clear the pollUrl from session storage
             sessionStorage.removeItem(`payment_${paymentReference}_pollUrl`);
           } else {
             setStatus("failed");
-            toast({
-              variant: "destructive",
-              title: "Payment Not Completed",
-              description: "Your payment was not completed. Please try again.",
-            });
+            toast.error("Your payment was not completed. Please try again");
           }
         } else {
-          // If no pollUrl, we'll just assume payment is being processed
-          // Check the booking status to see if it's already been confirmed
+          // If no pollUrl, we'll check the booking status directly
           if (booking.payment_status === "completed" || booking.status === "confirmed") {
             setStatus("success");
-            toast({
-              title: "Payment Confirmed",
-              description: "Your Zimbabwe booking has been confirmed.",
-              className: "bg-green-50 border-green-200",
-            });
+            toast.success("Your Zimbabwe booking has been confirmed");
           } else {
-            // In a real app, you might want to handle this differently
+            // In a real app, we would need a different approach here
             setStatus("loading");
-            toast({
-              title: "Payment Processing",
-              description: "Your payment for Zimbabwe travel is being processed.",
-            });
+            toast("Your payment is being processed");
+            
+            // Wait a bit then check the booking status again
+            setTimeout(async () => {
+              const { data: refreshedBooking } = await supabase
+                .from("bookings")
+                .select("payment_status, status")
+                .eq("id", paymentReference)
+                .single();
+                
+              if (refreshedBooking && 
+                  (refreshedBooking.payment_status === "completed" || refreshedBooking.status === "confirmed")) {
+                setStatus("success");
+                toast.success("Your Zimbabwe booking has been confirmed");
+              } else {
+                setStatus("failed");
+                toast.error("Payment verification timed out. Please check your booking status");
+              }
+            }, 5000);
           }
         }
       } catch (error: any) {
         console.error("Payment verification error:", error);
         setStatus("failed");
-        toast({
-          variant: "destructive",
-          title: "Payment Verification Failed",
-          description: error.message || "Failed to verify payment",
-        });
+        toast.error(error.message || "Failed to verify payment");
       }
     };
 
     verifyPayment();
-  }, [paymentReference, pollUrl, toast]);
+  }, [paymentReference, pollUrl]);
+
+  const getBookingName = () => {
+    if (!bookingDetails) return "N/A";
+    
+    if (bookingDetails.destinations?.name) {
+      return bookingDetails.destinations.name;
+    } else if (bookingDetails.events?.title) {
+      return bookingDetails.events.title;
+    }
+    
+    return "your booking";
+  };
 
   if (status === "loading") {
     return (
@@ -174,7 +183,7 @@ export const PaymentStatusPage = () => {
 
             <p className="text-center text-muted-foreground mb-4">
               {status === "success" 
-                ? "Your booking has been confirmed. We look forward to welcoming you to Zimbabwe!"
+                ? `Your booking for ${getBookingName()} has been confirmed. We look forward to welcoming you to Zimbabwe!`
                 : "We couldn't process your payment. Please try again or contact customer support."}
             </p>
           </div>
@@ -188,17 +197,21 @@ export const PaymentStatusPage = () => {
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">Destination</span>
+                <span className="text-sm font-medium">
+                  {bookingDetails.destinations ? "Destination" : "Event"}
+                </span>
                 <span className="text-sm text-muted-foreground">
-                  {bookingDetails.destinations?.name || 'N/A'}
+                  {getBookingName()}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium">Travel Date</span>
                 <span className="text-sm text-muted-foreground">
-                  {bookingDetails && bookingDetails.preferred_date 
+                  {(bookingDetails.preferred_date 
                     ? new Date(bookingDetails.preferred_date).toLocaleDateString()
-                    : 'N/A'}
+                    : bookingDetails.events?.start_date
+                      ? new Date(bookingDetails.events.start_date).toLocaleDateString()
+                      : 'N/A')}
                 </span>
               </div>
               <div className="flex justify-between items-center">
@@ -222,6 +235,11 @@ export const PaymentStatusPage = () => {
             </Button>
             {status === "failed" && bookingDetails?.destination_id && (
               <Button onClick={() => navigate(`/destination/${bookingDetails.destination_id}`)} variant="outline">
+                Try Payment Again
+              </Button>
+            )}
+            {status === "failed" && bookingDetails?.event_id && (
+              <Button onClick={() => navigate(`/events/${bookingDetails.event_id}`)} variant="outline">
                 Try Payment Again
               </Button>
             )}
