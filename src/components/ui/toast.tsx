@@ -118,9 +118,35 @@ type ToastProps = React.ComponentPropsWithoutRef<typeof Toast>
 
 type ToastActionElement = React.ReactElement<typeof ToastAction>
 
+// Define the toast context
+type ToastContextType = {
+  toasts: ToastProps[]
+  addToast: (toast: ToastProps) => void
+  updateToast: (id: string, toast: Partial<ToastProps>) => void
+  dismissToast: (id: string) => void
+  removeToast: (id: string) => void
+}
+
+const ToastContext = React.createContext<ToastContextType | undefined>(undefined)
+
+function useToast() {
+  const context = React.useContext(ToastContext)
+  if (!context) {
+    throw new Error("useToast must be used within a ToastProvider")
+  }
+  return context
+}
+
+// Toast function to create and display toasts
+function toast(props: ToastProps) {
+  const { addToast } = useToast()
+  addToast(props)
+}
+
 export {
   type ToastProps,
   type ToastActionElement,
+  type ToastContextType,
   ToastProvider,
   ToastViewport,
   Toast,
@@ -128,4 +154,7 @@ export {
   ToastDescription,
   ToastClose,
   ToastAction,
+  useToast,
+  toast,
+  ToastContext,
 }
