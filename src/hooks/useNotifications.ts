@@ -3,11 +3,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
 import type { AppNotification } from "@/types/models";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner"; // Standardize on sonner for toast notifications
 
 export const useNotifications = (userId: string | undefined) => {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
 
   const { data: notifications = [], isLoading } = useQuery({
     queryKey: ["notifications", userId],
@@ -75,28 +74,10 @@ export const useNotifications = (userId: string | undefined) => {
           const newNotification = payload.new as AppNotification;
           queryClient.invalidateQueries({ queryKey: ["notifications"] });
           
-          // Determine the toast variant based on notification type
-          let variant: 'default' | 'destructive' | 'success' | 'warning' = 'default';
-          switch (newNotification.type) {
-            case 'error':
-              variant = 'destructive';
-              break;
-            case 'success':
-              variant = 'success';
-              break;
-            case 'warning':
-              variant = 'warning';
-              break;
-            // For 'default' or any other type, use 'default' variant
-            default:
-              variant = 'default';
-              break;
-          }
-          
-          toast({
-            title: newNotification.title,
-            description: newNotification.description,
-            variant,
+          // Display toast notification using sonner
+          const type = newNotification.type as "success" | "error" | "warning" | "default";
+          toast[type]?.(newNotification.title, {
+            description: newNotification.description
           });
         }
       )
@@ -105,7 +86,7 @@ export const useNotifications = (userId: string | undefined) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [userId, queryClient, toast]);
+  }, [userId, queryClient]);
 
   return {
     notifications,

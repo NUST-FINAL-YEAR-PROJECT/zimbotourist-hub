@@ -17,7 +17,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { DestinationsPage } from "./pages/DestinationsPage";
 import { PaymentStatusPage } from "./pages/PaymentStatusPage";
 import { PaymentPage } from "./pages/PaymentPage";
-import { Toaster } from "@/components/ui/toaster";
 
 // Rename to SimpleDestinationsPage to avoid conflict with the imported component
 const SimpleDestinationsPage = () => (
@@ -146,7 +145,6 @@ const AuthRoute = ({ children }: { children: React.ReactNode }) => {
 const App = () => (
   <TooltipProvider>
     <InitializeData />
-    <Toaster />
     <div className="app-container">
       <Routes>
         <Route path="/" element={<Index />} />
