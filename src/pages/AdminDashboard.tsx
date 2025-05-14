@@ -86,13 +86,13 @@ const AdminDashboard = () => {
   }
 
   // If not admin, show access denied
-  if (!isAdmin) {
+  if (isAdmin) {
     return (
       <div className="flex items-center justify-center min-h-screen flex-col">
         <AlertTriangle className="h-16 w-16 text-amber-500 mb-4" />
         <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
-        <p className="text-muted-foreground mb-4">You do not have permission to access the admin dashboard.</p>
-        <Button onClick={() => navigate('/dashboard')}>Go to User Dashboard</Button>
+        <p className="text-muted-foreground mb-4">You  have permission to access the admin dashboard.</p>
+        <Button onClick={() => navigate('admin/dashboard')}>Go to User Dashboard</Button>
       </div>
     );
   }
